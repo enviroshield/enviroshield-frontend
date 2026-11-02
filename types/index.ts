@@ -12,3 +12,4 @@ export * from "./booking.type";
 export * from "./settings.type";
 export * from "./user.type";
 export * from "./analytics.type";
+export * from "./notification.type";

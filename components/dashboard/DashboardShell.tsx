@@ -24,6 +24,7 @@ interface DashboardShellProps {
     name: string;
     email: string;
     image?: string | null;
+    role?: string | null;
   };
   navigation: DashboardNavItem[];
 }
@@ -41,8 +42,12 @@ export function DashboardShell({
         name: session.user.name,
         email: session.user.email,
         image: session.user.image ?? null,
+        role: session.user.role ?? role,
       }
-    : initialUser;
+    : {
+        ...initialUser,
+        role: initialUser.role ?? role,
+      };
 
   return (
     <SidebarProvider>
@@ -59,21 +64,15 @@ export function DashboardShell({
           {/* Subtle Enviroshield visual texture */}
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-0 grain opacity-[0.018]"
-          />
-
-          {/* Very subtle Enviroshield brand ambience */}
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -right-40 -top-40 h-[420px] w-[420px] rounded-full bg-blue/[0.025] blur-[120px]"
+            className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(1,110,220,0.06),transparent)]"
           />
 
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute -bottom-40 -left-40 h-[420px] w-[420px] rounded-full bg-paste/[0.02] blur-[120px]"
+            className="pointer-events-none absolute inset-y-0 right-0 -z-10 w-96 bg-[radial-gradient(circle_at_top_right,rgba(0,51,78,0.03),transparent_70%)]"
           />
 
-          <div className="relative">{children}</div>
+          {children}
         </main>
       </SidebarInset>
     </SidebarProvider>

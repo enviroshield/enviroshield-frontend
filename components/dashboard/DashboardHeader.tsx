@@ -2,7 +2,6 @@
 
 import {
   ArrowUpRight,
-  Bell,
   LogOut,
   Settings,
   User,
@@ -33,12 +32,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { Separator } from "@/components/ui/separator";
+import { NotificationBell } from "./notifications/NotificationBell";
 
 interface DashboardHeaderProps {
   user: {
     name: string;
     email: string;
     image?: string | null;
+    role?: string;
   };
 }
 
@@ -105,20 +106,7 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
           />
         </Link>
         
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          aria-label="Notifications"
-          className={cn(
-            "h-9 w-9 rounded-lg",
-            "text-ink/55",
-            "transition-colors duration-200",
-            "hover:bg-blue/[0.08] hover:text-blue",
-          )}
-        >
-          <Bell className="h-[16px] w-[16px]" />
-        </Button>
+        <NotificationBell role={user.role} />
 
         <DropdownMenu>
           <DropdownMenuTrigger>

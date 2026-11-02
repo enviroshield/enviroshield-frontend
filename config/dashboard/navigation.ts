@@ -1,5 +1,6 @@
 import {
   BarChart3,
+  Bell,
   CirclePile,
   ClipboardList,
   ClipboardCheck,
@@ -35,6 +36,7 @@ export const dashboardIcons = {
   myOrders: ShoppingBag,
   myServices: ClipboardList,
   serviceBookings: ClipboardCheck,
+  notifications: Bell,
 } satisfies Record<string, LucideIcon>;
 
 export type DashboardIcon = keyof typeof dashboardIcons;
@@ -73,6 +75,11 @@ export const dashboardNavigation: Record<
       title: "My Service Bookings",
       href: "/dashboard/my-services",
       icon: "myServices",
+    },
+    {
+      title: "Notifications",
+      href: "/dashboard/notifications",
+      icon: "notifications",
     },
   ],
 
@@ -142,6 +149,11 @@ export const dashboardNavigation: Record<
       title: "Users",
       href: "/dashboard/users",
       icon: "users",
+    },
+    {
+      title: "Notifications",
+      href: "/dashboard/notifications",
+      icon: "notifications",
     },
   ],
 };
