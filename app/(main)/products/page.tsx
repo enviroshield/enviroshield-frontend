@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AlertCircle, ChevronRight } from "lucide-react";
+import { AlertCircle, SlidersHorizontal, X } from "lucide-react";
 import type { Metadata } from "next";
 
 import {
@@ -10,6 +10,7 @@ import { Button } from "@/components/Button";
 import Container from "@/components/Container";
 import PageHero from "@/components/PageHero";
 import { ProductCard } from "@/components/ProductCard";
+import CategorySidebar from "@/components/products/CategorySidebar";
 import PriceFilter from "@/components/products/PriceFilter";
 import {
   Alert,
@@ -25,13 +26,11 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { Separator } from "@/components/ui/separator";
 import {
   getAllCategories,
   getPublishedProducts,
 } from "@/lib/api/products";
 import { siteUrl } from "@/lib/site-url";
-import { cn } from "@/lib/utils";
 
 type SearchParams = Record<
   string,
@@ -275,6 +274,17 @@ export default async function ProductsPage({
       ? categoriesResult.value
       : [];
 
+  const selectedCategory = categories.find(
+    (c) => c._id === categoryId,
+  );
+
+  const createCategoryHref = (id: string) =>
+    href({
+      ...state,
+      categoryId: id,
+      page: 1,
+    });
+
   const error =
     productsResult.status === "rejected"
       ? "Products could not be loaded right now. Please try again later."
@@ -300,16 +310,31 @@ export default async function ProductsPage({
       >
         <Container>
           <div className="grid grid-cols-[280px_1fr] items-start gap-12 max-[1000px]:grid-cols-1 max-[1000px]:gap-8">
-            {/* PRICE FILTER AND CATEGORIES */}
+            {/* PRODUCT FILTERS: CATEGORIES FIRST, THEN PRICE */}
 
             <aside
               aria-label="Product filters"
-              className="flex flex-col gap-8"
+              className="flex flex-col gap-6"
             >
-              <div>
-                <h3 className="mb-5 text-sm font-semibold uppercase tracking-wider text-navy">
-                  Filter by price
-                </h3>
+              <CategorySidebar
+                categories={categories}
+                activeCategoryId={categoryId}
+                minPrice={state.minPrice}
+                maxPrice={state.maxPrice}
+                hasError={categoriesResult.status === "rejected"}
+              />
+
+              <div className="overflow-hidden rounded-2xl border border-line/90 bg-white p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,51,78,0.06)]">
+                <div className="mb-4 flex items-center justify-between border-b border-line/60 pb-3">
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue/10 text-blue">
+                      <SlidersHorizontal size={15} />
+                    </span>
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-navy">
+                      Filter by price
+                    </h3>
+                  </div>
+                </div>
 
                 <PriceFilter
                   key={`${state.minPrice}-${state.maxPrice}`}
@@ -321,93 +346,77 @@ export default async function ProductsPage({
                   isFiltered={hasPrice}
                 />
               </div>
-
-              <Separator className="bg-line" />
-
-              <div>
-                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-navy">
-                  Categories
-                </h3>
-
-                <ul className="overflow-hidden rounded-2xl border border-line bg-white shadow-[0_4px_14px_rgba(0,51,78,0.05)]">
-                  {[
-                    { _id: "", name: "All products" },
-                    ...categories,
-                  ].map(
-                    (category: {
-                      _id: string;
-                      name: string;
-                    }) => {
-                      const active =
-                        category._id === categoryId;
-
-                      return (
-                        <li
-                          key={category._id || "all"}
-                          className="border-b border-line last:border-b-0"
-                        >
-                          <Link
-                            href={href({
-                              ...state,
-                              categoryId: category._id,
-                              page: 1,
-                            })}
-                            scroll={false}
-                            aria-current={
-                              active ? "true" : undefined
-                            }
-                            className={cn(
-                              "group relative flex items-center justify-between gap-3 px-5 py-3.5 text-sm transition-all duration-300",
-                              active
-                                ? "bg-mist font-semibold text-blue"
-                                : "text-ink/80 hover:bg-mist/70 hover:pl-6 hover:text-navy",
-                            )}
-                          >
-                            <span
-                              aria-hidden
-                              className={cn(
-                                "absolute inset-y-0 left-0 w-[3px] origin-center bg-blue transition-transform duration-300",
-                                active
-                                  ? "scale-y-100"
-                                  : "scale-y-0 group-hover:scale-y-100",
-                              )}
-                            />
-
-                            <span className="truncate">
-                              {category.name}
-                            </span>
-
-                            <ChevronRight
-                              aria-hidden
-                              size={16}
-                              className={cn(
-                                "shrink-0 transition-all duration-300",
-                                active
-                                  ? "text-blue opacity-100"
-                                  : "-translate-x-1 text-blue opacity-0 group-hover:translate-x-0 group-hover:opacity-100",
-                              )}
-                            />
-                          </Link>
-                        </li>
-                      );
-                    },
-                  )}
-                </ul>
-
-                {categoriesResult.status === "rejected" && (
-                  <p
-                    role="status"
-                    className="mt-2 text-xs text-amber-800"
-                  >
-                    Categories could not be loaded.
-                  </p>
-                )}
-              </div>
             </aside>
 
             {/* PRODUCT LISTING */}
 
             <div className="min-w-0">
+              {/* Contextual Category Header & Active Filters Bar */}
+              <div className="mb-8 flex flex-col gap-4 border-b border-line/80 pb-5 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <h2 className="text-2xl font-bold tracking-tight text-navy sm:text-3xl">
+                      {selectedCategory ? selectedCategory.name : "All Products"}
+                    </h2>
+                    <span className="inline-flex items-center rounded-full border border-line bg-mist/80 px-2.5 py-0.5 text-xs font-semibold text-ink/75">
+                      {productResponse?.meta.total ?? 0}{" "}
+                      {(productResponse?.meta.total ?? 0) === 1
+                        ? "Product"
+                        : "Products"}
+                    </span>
+                  </div>
+
+                  <p className="mt-1.5 text-sm text-ink/70">
+                    {selectedCategory
+                      ? `Browsing our specialized range in ${selectedCategory.name}.`
+                      : "Engineered coatings, primers, and protective materials for demanding conditions."}
+                  </p>
+                </div>
+
+                {/* Active filter badges if any filter is active */}
+                {hasFilters && (
+                  <div className="flex flex-wrap items-center gap-2">
+                    {selectedCategory && (
+                      <Link
+                        href={createCategoryHref("")}
+                        scroll={false}
+                        aria-label={`Remove filter: ${selectedCategory.name}`}
+                        className="group inline-flex items-center gap-1.5 rounded-full border border-blue/20 bg-blue/10 px-3 py-1 text-xs font-semibold text-blue transition hover:bg-blue hover:text-white"
+                      >
+                        <span>{selectedCategory.name}</span>
+                        <X size={12} className="stroke-[2.5]" />
+                      </Link>
+                    )}
+
+                    {hasPrice && (
+                      <Link
+                        href={href({
+                          ...state,
+                          minPrice: "",
+                          maxPrice: "",
+                          page: 1,
+                        })}
+                        scroll={false}
+                        aria-label="Remove price filter"
+                        className="group inline-flex items-center gap-1.5 rounded-full border border-line bg-mist px-3 py-1 text-xs font-semibold text-ink/80 transition hover:bg-line/60 hover:text-navy"
+                      >
+                        <span>
+                          ৳{minPrice ?? 0} – ৳{maxPrice ?? PRICE_MAX}
+                        </span>
+                        <X size={12} className="stroke-[2.5]" />
+                      </Link>
+                    )}
+
+                    <Link
+                      href="/products"
+                      scroll={false}
+                      className="ml-1 text-xs font-bold text-navy underline underline-offset-4 hover:text-blue"
+                    >
+                      Clear all
+                    </Link>
+                  </div>
+                )}
+              </div>
               {error ? (
                 <Alert variant="destructive">
                   <AlertCircle />
