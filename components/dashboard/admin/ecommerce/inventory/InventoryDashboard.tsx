@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   AlertTriangle,
   ArrowDownToLine,
@@ -15,6 +15,11 @@ import {
   TrendingDown,
 } from "lucide-react";
 import { toast } from "sonner";
+import {
+  tableFeatures,
+  useTable,
+  type ColumnDef,
+} from "@tanstack/react-table";
 
 import DashboardButton from "@/components/dashboard/DashboardButton";
 import { Badge } from "@/components/ui/badge";
@@ -30,6 +35,7 @@ import type {
 } from "@/types/inventory.type";
 
 const PAGE_SIZE = 10;
+const features = tableFeatures({});
 
 function SummaryCard({
   title,
@@ -242,6 +248,81 @@ export default function InventoryDashboard() {
   const movements = movementsData?.movements ?? [];
   const movementsPagination = movementsData?.pagination;
 
+  const lowStockColumns: ColumnDef<typeof features, InventoryProduct>[] = useMemo(
+    () => [
+      {
+        id: "product",
+        header: "Product",
+        cell: ({ row }) => {
+          const product = row.original;
+          return (
+            <div className="flex items-center gap-3">
+              <ProductThumbnail product={product} />
+              <div className="min-w-0">
+                <p className="max-w-[280px] truncate text-sm font-semibold text-navy">
+                  {product.name}
+                </p>
+                <p className="mt-1 text-xs text-slate-400">{product.sku}</p>
+              </div>
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: "stockQuantity",
+        header: "Stock Quantity",
+        cell: ({ row }) => {
+          const product = row.original;
+          return (
+            <span
+              className={`text-sm font-bold ${
+                product.stockQuantity === 0 ? "text-red-600" : "text-amber-700"
+              }`}
+            >
+              {product.stockQuantity.toLocaleString("en-BD")} units
+            </span>
+          );
+        },
+      },
+      {
+        accessorKey: "lowStockThreshold",
+        header: "Low-Stock Threshold",
+        cell: ({ row }) => {
+          const product = row.original;
+          return (
+            <span className="text-sm text-slate-600">
+              {product.lowStockThreshold.toLocaleString("en-BD")} units
+            </span>
+          );
+        },
+      },
+      {
+        id: "stockStatus",
+        header: "Stock Status",
+        cell: ({ row }) => <StockBadge product={row.original} />,
+      },
+      {
+        accessorKey: "status",
+        header: "Product Status",
+        cell: ({ row }) => (
+          <Badge
+            variant="outline"
+            className="rounded-full px-2.5 py-1 text-[11px] capitalize text-slate-600"
+          >
+            {row.original.status}
+          </Badge>
+        ),
+      },
+    ],
+    [],
+  );
+
+  const lowStockTable = useTable({
+    features,
+    columns: lowStockColumns,
+    data: lowStockProducts,
+  });
+
   const exportCsv = async (
     endpoint: string,
     fallbackFilename: string,
@@ -408,53 +489,36 @@ export default function InventoryDashboard() {
             <div className="overflow-x-auto">
               <table className="w-full min-w-[760px]">
                 <thead>
-                  <tr className="border-b border-slate-100 bg-slate-50/80">
-                    {[
-                      "Product",
-                      "Stock Quantity",
-                      "Low-Stock Threshold",
-                      "Stock Status",
-                      "Product Status",
-                    ].map((heading) => (
-                      <th
-                        key={heading}
-                        className="px-5 py-4 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400 first:pl-6 last:pr-6"
-                      >
-                        {heading}
-                      </th>
-                    ))}
-                  </tr>
+                  {lowStockTable.getHeaderGroups().map((headerGroup) => (
+                    <tr
+                      key={headerGroup.id}
+                      className="border-b border-slate-100 bg-slate-50/80"
+                    >
+                      {headerGroup.headers.map((header) => (
+                        <th
+                          key={header.id}
+                          className="px-5 py-4 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400 first:pl-6 last:pr-6"
+                        >
+                          <lowStockTable.FlexRender header={header} />
+                        </th>
+                      ))}
+                    </tr>
+                  ))}
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {lowStockProducts.map((product) => (
-                    <tr key={product._id} className="transition-colors hover:bg-slate-50/70">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <ProductThumbnail product={product} />
-                          <div className="min-w-0">
-                            <p className="max-w-[280px] truncate text-sm font-semibold text-navy">
-                              {product.name}
-                            </p>
-                            <p className="mt-1 text-xs text-slate-400">{product.sku}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-5 py-4">
-                        <span className={`text-sm font-bold ${product.stockQuantity === 0 ? "text-red-600" : "text-amber-700"}`}>
-                          {product.stockQuantity.toLocaleString("en-BD")} units
-                        </span>
-                      </td>
-                      <td className="px-5 py-4 text-sm text-slate-600">
-                        {product.lowStockThreshold.toLocaleString("en-BD")} units
-                      </td>
-                      <td className="px-5 py-4">
-                        <StockBadge product={product} />
-                      </td>
-                      <td className="px-5 py-4">
-                        <Badge variant="outline" className="rounded-full px-2.5 py-1 text-[11px] capitalize text-slate-600">
-                          {product.status}
-                        </Badge>
-                      </td>
+                  {lowStockTable.getRowModel().rows.map((row) => (
+                    <tr
+                      key={row.id}
+                      className="transition-colors hover:bg-slate-50/70"
+                    >
+                      {row.getAllCells().map((cell) => (
+                        <td
+                          key={cell.id}
+                          className="px-5 py-4 first:pl-6 last:pr-6"
+                        >
+                          <lowStockTable.FlexRender cell={cell} />
+                        </td>
+                      ))}
                     </tr>
                   ))}
                 </tbody>

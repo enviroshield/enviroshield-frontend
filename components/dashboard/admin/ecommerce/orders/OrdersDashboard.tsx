@@ -16,6 +16,12 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
+import {
+  tableFeatures,
+  useTable,
+  type ColumnDef,
+} from "@tanstack/react-table";
+
 import DashboardButton from "@/components/dashboard/DashboardButton";
 import DashboardEmpty from "@/components/dashboard/DashboardEmpty";
 import DashboardError from "@/components/dashboard/DashboardError";
@@ -54,6 +60,7 @@ import {
 import OrderDetailsModal from "./OrderDetailsModal";
 
 const PAGE_SIZE = 10;
+const features = tableFeatures({});
 
 const orderStatusClasses: Record<string, string> = {
   pending: "border-amber-200 bg-amber-50 text-amber-700",
@@ -108,6 +115,7 @@ export default function OrdersDashboard() {
   const [activeAction, setActiveAction] = useState<
     "details" | "status" | "payment" | "cancel" | null
   >(null);
+
   useEffect(() => {
     const timeout = setTimeout(() => {
       setDebouncedSearch(search.trim());
@@ -129,24 +137,22 @@ export default function OrdersDashboard() {
   const { data, isLoading, isError, refetch } =
     useFetch<OrdersResponse>(endpoint);
 
-  const hasActiveFilters =
-    search.trim() !== "" ||
-    Boolean(orderStatus) ||
-    Boolean(paymentStatus);
-  const isSearchPending = search.trim() !== debouncedSearch;
+  const orders = useMemo(() => data?.data ?? [], [data?.data]);
+  const meta = data?.meta;
+  const totalPages = meta?.totalPages ?? 1;
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setCurrentPage(1);
+  };
 
   const handleOrderStatusChange = (value: string | null) => {
-    setOrderStatus(value === "all" || value === null ? "" : value);
+    setOrderStatus(value === "all" || !value ? "" : value);
     setCurrentPage(1);
   };
 
   const handlePaymentStatusChange = (value: string | null) => {
-    setPaymentStatus(value === "all" || value === null ? "" : value);
-    setCurrentPage(1);
-  };
-
-  const handleSearchChange = (value: string) => {
-    setSearch(value);
+    setPaymentStatus(value === "all" || !value ? "" : value);
     setCurrentPage(1);
   };
 
@@ -163,36 +169,223 @@ export default function OrdersDashboard() {
     setSelectedOrder(null);
   };
 
-  const handleActionSuccess = async (
-    updatedOrder: AdminOrder,
-    message: string,
-  ) => {
-    await refetch(
-      (current) =>
-        current
-          ? {
-              ...current,
-              data: current.data.map((item) =>
-                item._id === updatedOrder._id ? updatedOrder : item,
-              ),
-            }
-          : current,
-      { revalidate: false },
-    );
-    setSelectedOrder(updatedOrder);
-    setActiveAction(null);
-    toast.success(message);
+  const handleActionSuccess = async () => {
+    closeAction();
     await refetch();
-    setSelectedOrder(null);
+    toast.success("Order record updated.");
   };
 
-  if (isLoading && !data) return <DashboardLoading />;
-  if (isError && !data)
-    return <DashboardError onRetry={() => void refetch()} />;
+  const hasActiveFilters = Boolean(
+    debouncedSearch || orderStatus || paymentStatus,
+  );
 
-  const orders = data?.data ?? [];
-  const meta = data?.meta;
-  const totalPages = meta?.totalPages ?? 1;
+  const isSearchPending =
+    search.trim() !== debouncedSearch && isLoading;
+
+  const columns: ColumnDef<typeof features, AdminOrder>[] = [
+    {
+      accessorKey: "orderNumber",
+      header: "Order",
+      cell: ({ row }) => {
+        const order = row.original;
+        return (
+          <div>
+            <p className="font-medium text-navy">{order.orderNumber}</p>
+            <p className="mt-1 text-[11px] text-slate-400">
+              {order.paymentMethod === "cod"
+                ? "Cash on delivery"
+                : prettyOrderStatus(order.paymentMethod)}
+            </p>
+          </div>
+        );
+      },
+    },
+    {
+      id: "customer",
+      header: "Customer",
+      cell: ({ row }) => {
+        const order = row.original;
+        return (
+          <div>
+            <p className="font-medium">{order.customer.name}</p>
+            <p className="mt-1 text-[11px] text-slate-400">
+              {order.customer.phone}
+            </p>
+            <p className="mt-0.5 text-[11px] text-slate-400">
+              {order.customer.email}
+            </p>
+          </div>
+        );
+      },
+    },
+    {
+      id: "items",
+      header: "Items",
+      cell: ({ row }) => {
+        const order = row.original;
+        const units = order.items.reduce(
+          (sum, item) => sum + item.quantity,
+          0,
+        );
+        return (
+          <div>
+            <p className="font-medium">
+              {order.items.length}{" "}
+              {order.items.length === 1 ? "item" : "items"}
+            </p>
+            <p className="mt-1 text-[11px] text-slate-400">
+              {units} {units === 1 ? "unit" : "units"}
+            </p>
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "createdAt",
+      header: "Date",
+      cell: ({ row }) => {
+        const order = row.original;
+        return (
+          <span className="inline-flex whitespace-nowrap items-center gap-2 text-sm text-muted-foreground">
+            <CalendarDays className="h-4 w-4" />
+            {formatOrderDate(order.createdAt)}
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: "totalAmount",
+      header: "Amount",
+      cell: ({ row }) => {
+        const order = row.original;
+        return (
+          <span className="whitespace-nowrap font-medium">
+            {formatOrderAmount(order.totalAmount, order.currency)}
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: "paymentStatus",
+      header: "Payment",
+      cell: ({ row }) => {
+        const order = row.original;
+        return (
+          <StatusBadge
+            status={order.paymentStatus}
+            classes={paymentStatusClasses}
+          />
+        );
+      },
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => {
+        const order = row.original;
+        return (
+          <StatusBadge
+            status={order.status}
+            classes={orderStatusClasses}
+          />
+        );
+      },
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => {
+        const order = row.original;
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <DashboardButton
+                variant="outline"
+                className="h-8 w-8 rounded-lg border-blue/30 bg-muted/30 p-0 text-navy shadow-sm transition-all duration-200 hover:border-blue/30 hover:bg-blue/10 hover:text-blue hover:shadow-md"
+                icon={<MoreHorizontal className="h-4 w-4" />}
+                ariaLabel={`Actions for order ${order.orderNumber}`}
+              />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-52">
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => {
+                    setSelectedOrder(order);
+                    setActiveAction("details");
+                  }}
+                >
+                  <Eye className="mr-2 h-4 w-4" />
+                  View Details
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  disabled={
+                    order.status === "delivered" ||
+                    order.status === "cancelled"
+                  }
+                  onClick={() => {
+                    setSelectedOrder(order);
+                    setActiveAction("status");
+                  }}
+                >
+                  <Truck className="mr-2 h-4 w-4" />
+                  Update Order Status
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  disabled={
+                    order.paymentStatus === "failed" ||
+                    order.paymentStatus === "refunded"
+                  }
+                  onClick={() => {
+                    setSelectedOrder(order);
+                    setActiveAction("payment");
+                  }}
+                >
+                  <CheckCircle className="mr-2 h-4 w-4" />
+                  Update Payment Status
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer text-red-600 focus:text-red-600"
+                  disabled={
+                    ![
+                      "pending",
+                      "confirmed",
+                      "processing",
+                    ].includes(order.status)
+                  }
+                  onClick={() => {
+                    setSelectedOrder(order);
+                    setActiveAction("cancel");
+                  }}
+                >
+                  <Ban className="mr-2 h-4 w-4" />
+                  Cancel Order
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
+  ];
+
+  const table = useTable({
+    features,
+    columns,
+    data: orders,
+  });
+
+  if (isLoading && !data) {
+    return <DashboardLoading />;
+  }
+
+  if (isError) {
+    return <DashboardError onRetry={() => void refetch()} />;
+  }
 
   return (
     <section className="container mx-auto px-5 py-8 lg:px-0">
@@ -323,184 +516,34 @@ export default function OrdersDashboard() {
           <div className="overflow-x-auto">
             <table className="w-full min-w-[980px]">
               <thead className="border-b bg-muted/50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-muted-foreground">
-                    Order
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-muted-foreground">
-                    Customer
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-muted-foreground">
-                    Items
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-muted-foreground">
-                    Date
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-muted-foreground">
-                    Amount
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-muted-foreground">
-                    Payment
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-muted-foreground">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-muted-foreground">
-                    Actions
-                  </th>
-                </tr>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <tr key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => (
+                      <th
+                        key={header.id}
+                        className="px-6 py-3 text-left text-sm font-medium text-muted-foreground"
+                      >
+                        {header.isPlaceholder ? null : (
+                          <table.FlexRender header={header} />
+                        )}
+                      </th>
+                    ))}
+                  </tr>
+                ))}
               </thead>
               <tbody>
-                {orders.map((order) => {
-                  const units = order.items.reduce(
-                    (sum, item) => sum + item.quantity,
-                    0,
-                  );
-
-                  return (
-                    <tr
-                      key={order._id}
-                      className="border-b transition-colors last:border-0 hover:bg-muted/30"
-                    >
-                      <td className="px-6 py-4">
-                        <p className="font-medium text-navy">
-                          {order.orderNumber}
-                        </p>
-                        <p className="mt-1 text-[11px] text-slate-400">
-                          {order.paymentMethod === "cod"
-                            ? "Cash on delivery"
-                            : prettyOrderStatus(order.paymentMethod)}
-                        </p>
+                {table.getRowModel().rows.map((row) => (
+                  <tr
+                    key={row.id}
+                    className="border-b transition-colors last:border-0 hover:bg-muted/30"
+                  >
+                    {row.getAllCells().map((cell) => (
+                      <td key={cell.id} className="px-6 py-4">
+                        <table.FlexRender cell={cell} />
                       </td>
-                      <td className="px-6 py-4">
-                        <p className="font-medium">
-                          {order.customer.name}
-                        </p>
-                        <p className="mt-1 text-[11px] text-slate-400">
-                          {order.customer.phone}
-                        </p>
-                        <p className="mt-0.5 text-[11px] text-slate-400">
-                          {order.customer.email}
-                        </p>
-                      </td>
-                      <td className="px-6 py-4">
-                        <p className="font-medium">
-                          {order.items.length}{" "}
-                          {order.items.length === 1
-                            ? "item"
-                            : "items"}
-                        </p>
-                        <p className="mt-1 text-[11px] text-slate-400">
-                          {units} {units === 1 ? "unit" : "units"}
-                        </p>
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4">
-                        <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-                          <CalendarDays className="h-4 w-4" />
-                          {formatOrderDate(order.createdAt)}
-                        </span>
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4 font-medium">
-                        {formatOrderAmount(
-                          order.totalAmount,
-                          order.currency,
-                        )}
-                      </td>
-                      <td className="px-6 py-4">
-                        <StatusBadge
-                          status={order.paymentStatus}
-                          classes={paymentStatusClasses}
-                        />
-                      </td>
-                      <td className="px-6 py-4">
-                        <StatusBadge
-                          status={order.status}
-                          classes={orderStatusClasses}
-                        />
-                      </td>
-                      <td className="px-6 py-4">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger>
-                            <DashboardButton
-                              variant="outline"
-                              className="h-8 w-8 rounded-lg border-blue/30 bg-muted/30 p-0 text-navy shadow-sm transition-all duration-200 hover:border-blue/30 hover:bg-blue/10 hover:text-blue hover:shadow-md"
-                              icon={
-                                <MoreHorizontal className="h-4 w-4" />
-                              }
-                              ariaLabel={`Actions for order ${order.orderNumber}`}
-                            />
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent
-                            align="end"
-                            className="w-52"
-                          >
-                            <DropdownMenuGroup>
-                              <DropdownMenuLabel>
-                                Actions
-                              </DropdownMenuLabel>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                className="cursor-pointer"
-                                onClick={() => {
-                                  setSelectedOrder(order);
-                                  setActiveAction("details");
-                                }}
-                              >
-                                <Eye className="mr-2 h-4 w-4" />
-                                View Details
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                className="cursor-pointer"
-                                disabled={
-                                  order.status === "delivered" ||
-                                  order.status === "cancelled"
-                                }
-                                onClick={() => {
-                                  setSelectedOrder(order);
-                                  setActiveAction("status");
-                                }}
-                              >
-                                <Truck className="mr-2 h-4 w-4" />
-                                Update Order Status
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                className="cursor-pointer"
-                                disabled={
-                                  order.paymentStatus === "failed" ||
-                                  order.paymentStatus === "refunded"
-                                }
-                                onClick={() => {
-                                  setSelectedOrder(order);
-                                  setActiveAction("payment");
-                                }}
-                              >
-                                <CheckCircle className="mr-2 h-4 w-4" />
-                                Update Payment Status
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                className="cursor-pointer text-red-600 focus:text-red-600"
-                                disabled={
-                                  ![
-                                    "pending",
-                                    "confirmed",
-                                    "processing",
-                                  ].includes(order.status)
-                                }
-                                onClick={() => {
-                                  setSelectedOrder(order);
-                                  setActiveAction("cancel");
-                                }}
-                              >
-                                <Ban className="mr-2 h-4 w-4" />
-                                Cancel Order
-                              </DropdownMenuItem>
-                            </DropdownMenuGroup>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </td>
-                    </tr>
-                  );
-                })}
+                    ))}
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
