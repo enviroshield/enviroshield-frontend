@@ -30,6 +30,7 @@ import type { IContact, TContactStatus } from "@/types";
 import { getAllowedContactStatusTransitions } from "@/types/contact.type";
 
 import DashboardButton from "../../DashboardButton";
+import StatusPipelineGuide from "@/components/dashboard/StatusPipelineGuide";
 
 type EditContactModalProps = {
   contact: IContact | null;
@@ -198,6 +199,13 @@ export default function EditContactModal({
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="space-y-6 px-6 py-6 sm:px-7">
+            {/* Pipeline Flow Guide */}
+            <StatusPipelineGuide
+              type="contact"
+              currentStatus={currentStatus}
+              selectedStatus={!isTerminal ? selectedStatus : undefined}
+            />
+
             {/* Terminal Status Warning Banner */}
             {isTerminal && (
               <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs text-amber-800">

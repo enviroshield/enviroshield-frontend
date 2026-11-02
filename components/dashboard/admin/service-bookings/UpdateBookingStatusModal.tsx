@@ -28,6 +28,7 @@ import {
   type BookingStatus,
 } from "@/types/booking.type";
 import { formatBookingStatus, getBookingStatusClass } from "./bookingUtils";
+import StatusPipelineGuide from "@/components/dashboard/StatusPipelineGuide";
 
 type UpdateBookingStatusModalProps = {
   booking: Booking | null;
@@ -125,6 +126,13 @@ export default function UpdateBookingStatusModal({
 
           <form onSubmit={onSubmit} className="flex flex-1 flex-col overflow-hidden">
             <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-6 py-6 sm:px-8">
+              {/* Pipeline Flow Guide */}
+              <StatusPipelineGuide
+                type="booking"
+                currentStatus={currentStatus}
+                selectedStatus={!isTerminal ? selectedStatus : undefined}
+              />
+
               {/* Current Status Box */}
               <div className="flex items-center justify-between rounded-xl border bg-muted/20 p-4 text-sm">
                 <div>

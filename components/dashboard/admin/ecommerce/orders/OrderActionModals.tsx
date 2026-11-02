@@ -40,6 +40,7 @@ import {
   prettyOrderStatus,
   type OrderMutationResponse,
 } from "./orderActionUtils";
+import StatusPipelineGuide from "@/components/dashboard/StatusPipelineGuide";
 
 type OrderActionModalProps = {
   order: AdminOrder | null;
@@ -143,6 +144,13 @@ export function UpdateOrderStatusModal({
           </DialogHeader>
 
           <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-6 py-6 sm:px-8">
+            {/* Pipeline Flow Guide */}
+            <StatusPipelineGuide
+              type="order"
+              currentStatus={currentStatus}
+              selectedStatus={!isTerminal ? (status as string) : undefined}
+            />
+
             <div className="flex items-center justify-between rounded-xl border bg-muted/20 p-4 text-sm">
               <div>
                 <span className="text-muted-foreground">
@@ -393,6 +401,13 @@ export function UpdatePaymentStatusModal({
           </DialogHeader>
 
           <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-6 py-6 sm:px-8">
+            {/* Pipeline Flow Guide */}
+            <StatusPipelineGuide
+              type="payment"
+              currentStatus={currentPaymentStatus}
+              selectedStatus={!isTerminal ? (paymentStatus as string) : undefined}
+            />
+
             <div className="flex items-center justify-between rounded-xl border bg-muted/20 p-4 text-sm">
               <div>
                 <span className="text-muted-foreground">
