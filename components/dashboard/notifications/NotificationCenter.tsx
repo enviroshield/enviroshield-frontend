@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import useSWR from "swr";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   AlertTriangle,
@@ -25,6 +24,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import DashboardButton from "@/components/dashboard/DashboardButton";
 import {
   deleteNotification,
   fetchNotifications,
@@ -37,7 +37,6 @@ import { cn } from "@/lib/utils";
 import { INotification, TNotificationType } from "@/types/notification.type";
 
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 
 interface NotificationCenterProps {
   role?: string | null;
@@ -98,7 +97,6 @@ export function NotificationCenter({ role }: NotificationCenterProps) {
 
   const {
     data: notifData,
-    error,
     isLoading,
     mutate,
   } = useSWR(
@@ -199,92 +197,96 @@ export function NotificationCenter({ role }: NotificationCenterProps) {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
+        <div className="flex items-center gap-2.5">
+          <DashboardButton
             variant="outline"
-            size="sm"
             onClick={() => void mutate()}
-            className="h-9 gap-1.5 rounded-xl border-line bg-white text-ink/70 hover:text-navy"
+            icon={
+              <RefreshCw
+                className={cn("h-4 w-4 mr-1.5", isLoading && "animate-spin")}
+              />
+            }
+            className="h-9 rounded-full border-blue/30 bg-muted/30 px-4 text-xs font-semibold text-navy shadow-xs transition-all duration-200 hover:border-blue/30 hover:bg-blue/10 hover:text-blue hover:shadow-sm"
           >
-            <RefreshCw className={cn("h-4 w-4", isLoading && "animate-spin")} />
             <span className="hidden sm:inline">Refresh</span>
-          </Button>
+          </DashboardButton>
 
-          <Button
-            type="button"
-            size="sm"
+          <DashboardButton
             onClick={handleMarkAll}
             disabled={markingAll || unreadCount === 0}
-            className="h-9 gap-1.5 rounded-xl bg-navy text-white hover:bg-navy-dark disabled:opacity-50"
+            icon={
+              markingAll ? (
+                <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+              ) : (
+                <CheckCheck className="h-4 w-4 mr-1.5" />
+              )
+            }
+            className="h-9 rounded-full bg-blue px-4 text-xs font-semibold text-white shadow-[0_4px_14px_rgba(1,110,220,0.22)] transition-all duration-200 hover:bg-[#005cb9] hover:shadow-[0_6px_18px_rgba(1,110,220,0.28)] disabled:opacity-50 disabled:shadow-none"
           >
-            {markingAll ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <CheckCheck className="h-4 w-4" />
-            )}
             <span>Mark all read</span>
-          </Button>
+          </DashboardButton>
         </div>
       </div>
 
-      {/* Filter Tabs & Stats */}
-      <div className="flex items-center justify-between border-b border-line pb-3">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
+      {/* Filter Tabs using DashboardButton styling */}
+      <div className="flex items-center justify-between border-b border-line pb-4">
+        <div className="flex items-center gap-2.5">
+          <DashboardButton
+            variant={!unreadOnly ? "default" : "outline"}
             onClick={() => {
               setUnreadOnly(false);
               setPage(1);
             }}
             className={cn(
-              "flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-colors sm:text-sm",
+              "h-9 rounded-full px-4 text-xs font-semibold transition-all duration-200 sm:text-sm",
               !unreadOnly
-                ? "bg-navy text-white shadow-xs"
-                : "text-ink/60 hover:bg-white hover:text-navy",
+                ? "bg-blue text-white shadow-[0_4px_14px_rgba(1,110,220,0.22)] hover:bg-[#005cb9]"
+                : "border-blue/30 bg-muted/30 text-navy hover:border-blue/30 hover:bg-blue/10 hover:text-blue shadow-xs",
             )}
           >
             <span>All</span>
             <span
               className={cn(
-                "rounded-full px-1.5 py-0.5 text-[11px]",
-                !unreadOnly ? "bg-white/20 text-white" : "bg-line/70 text-ink/60",
+                "ml-1.5 rounded-full px-2 py-0.5 text-[11px]",
+                !unreadOnly
+                  ? "bg-white/20 text-white font-bold"
+                  : "bg-blue/10 text-blue font-bold",
               )}
             >
               {meta.total}
             </span>
-          </button>
+          </DashboardButton>
 
-          <button
-            type="button"
+          <DashboardButton
+            variant={unreadOnly ? "default" : "outline"}
             onClick={() => {
               setUnreadOnly(true);
               setPage(1);
             }}
             className={cn(
-              "flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-colors sm:text-sm",
+              "h-9 rounded-full px-4 text-xs font-semibold transition-all duration-200 sm:text-sm",
               unreadOnly
-                ? "bg-navy text-white shadow-xs"
-                : "text-ink/60 hover:bg-white hover:text-navy",
+                ? "bg-blue text-white shadow-[0_4px_14px_rgba(1,110,220,0.22)] hover:bg-[#005cb9]"
+                : "border-blue/30 bg-muted/30 text-navy hover:border-blue/30 hover:bg-blue/10 hover:text-blue shadow-xs",
             )}
           >
             <span>Unread</span>
             {unreadCount > 0 && (
               <span
                 className={cn(
-                  "rounded-full px-1.5 py-0.5 text-[11px] font-bold",
+                  "ml-1.5 rounded-full px-2 py-0.5 text-[11px] font-bold",
                   unreadOnly
-                    ? "bg-white text-navy"
+                    ? "bg-white text-blue"
                     : "bg-blue text-white",
                 )}
               >
                 {unreadCount}
               </span>
             )}
-          </button>
+          </DashboardButton>
         </div>
 
-        <p className="text-xs text-ink/45">
+        <p className="text-xs text-muted-foreground font-medium">
           Showing {notifications.length} of {meta.total} notifications
         </p>
       </div>
@@ -412,15 +414,13 @@ export function NotificationCenter({ role }: NotificationCenterProps) {
                   )}
                 </Button>
 
-                <Button
-                  type="button"
-                  size="sm"
+                <DashboardButton
                   onClick={() => handleNavigate(notification)}
-                  className="h-8 gap-1.5 rounded-xl bg-blue px-3 text-xs font-semibold text-white hover:bg-blue-dark shadow-xs"
+                  icon={<ArrowRight className="h-3.5 w-3.5 ml-1" />}
+                  className="h-8 rounded-full bg-blue px-3.5 text-xs font-semibold text-white shadow-xs transition-all duration-200 hover:bg-[#005cb9]"
                 >
                   <span>View Details</span>
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </Button>
+                </DashboardButton>
               </div>
             </div>
           ))

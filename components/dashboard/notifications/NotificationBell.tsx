@@ -10,7 +10,6 @@ import {
   Boxes,
   Calendar,
   CalendarCheck,
-  Check,
   CheckCheck,
   CheckCircle2,
   ExternalLink,
@@ -21,8 +20,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import DashboardButton from "@/components/dashboard/DashboardButton";
 import {
-  deleteNotification,
   fetchNotifications,
   fetchUnreadCount,
   markAllNotificationsAsRead,
@@ -111,7 +110,6 @@ export function NotificationBell({ role }: NotificationBellProps) {
   // Fetch recent notifications when dropdown is open or unread filter changes
   const {
     data: notifData,
-    error: notifError,
     isLoading: notifLoading,
     mutate: mutateList,
   } = useSWR(
@@ -238,32 +236,32 @@ export function NotificationBell({ role }: NotificationBellProps) {
           </button>
         </div>
 
-        {/* Filter Tabs */}
-        <div className="flex items-center gap-2 border-b border-line/60 px-4 py-2 bg-white">
-          <button
-            type="button"
+        {/* Filter Tabs using DashboardButton styling */}
+        <div className="flex items-center gap-2 border-b border-line/60 px-4 py-2.5 bg-white">
+          <DashboardButton
+            variant={!unreadOnly ? "default" : "outline"}
             onClick={() => setUnreadOnly(false)}
             className={cn(
-              "rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors",
+              "h-7 rounded-full px-3 text-xs font-semibold transition-all duration-200",
               !unreadOnly
-                ? "bg-navy text-white shadow-xs"
-                : "text-ink/60 hover:bg-mist hover:text-navy",
+                ? "bg-blue text-white shadow-[0_2px_8px_rgba(1,110,220,0.25)] hover:bg-[#005cb9]"
+                : "border-blue/30 bg-muted/30 text-navy hover:border-blue/30 hover:bg-blue/10 hover:text-blue shadow-none",
             )}
           >
             All
-          </button>
-          <button
-            type="button"
+          </DashboardButton>
+          <DashboardButton
+            variant={unreadOnly ? "default" : "outline"}
             onClick={() => setUnreadOnly(true)}
             className={cn(
-              "rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors",
+              "h-7 rounded-full px-3 text-xs font-semibold transition-all duration-200",
               unreadOnly
-                ? "bg-navy text-white shadow-xs"
-                : "text-ink/60 hover:bg-mist hover:text-navy",
+                ? "bg-blue text-white shadow-[0_2px_8px_rgba(1,110,220,0.25)] hover:bg-[#005cb9]"
+                : "border-blue/30 bg-muted/30 text-navy hover:border-blue/30 hover:bg-blue/10 hover:text-blue shadow-none",
             )}
           >
             Unread
-          </button>
+          </DashboardButton>
         </div>
 
         {/* Notification List */}
