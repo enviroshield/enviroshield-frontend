@@ -83,6 +83,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly",
       priority: 0.8,
     },
+    {
+      url: `${siteUrl}/best-roof-waterproofing-company-in-bangladesh`,
+      lastModified: new Date("2026-03-13T00:00:00.000Z"),
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
   ];
 
   /* ------------------------------------------------------------------------ */
