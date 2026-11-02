@@ -71,3 +71,51 @@ export interface OrderSingleResponse {
   data: AdminOrder;
 }
 
+export const ORDER_STATUS_TRANSITIONS: Record<
+  OrderStatus,
+  readonly OrderStatus[]
+> = {
+  pending: ["confirmed", "cancelled"],
+  confirmed: ["processing", "cancelled"],
+  processing: ["shipped", "cancelled"],
+  shipped: ["delivered"],
+  delivered: [],
+  cancelled: [],
+} as const;
+
+export const getAllowedOrderStatusTransitions = (
+  currentStatus: OrderStatus,
+): readonly OrderStatus[] => {
+  return ORDER_STATUS_TRANSITIONS[currentStatus] ?? [];
+};
+
+export const isAllowedOrderStatusTransition = (
+  currentStatus: OrderStatus,
+  nextStatus: OrderStatus,
+): boolean => {
+  return (getAllowedOrderStatusTransitions(currentStatus) as readonly string[]).includes(nextStatus);
+};
+
+export const PAYMENT_STATUS_TRANSITIONS: Record<
+  OrderPaymentStatus,
+  readonly OrderPaymentStatus[]
+> = {
+  pending: ["paid", "failed"],
+  paid: ["refunded"],
+  failed: [],
+  refunded: [],
+} as const;
+
+export const getAllowedPaymentStatusTransitions = (
+  currentStatus: OrderPaymentStatus,
+): readonly OrderPaymentStatus[] => {
+  return PAYMENT_STATUS_TRANSITIONS[currentStatus] ?? [];
+};
+
+export const isAllowedPaymentStatusTransition = (
+  currentStatus: OrderPaymentStatus,
+  nextStatus: OrderPaymentStatus,
+): boolean => {
+  return (getAllowedPaymentStatusTransitions(currentStatus) as readonly string[]).includes(nextStatus);
+};
+

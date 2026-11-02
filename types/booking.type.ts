@@ -71,3 +71,28 @@ export type BookingSingleResponse = {
 
 export type BookingResponse = BookingListResponse;
 
+export const BOOKING_STATUS_TRANSITIONS: Record<
+  BookingStatus,
+  readonly BookingStatus[]
+> = {
+  pending: ["confirmed", "cancelled", "rejected"],
+  confirmed: ["in-progress", "cancelled"],
+  "in-progress": ["completed", "cancelled"],
+  completed: [],
+  cancelled: [],
+  rejected: [],
+} as const;
+
+export const getAllowedBookingStatusTransitions = (
+  currentStatus: BookingStatus,
+): readonly BookingStatus[] => {
+  return BOOKING_STATUS_TRANSITIONS[currentStatus] ?? [];
+};
+
+export const isAllowedBookingStatusTransition = (
+  currentStatus: BookingStatus,
+  nextStatus: BookingStatus,
+): boolean => {
+  return (getAllowedBookingStatusTransitions(currentStatus) as readonly string[]).includes(nextStatus);
+};
+

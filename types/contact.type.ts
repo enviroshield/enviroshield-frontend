@@ -99,3 +99,29 @@ export interface IContactSingleResponse {
   data: IContact;
 }
 
+export const CONTACT_STATUS_TRANSITIONS: Record<
+  TContactStatus,
+  readonly TContactStatus[]
+> = {
+  new: ["contacted"],
+  contacted: ["qualified", "lost"],
+  qualified: ["site-visit", "proposal-sent", "lost"],
+  "site-visit": ["proposal-sent", "lost"],
+  "proposal-sent": ["won", "lost"],
+  won: [],
+  lost: [],
+} as const;
+
+export const getAllowedContactStatusTransitions = (
+  currentStatus: TContactStatus,
+): readonly TContactStatus[] => {
+  return CONTACT_STATUS_TRANSITIONS[currentStatus] ?? [];
+};
+
+export const isAllowedContactStatusTransition = (
+  currentStatus: TContactStatus,
+  nextStatus: TContactStatus,
+): boolean => {
+  return (getAllowedContactStatusTransitions(currentStatus) as readonly string[]).includes(nextStatus);
+};
+

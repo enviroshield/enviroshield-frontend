@@ -295,6 +295,10 @@ export default function ServiceBookingsDashboard() {
           booking.status === "pending" ||
           booking.status === "confirmed" ||
           booking.status === "in-progress";
+        const isTerminal =
+          booking.status === "completed" ||
+          booking.status === "cancelled" ||
+          booking.status === "rejected";
 
         return (
           <div className="flex items-center gap-1.5">
@@ -322,10 +326,11 @@ export default function ServiceBookingsDashboard() {
 
                   <DropdownMenuItem
                     className="cursor-pointer"
+                    disabled={isTerminal}
                     onClick={() => handleUpdateStatus(booking)}
                   >
                     <BadgeCheck className="mr-2 h-4 w-4 text-blue" />
-                    Update Status
+                    {isTerminal ? "Status (Terminal)" : "Update Status"}
                   </DropdownMenuItem>
 
                   <DropdownMenuItem

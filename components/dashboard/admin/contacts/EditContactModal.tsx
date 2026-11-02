@@ -1,7 +1,7 @@
 "use client";
 
-import { Check, Loader2 } from "lucide-react";
-import { useEffect } from "react";
+import { AlertTriangle, Check, Loader2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -27,6 +27,7 @@ import { Label } from "@/components/ui/label";
 import { usePatch } from "@/hooks/swr/usePatch";
 
 import type { IContact, TContactStatus } from "@/types";
+import { getAllowedContactStatusTransitions } from "@/types/contact.type";
 
 import DashboardButton from "../../DashboardButton";
 
@@ -68,11 +69,11 @@ const statusOptions: {
   },
   {
     value: "won",
-    label: "Won",
+    label: "Won (Terminal)",
   },
   {
     value: "lost",
-    label: "Lost",
+    label: "Lost (Terminal)",
   },
 ];
 
@@ -91,14 +92,35 @@ export default function EditContactModal({
     revalidateKey,
   });
 
+  const [confirmed, setConfirmed] = useState(false);
+
   const {
     control,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm<FormValues>({
     defaultValues,
   });
+
+  const selectedStatus = watch("status");
+  const currentStatus = contact?.status ?? "new";
+
+  const allowedTransitions = useMemo(() => {
+    return contact ? getAllowedContactStatusTransitions(contact.status) : [];
+  }, [contact]);
+
+  const isTerminal = allowedTransitions.length === 0;
+
+  const availableStatusOptions = useMemo(() => {
+    return statusOptions.filter(
+      (opt) => opt.value === currentStatus || allowedTransitions.includes(opt.value)
+    );
+  }, [currentStatus, allowedTransitions]);
+
+  const isTransitioningToTerminal =
+    selectedStatus !== currentStatus && (selectedStatus === "won" || selectedStatus === "lost");
 
   useEffect(() => {
     if (!open || !contact) return;
@@ -107,23 +129,28 @@ export default function EditContactModal({
       status: contact.status,
       adminNotes: contact.adminNotes ?? "",
     });
+    setConfirmed(false);
   }, [open, contact, reset]);
 
   const handleClose = () => {
     if (isLoading) return;
 
     onClose();
-
     reset(defaultValues);
+    setConfirmed(false);
   };
 
   const onSubmit = async (values: FormValues) => {
     if (!contact) return;
 
+    if (isTransitioningToTerminal && !confirmed) {
+      toast.error(`Please confirm the transition to terminal status "${values.status.toUpperCase()}".`);
+      return;
+    }
+
     try {
       await updateContact({
         id: contact._id,
-
         data: {
           status: values.status,
           adminNotes: values.adminNotes,
@@ -131,10 +158,9 @@ export default function EditContactModal({
       });
 
       toast.success("Contact updated successfully.");
-
       onClose();
-
       reset(defaultValues);
+      setConfirmed(false);
     } catch (error: any) {
       const message =
         error?.response?.data?.message ||
@@ -172,8 +198,21 @@ export default function EditContactModal({
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="space-y-6 px-6 py-6 sm:px-7">
-            {/* Status */}
+            {/* Terminal Status Warning Banner */}
+            {isTerminal && (
+              <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs text-amber-800">
+                <div className="flex items-center gap-2 font-semibold">
+                  <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600" />
+                  Terminal Status: {statusOptions.find((o) => o.value === currentStatus)?.label || currentStatus}
+                </div>
+                <p className="mt-1 text-amber-700 leading-relaxed">
+                  This contact inquiry has reached a terminal status and cannot transition to any other status.
+                  You can still update the internal admin notes below.
+                </p>
+              </div>
+            )}
 
+            {/* Status */}
             <div className="space-y-2">
               <Label className="text-sm font-semibold text-navy">
                 Contact Status
@@ -188,15 +227,18 @@ export default function EditContactModal({
                 render={({ field }) => (
                   <Select
                     value={field.value}
-                    onValueChange={field.onChange}
-                    disabled={isLoading}
+                    onValueChange={(val) => {
+                      field.onChange(val);
+                      setConfirmed(false);
+                    }}
+                    disabled={isLoading || isTerminal}
                   >
                     <SelectTrigger className="h-11 w-full rounded-xl">
                       <SelectValue placeholder="Select contact status" />
                     </SelectTrigger>
 
                     <SelectContent>
-                      {statusOptions.map((status) => (
+                      {availableStatusOptions.map((status) => (
                         <SelectItem
                           key={status.value}
                           value={status.value}
@@ -216,12 +258,38 @@ export default function EditContactModal({
               )}
 
               <p className="text-xs leading-5 text-muted-foreground">
-                Select the current stage of this contact inquiry.
+                {isTerminal
+                  ? "This record is at a terminal stage and cannot be changed."
+                  : "Only forward status transitions according to the inquiry pipeline are available."}
               </p>
             </div>
 
-            {/* Admin Notes */}
+            {/* Irreversible Confirmation Banner */}
+            {isTransitioningToTerminal && !isTerminal && (
+              <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-xs text-red-900 space-y-2.5">
+                <div className="flex items-center gap-2 font-semibold text-red-800">
+                  <AlertTriangle className="h-4 w-4 shrink-0 text-red-600" />
+                  Irreversible Status Transition
+                </div>
+                <p className="text-red-700 leading-relaxed">
+                  Transitioning this inquiry to <strong>{selectedStatus.toUpperCase()}</strong> is permanent.
+                  Once saved, no further status updates will be permitted.
+                </p>
+                <label className="flex items-start gap-2 pt-1 font-medium text-slate-800 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={confirmed}
+                    onChange={(e) => setConfirmed(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 rounded border-red-300 text-red-600 focus:ring-red-500"
+                  />
+                  <span>
+                    I confirm that I want to mark this contact inquiry as {selectedStatus.toUpperCase()} (Irreversible).
+                  </span>
+                </label>
+              </div>
+            )}
 
+            {/* Admin Notes */}
             <div className="space-y-2">
               <Label
                 htmlFor="contact-admin-notes"
@@ -252,7 +320,6 @@ export default function EditContactModal({
           </div>
 
           {/* Footer */}
-
           <div className="flex items-center justify-end gap-3 border-t bg-muted/10 px-6 py-4 sm:px-7">
             <DashboardButton
               type="button"
@@ -266,7 +333,7 @@ export default function EditContactModal({
 
             <DashboardButton
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || (isTransitioningToTerminal && !confirmed)}
               icon={
                 isLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />

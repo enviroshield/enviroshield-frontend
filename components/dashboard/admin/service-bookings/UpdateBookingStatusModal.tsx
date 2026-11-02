@@ -1,13 +1,11 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { AlertCircle, AlertTriangle, CheckCircle2, Loader2, Lock } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
 
 import DashboardButton from "@/components/dashboard/DashboardButton";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -24,8 +22,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { axiosInstance } from "@/lib/axios";
-import type { Booking, BookingStatus } from "@/types/booking.type";
-import { formatBookingStatus } from "./bookingUtils";
+import {
+  getAllowedBookingStatusTransitions,
+  type Booking,
+  type BookingStatus,
+} from "@/types/booking.type";
+import { formatBookingStatus, getBookingStatusClass } from "./bookingUtils";
 
 type UpdateBookingStatusModalProps = {
   booking: Booking | null;
@@ -34,20 +36,7 @@ type UpdateBookingStatusModalProps = {
   onSuccess?: () => void;
 };
 
-const BOOKING_STATUSES = [
-  "pending",
-  "confirmed",
-  "in-progress",
-  "completed",
-  "cancelled",
-  "rejected",
-] as const satisfies readonly BookingStatus[];
-
-const formSchema = z.object({
-  status: z.enum(BOOKING_STATUSES, { message: "Select a valid booking status." }),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+const IRREVERSIBLE_STATUSES: BookingStatus[] = ["completed", "cancelled", "rejected"];
 
 export default function UpdateBookingStatusModal({
   booking,
@@ -55,46 +44,49 @@ export default function UpdateBookingStatusModal({
   onClose,
   onSuccess,
 }: UpdateBookingStatusModalProps) {
+  const [selectedStatus, setSelectedStatus] = useState<BookingStatus | "">("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isConfirmed, setIsConfirmed] = useState(false);
 
-  const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      status: "pending",
-    },
-  });
+  const currentStatus = booking?.status ?? "pending";
+  const allowedStatuses = booking ? getAllowedBookingStatusTransitions(currentStatus) : [];
+  const isTerminal = allowedStatuses.length === 0;
 
   useEffect(() => {
     if (open && booking) {
-      reset({
-        status: booking.status,
-      });
+      const allowed = getAllowedBookingStatusTransitions(booking.status);
+      setSelectedStatus(allowed.length > 0 ? allowed[0] : "");
+      setIsConfirmed(false);
     }
-  }, [open, booking, reset]);
+  }, [open, booking]);
 
   const handleClose = () => {
     if (isSubmitting) return;
     onClose();
   };
 
-  const onSubmit = async (values: FormValues) => {
-    if (!booking) return;
+  const isIrreversible = selectedStatus && IRREVERSIBLE_STATUSES.includes(selectedStatus as BookingStatus);
+  const requiresConfirmation = Boolean(isIrreversible);
 
-    if (values.status === booking.status) {
-      toast.info("Status is already set to " + formatBookingStatus(values.status));
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!booking || !selectedStatus || isTerminal) return;
+
+    if (selectedStatus === booking.status) {
+      toast.info("Status is already set to " + formatBookingStatus(selectedStatus));
       onClose();
+      return;
+    }
+
+    if (requiresConfirmation && !isConfirmed) {
+      setIsConfirmed(true);
       return;
     }
 
     setIsSubmitting(true);
     try {
       const response = await axiosInstance.patch(`/booking/${booking._id}/status`, {
-        status: values.status,
+        status: selectedStatus,
       });
 
       toast.success(
@@ -123,7 +115,7 @@ export default function UpdateBookingStatusModal({
               Update Booking Status
             </DialogTitle>
             <DialogDescription className="text-sm leading-6">
-              Choose the new fulfillment status for booking{" "}
+              Advance the fulfillment status for booking{" "}
               <span className="font-semibold text-foreground">
                 #{booking?.bookingNumber}
               </span>
@@ -131,50 +123,93 @@ export default function UpdateBookingStatusModal({
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-1 flex-col overflow-hidden">
+          <form onSubmit={onSubmit} className="flex flex-1 flex-col overflow-hidden">
             <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-6 py-6 sm:px-8">
               {/* Current Status Box */}
-              <div className="rounded-xl border bg-muted/20 p-4 text-sm">
-                <span className="text-muted-foreground">Current status: </span>
-                <span className="font-semibold text-foreground">
-                  {booking ? formatBookingStatus(booking.status) : "—"}
-                </span>
+              <div className="flex items-center justify-between rounded-xl border bg-muted/20 p-4 text-sm">
+                <div>
+                  <span className="text-muted-foreground">Current status: </span>
+                  <Badge
+                    variant="outline"
+                    className={`ml-2 rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${
+                      booking ? getBookingStatusClass(booking.status) : ""
+                    }`}
+                  >
+                    {booking ? formatBookingStatus(booking.status) : "—"}
+                  </Badge>
+                </div>
+                {isTerminal && (
+                  <span className="flex items-center gap-1.5 text-xs font-semibold text-amber-700 dark:text-amber-400">
+                    <Lock className="h-3.5 w-3.5" />
+                    Terminal State
+                  </span>
+                )}
               </div>
 
-              {/* Status Select */}
-              <div className="space-y-2">
-                <Label htmlFor="status-select" className="text-sm font-semibold text-navy">
-                  New status
-                </Label>
-                <Controller
-                  control={control}
-                  name="status"
-                  render={({ field }) => (
+              {isTerminal ? (
+                <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-300">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
+                    <div>
+                      <p className="font-semibold">Workflow Complete</p>
+                      <p className="mt-1 text-xs leading-5">
+                        This booking has reached terminal status &quot;{formatBookingStatus(currentStatus)}&quot;. No further status transitions are permitted in this pipeline.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* Status Select */}
+                  <div className="space-y-2">
+                    <Label htmlFor="status-select" className="text-sm font-semibold text-navy">
+                      Allowed next status
+                    </Label>
                     <Select
-                      value={field.value}
-                      onValueChange={field.onChange}
+                      value={selectedStatus}
+                      onValueChange={(val) => {
+                        setSelectedStatus(val as BookingStatus);
+                        setIsConfirmed(false);
+                      }}
                       disabled={isSubmitting}
                     >
                       <SelectTrigger id="status-select" className="h-11 w-full rounded-xl">
-                        <SelectValue placeholder="Select booking status" />
+                        <SelectValue placeholder="Select next status" />
                       </SelectTrigger>
                       <SelectContent>
-                        {BOOKING_STATUSES.map((status) => (
+                        {allowedStatuses.map((status) => (
                           <SelectItem key={status} value={status}>
                             {formatBookingStatus(status)}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
+                    <p className="text-xs leading-5 text-muted-foreground">
+                      Only permitted forward transitions from &quot;{formatBookingStatus(currentStatus)}&quot; are selectable.
+                    </p>
+                  </div>
+
+                  {/* Warning / Confirmation Box for critical terminal states */}
+                  {isIrreversible && (
+                    <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-300">
+                      <div className="flex items-start gap-3">
+                        <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-600 dark:text-red-400" />
+                        <div>
+                          <p className="font-semibold">Irreversible Action</p>
+                          <p className="mt-1 text-xs leading-5">
+                            Transitioning to &quot;{formatBookingStatus(selectedStatus as BookingStatus)}&quot; is permanent. Once transitioned, this booking cannot be moved backward or updated again.
+                          </p>
+                          {isConfirmed && (
+                            <p className="mt-2 text-xs font-bold text-red-700 dark:text-red-300">
+                              Please click &quot;Confirm & Update Status&quot; below to proceed.
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   )}
-                />
-                {errors.status && (
-                  <p className="text-xs text-destructive">{errors.status.message}</p>
-                )}
-                <p className="text-xs leading-5 text-muted-foreground">
-                  Select the workflow stage for this service booking.
-                </p>
-              </div>
+                </>
+              )}
             </div>
 
             {/* Footer */}
@@ -186,15 +221,34 @@ export default function UpdateBookingStatusModal({
                 disabled={isSubmitting}
                 onClick={handleClose}
               >
-                Cancel
+                {isTerminal ? "Close" : "Cancel"}
               </DashboardButton>
-              <DashboardButton
-                type="submit"
-                disabled={isSubmitting}
-                icon={isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : undefined}
-              >
-                {isSubmitting ? "Updating..." : "Update Status"}
-              </DashboardButton>
+              {!isTerminal && (
+                <DashboardButton
+                  type="submit"
+                  disabled={isSubmitting || !selectedStatus}
+                  className={
+                    isIrreversible
+                      ? "bg-red-600 text-white hover:bg-red-700 dark:bg-red-700"
+                      : undefined
+                  }
+                  icon={
+                    isSubmitting ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : isConfirmed ? (
+                      <CheckCircle2 className="h-4 w-4" />
+                    ) : undefined
+                  }
+                >
+                  {isSubmitting
+                    ? "Updating..."
+                    : requiresConfirmation && !isConfirmed
+                    ? `Proceed to ${formatBookingStatus(selectedStatus as BookingStatus)}`
+                    : isConfirmed
+                    ? "Confirm & Update Status"
+                    : "Update Status"}
+                </DashboardButton>
+              )}
             </div>
           </form>
         </div>

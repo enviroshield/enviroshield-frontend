@@ -22,7 +22,6 @@ import DashboardError from "@/components/dashboard/DashboardError";
 import DashboardLoading from "@/components/dashboard/DashboardLoading";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,6 +31,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -130,7 +130,9 @@ export default function OrdersDashboard() {
     useFetch<OrdersResponse>(endpoint);
 
   const hasActiveFilters =
-    search.trim() !== "" || Boolean(orderStatus) || Boolean(paymentStatus);
+    search.trim() !== "" ||
+    Boolean(orderStatus) ||
+    Boolean(paymentStatus);
   const isSearchPending = search.trim() !== debouncedSearch;
 
   const handleOrderStatusChange = (value: string | null) => {
@@ -214,7 +216,9 @@ export default function OrdersDashboard() {
           <Input
             placeholder="Search order number, customer, email, or ID..."
             value={search}
-            onChange={(event) => handleSearchChange(event.target.value)}
+            onChange={(event) =>
+              handleSearchChange(event.target.value)
+            }
             className="h-9 rounded-full border-blue/30 bg-muted/30 pl-9 text-xs shadow-sm transition-all duration-200 focus:border-blue/40 focus:ring-2 focus:ring-blue/10"
           />
         </div>
@@ -237,7 +241,9 @@ export default function OrdersDashboard() {
                 <SelectValue placeholder="All Order Statuses" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Order Statuses</SelectItem>
+                <SelectItem value="all">
+                  All Order Statuses
+                </SelectItem>
                 <SelectItem value="pending">Pending</SelectItem>
                 <SelectItem value="confirmed">Confirmed</SelectItem>
                 <SelectItem value="processing">Processing</SelectItem>
@@ -260,7 +266,9 @@ export default function OrdersDashboard() {
                 <SelectValue placeholder="All Payment Statuses" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Payment Statuses</SelectItem>
+                <SelectItem value="all">
+                  All Payment Statuses
+                </SelectItem>
                 <SelectItem value="pending">Pending</SelectItem>
                 <SelectItem value="paid">Paid</SelectItem>
                 <SelectItem value="failed">Failed</SelectItem>
@@ -298,7 +306,11 @@ export default function OrdersDashboard() {
         </Card>
       ) : orders.length === 0 ? (
         <DashboardEmpty
-          title={hasActiveFilters ? "No matching orders" : "No orders found"}
+          title={
+            hasActiveFilters
+              ? "No matching orders"
+              : "No orders found"
+          }
           description={
             hasActiveFilters
               ? "Try changing your search or filters."
@@ -439,6 +451,10 @@ export default function OrdersDashboard() {
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 className="cursor-pointer"
+                                disabled={
+                                  order.status === "delivered" ||
+                                  order.status === "cancelled"
+                                }
                                 onClick={() => {
                                   setSelectedOrder(order);
                                   setActiveAction("status");
@@ -450,7 +466,8 @@ export default function OrdersDashboard() {
                               <DropdownMenuItem
                                 className="cursor-pointer"
                                 disabled={
-                                  order.paymentStatus === "paid"
+                                  order.paymentStatus === "failed" ||
+                                  order.paymentStatus === "refunded"
                                 }
                                 onClick={() => {
                                   setSelectedOrder(order);
@@ -458,12 +475,16 @@ export default function OrdersDashboard() {
                                 }}
                               >
                                 <CheckCircle className="mr-2 h-4 w-4" />
-                                Mark Payment as Paid
+                                Update Payment Status
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 className="cursor-pointer text-red-600 focus:text-red-600"
                                 disabled={
-                                  order.status === "cancelled"
+                                  ![
+                                    "pending",
+                                    "confirmed",
+                                    "processing",
+                                  ].includes(order.status)
                                 }
                                 onClick={() => {
                                   setSelectedOrder(order);
@@ -529,10 +550,10 @@ export default function OrdersDashboard() {
           onClose={closeAction}
           showTrackingTimeline
           displayPaymentStatus={
-          selectedOrder
-            ? getDisplayedPaymentStatus(selectedOrder)
-            : undefined
-        }
+            selectedOrder
+              ? getDisplayedPaymentStatus(selectedOrder)
+              : undefined
+          }
         />
       )}
       {activeAction === "status" && (
