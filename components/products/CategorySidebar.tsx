@@ -9,6 +9,11 @@ type Props = {
   activeCategoryId: string;
   minPrice?: string;
   maxPrice?: string;
+  search?: string;
+  inStock?: string;
+  isFeatured?: string;
+  sortBy?: string;
+  sortOrder?: string;
   hasError?: boolean;
 };
 
@@ -17,6 +22,11 @@ export default function CategorySidebar({
   activeCategoryId,
   minPrice,
   maxPrice,
+  search,
+  inStock,
+  isFeatured,
+  sortBy,
+  sortOrder,
   hasError = false,
 }: Props) {
   const allItems = [
@@ -28,9 +38,14 @@ export default function CategorySidebar({
 
   const buildHref = (categoryId: string) => {
     const qs = new URLSearchParams();
+    if (search?.trim()) qs.set("search", search.trim());
     if (categoryId) qs.set("categoryId", categoryId);
     if (minPrice) qs.set("minPrice", minPrice);
     if (maxPrice) qs.set("maxPrice", maxPrice);
+    if (inStock) qs.set("inStock", inStock);
+    if (isFeatured) qs.set("isFeatured", isFeatured);
+    if (sortBy) qs.set("sortBy", sortBy);
+    if (sortOrder) qs.set("sortOrder", sortOrder);
     const query = qs.toString();
     return query ? `/products?${query}` : "/products";
   };

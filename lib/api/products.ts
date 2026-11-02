@@ -12,6 +12,17 @@ const API_BASE_URL =
     ? process.env.NEXT_PUBLIC_DEV_API_BASE_URL
     : process.env.NEXT_PUBLIC_API_BASE_URL;
 
+export type ProductSortBy =
+  | "name"
+  | "price"
+  | "createdAt"
+  | "updatedAt"
+  | "publishedAt"
+  | "stockQuantity"
+  | "weight";
+
+export type ProductSortOrder = "asc" | "desc";
+
 export type GetPublishedProductsOptions = {
   page?: number;
   limit?: number;
@@ -19,6 +30,10 @@ export type GetPublishedProductsOptions = {
   categoryId?: string;
   minPrice?: number;
   maxPrice?: number;
+  isFeatured?: boolean | string;
+  inStock?: boolean | string;
+  sortBy?: ProductSortBy;
+  sortOrder?: ProductSortOrder;
 };
 
 function getBaseUrl() {
@@ -36,12 +51,20 @@ export async function getPublishedProducts({
   categoryId = "",
   minPrice,
   maxPrice,
+  isFeatured,
+  inStock,
+  sortBy,
+  sortOrder,
 }: GetPublishedProductsOptions = {}): Promise<IPublishedProductResponse> {
   const params = new URLSearchParams({ page: String(page), limit: String(limit) });
   if (search.trim()) params.set("search", search.trim());
   if (categoryId) params.set("categoryId", categoryId);
   if (minPrice != null) params.set("minPrice", String(minPrice));
   if (maxPrice != null) params.set("maxPrice", String(maxPrice));
+  if (isFeatured !== undefined && isFeatured !== "") params.set("isFeatured", String(isFeatured));
+  if (inStock !== undefined && inStock !== "") params.set("inStock", String(inStock));
+  if (sortBy) params.set("sortBy", sortBy);
+  if (sortOrder) params.set("sortOrder", sortOrder);
 
   const response = await fetch(
     `${getBaseUrl()}/product/published?${params.toString()}`,

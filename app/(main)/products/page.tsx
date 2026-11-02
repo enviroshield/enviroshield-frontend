@@ -12,6 +12,9 @@ import PageHero from "@/components/PageHero";
 import { ProductCard } from "@/components/ProductCard";
 import CategorySidebar from "@/components/products/CategorySidebar";
 import PriceFilter from "@/components/products/PriceFilter";
+import ProductSearch from "@/components/products/ProductSearch";
+import ProductSortSelect from "@/components/products/ProductSortSelect";
+import ProductStatusFilter from "@/components/products/ProductStatusFilter";
 import {
   Alert,
   AlertDescription,
@@ -29,6 +32,8 @@ import {
 import {
   getAllCategories,
   getPublishedProducts,
+  type ProductSortBy,
+  type ProductSortOrder,
 } from "@/lib/api/products";
 import { siteUrl } from "@/lib/site-url";
 
@@ -72,7 +77,13 @@ export async function generateMetadata({
   const numberRegex = /^\d+(\.\d+)?$/;
   const hasPrice = numberRegex.test(rawMin) || numberRegex.test(rawMax);
 
-  const hasFilters = hasCategory || hasPrice;
+  const rawSearch = (first(params.search) || "").trim();
+  const rawInStock = first(params.inStock);
+  const rawIsFeatured = first(params.isFeatured);
+  const rawSortBy = first(params.sortBy);
+  const hasExtraFilters = Boolean(rawSearch || rawInStock || rawIsFeatured || rawSortBy);
+
+  const hasFilters = hasCategory || hasPrice || hasExtraFilters;
 
   const title = isFirstPage
     ? "Paints, Primers & Finishing Products in Bangladesh | Enviroshield"
@@ -144,14 +155,23 @@ export async function generateMetadata({
 /* -------------------------------------------------------------------------- */
 
 type State = {
-  categoryId: string;
-  minPrice: string;
-  maxPrice: string;
-  page: number;
+  search?: string;
+  categoryId?: string;
+  minPrice?: string;
+  maxPrice?: string;
+  inStock?: string;
+  isFeatured?: string;
+  sortBy?: string;
+  sortOrder?: string;
+  page?: number;
 };
 
 function href(state: Partial<State>) {
   const qs = new URLSearchParams();
+
+  if (state.search?.trim()) {
+    qs.set("search", state.search.trim());
+  }
 
   if (state.categoryId) {
     qs.set("categoryId", state.categoryId);
@@ -163,6 +183,22 @@ function href(state: Partial<State>) {
 
   if (state.maxPrice) {
     qs.set("maxPrice", state.maxPrice);
+  }
+
+  if (state.inStock) {
+    qs.set("inStock", state.inStock);
+  }
+
+  if (state.isFeatured) {
+    qs.set("isFeatured", state.isFeatured);
+  }
+
+  if (state.sortBy && state.sortBy !== "createdAt") {
+    qs.set("sortBy", state.sortBy);
+  }
+
+  if (state.sortOrder && state.sortOrder !== "desc") {
+    qs.set("sortOrder", state.sortOrder);
   }
 
   if (state.page && state.page > 1) {
@@ -242,10 +278,50 @@ export default async function ProductsPage({
     ? Number(rawMax)
     : undefined;
 
+  const rawSearch = (first(params.search) || "").trim();
+  const search = rawSearch.slice(0, 100);
+
+  const rawInStock = first(params.inStock);
+  const inStock =
+    rawInStock === "true" || rawInStock === "false"
+      ? rawInStock
+      : "";
+
+  const rawIsFeatured = first(params.isFeatured);
+  const isFeatured =
+    rawIsFeatured === "true" || rawIsFeatured === "false"
+      ? rawIsFeatured
+      : "";
+
+  const validSortBy: ProductSortBy[] = [
+    "name",
+    "price",
+    "createdAt",
+    "updatedAt",
+    "publishedAt",
+    "stockQuantity",
+    "weight",
+  ];
+  const rawSortBy = first(params.sortBy);
+  const sortBy = validSortBy.includes(rawSortBy as ProductSortBy)
+    ? (rawSortBy as ProductSortBy)
+    : undefined;
+
+  const rawSortOrder = first(params.sortOrder);
+  const sortOrder =
+    rawSortOrder === "asc" || rawSortOrder === "desc"
+      ? (rawSortOrder as ProductSortOrder)
+      : undefined;
+
   const state: State = {
+    search,
     categoryId,
     minPrice: minPrice !== undefined ? rawMin : "",
     maxPrice: maxPrice !== undefined ? rawMax : "",
+    inStock,
+    isFeatured,
+    sortBy: sortBy || "",
+    sortOrder: sortOrder || "",
     page,
   };
 
@@ -256,10 +332,14 @@ export default async function ProductsPage({
     getPublishedProducts({
       page,
       limit: PAGE_SIZE,
-      search: "",
+      search,
       categoryId,
       minPrice,
       maxPrice,
+      inStock,
+      isFeatured,
+      sortBy,
+      sortOrder,
     }),
     getAllCategories(),
   ]);
@@ -278,13 +358,6 @@ export default async function ProductsPage({
     (c) => c._id === categoryId,
   );
 
-  const createCategoryHref = (id: string) =>
-    href({
-      ...state,
-      categoryId: id,
-      page: 1,
-    });
-
   const error =
     productsResult.status === "rejected"
       ? "Products could not be loaded right now. Please try again later."
@@ -293,7 +366,27 @@ export default async function ProductsPage({
   const hasPrice =
     minPrice !== undefined || maxPrice !== undefined;
 
-  const hasFilters = Boolean(categoryId) || hasPrice;
+  const hasSearch = Boolean(search);
+  const hasInStock = Boolean(inStock);
+  const hasFeatured = Boolean(isFeatured);
+  const hasSort = Boolean(sortBy && (sortBy !== "createdAt" || sortOrder !== "desc"));
+
+  const hasFilters =
+    Boolean(categoryId) ||
+    hasPrice ||
+    hasSearch ||
+    hasInStock ||
+    hasFeatured ||
+    hasSort;
+
+  // Active hidden values for the price filter slider so it preserves all other filters
+  const priceFilterHidden: Record<string, string> = {};
+  if (search) priceFilterHidden.search = search;
+  if (categoryId) priceFilterHidden.categoryId = categoryId;
+  if (inStock) priceFilterHidden.inStock = inStock;
+  if (isFeatured) priceFilterHidden.isFeatured = isFeatured;
+  if (sortBy) priceFilterHidden.sortBy = sortBy;
+  if (sortOrder) priceFilterHidden.sortOrder = sortOrder;
 
   return (
     <>
@@ -310,7 +403,7 @@ export default async function ProductsPage({
       >
         <Container>
           <div className="grid grid-cols-[280px_1fr] items-start gap-12 max-[1000px]:grid-cols-1 max-[1000px]:gap-8">
-            {/* PRODUCT FILTERS: CATEGORIES FIRST, THEN PRICE */}
+            {/* PRODUCT FILTERS: CATEGORIES, PREFERENCES, AND PRICE */}
 
             <aside
               aria-label="Product filters"
@@ -321,7 +414,33 @@ export default async function ProductsPage({
                 activeCategoryId={categoryId}
                 minPrice={state.minPrice}
                 maxPrice={state.maxPrice}
+                search={state.search}
+                inStock={state.inStock}
+                isFeatured={state.isFeatured}
+                sortBy={state.sortBy}
+                sortOrder={state.sortOrder}
                 hasError={categoriesResult.status === "rejected"}
+              />
+
+              <ProductStatusFilter
+                inStock={inStock}
+                isFeatured={isFeatured}
+                inStockToggleHref={href({
+                  ...state,
+                  inStock: inStock === "true" ? "" : "true",
+                  page: 1,
+                })}
+                featuredToggleHref={href({
+                  ...state,
+                  isFeatured: isFeatured === "true" ? "" : "true",
+                  page: 1,
+                })}
+                resetHref={href({
+                  ...state,
+                  inStock: "",
+                  isFeatured: "",
+                  page: 1,
+                })}
               />
 
               <div className="overflow-hidden rounded-2xl border border-line/90 bg-white p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,51,78,0.06)]">
@@ -341,8 +460,13 @@ export default async function ProductsPage({
                   max={PRICE_MAX}
                   initialMin={minPrice}
                   initialMax={maxPrice}
-                  hidden={categoryId ? { categoryId } : {}}
-                  resetHref={href({ categoryId })}
+                  hidden={priceFilterHidden}
+                  resetHref={href({
+                    ...state,
+                    minPrice: "",
+                    maxPrice: "",
+                    page: 1,
+                  })}
                   isFiltered={hasPrice}
                 />
               </div>
@@ -351,12 +475,33 @@ export default async function ProductsPage({
             {/* PRODUCT LISTING */}
 
             <div className="min-w-0">
+              {/* Controls bar: Search and Sort */}
+              <div className="mb-6 flex flex-col gap-3.5 sm:flex-row sm:items-center sm:justify-between">
+                <div className="w-full sm:max-w-md">
+                  <ProductSearch initialSearch={search} />
+                </div>
+
+                <div className="flex items-center justify-between gap-2.5 sm:justify-end">
+                  <span className="text-xs font-medium text-ink/60">
+                    Sort:
+                  </span>
+                  <ProductSortSelect
+                    currentSortBy={sortBy || "createdAt"}
+                    currentSortOrder={sortOrder || "desc"}
+                  />
+                </div>
+              </div>
+
               {/* Contextual Category Header & Active Filters Bar */}
               <div className="mb-8 flex flex-col gap-4 border-b border-line/80 pb-5 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <div className="flex flex-wrap items-center gap-3">
                     <h2 className="text-2xl font-bold tracking-tight text-navy sm:text-3xl">
-                      {selectedCategory ? selectedCategory.name : "All Products"}
+                      {search
+                        ? `Results for "${search}"`
+                        : selectedCategory
+                          ? selectedCategory.name
+                          : "All Products"}
                     </h2>
                     <span className="inline-flex items-center rounded-full border border-line bg-mist/80 px-2.5 py-0.5 text-xs font-semibold text-ink/75">
                       {productResponse?.meta.total ?? 0}{" "}
@@ -367,18 +512,32 @@ export default async function ProductsPage({
                   </div>
 
                   <p className="mt-1.5 text-sm text-ink/70">
-                    {selectedCategory
-                      ? `Browsing our specialized range in ${selectedCategory.name}.`
-                      : "Engineered coatings, primers, and protective materials for demanding conditions."}
+                    {search
+                      ? `Showing products matching your search query.`
+                      : selectedCategory
+                        ? `Browsing our specialized range in ${selectedCategory.name}.`
+                        : "Engineered coatings, primers, and protective materials for demanding conditions."}
                   </p>
                 </div>
 
                 {/* Active filter badges if any filter is active */}
                 {hasFilters && (
                   <div className="flex flex-wrap items-center gap-2">
+                    {hasSearch && (
+                      <Link
+                        href={href({ ...state, search: "", page: 1 })}
+                        scroll={false}
+                        aria-label="Remove search filter"
+                        className="group inline-flex items-center gap-1.5 rounded-full border border-line bg-mist px-3 py-1 text-xs font-semibold text-ink/80 transition hover:bg-line/60 hover:text-navy"
+                      >
+                        <span>Query: "{search}"</span>
+                        <X size={12} className="stroke-[2.5]" />
+                      </Link>
+                    )}
+
                     {selectedCategory && (
                       <Link
-                        href={createCategoryHref("")}
+                        href={href({ ...state, categoryId: "", page: 1 })}
                         scroll={false}
                         aria-label={`Remove filter: ${selectedCategory.name}`}
                         className="group inline-flex items-center gap-1.5 rounded-full border border-blue/20 bg-blue/10 px-3 py-1 text-xs font-semibold text-blue transition hover:bg-blue hover:text-white"
@@ -407,6 +566,30 @@ export default async function ProductsPage({
                       </Link>
                     )}
 
+                    {hasInStock && (
+                      <Link
+                        href={href({ ...state, inStock: "", page: 1 })}
+                        scroll={false}
+                        aria-label="Remove in-stock filter"
+                        className="group inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800 transition hover:bg-emerald-100"
+                      >
+                        <span>In Stock Only</span>
+                        <X size={12} className="stroke-[2.5]" />
+                      </Link>
+                    )}
+
+                    {hasFeatured && (
+                      <Link
+                        href={href({ ...state, isFeatured: "", page: 1 })}
+                        scroll={false}
+                        aria-label="Remove featured filter"
+                        className="group inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800 transition hover:bg-amber-100"
+                      >
+                        <span>Featured Only</span>
+                        <X size={12} className="stroke-[2.5]" />
+                      </Link>
+                    )}
+
                     <Link
                       href="/products"
                       scroll={false}
@@ -417,6 +600,7 @@ export default async function ProductsPage({
                   </div>
                 )}
               </div>
+
               {error ? (
                 <Alert variant="destructive">
                   <AlertCircle />
@@ -521,7 +705,7 @@ export default async function ProductsPage({
 
                   <p className="mx-auto mt-2 max-w-[420px] text-sm text-ink/70">
                     {hasFilters
-                      ? "Nothing matches your current filters. Try a different price range or category."
+                      ? "Nothing matches your current filters. Try a different search, price range, or category."
                       : "There are no published products yet. Please check back soon."}
                   </p>
 

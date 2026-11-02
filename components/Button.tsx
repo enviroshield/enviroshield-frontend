@@ -18,6 +18,9 @@ type ButtonProps = {
   variant?: "primary" | "light" | "outline";
   className?: string;
   fullWidth?: boolean;
+  type?: "button" | "submit" | "reset";
+  disabled?: boolean;
+  onClick?: (e: MouseEvent<HTMLElement>) => void;
 };
 
 const variantStyles = {
@@ -44,6 +47,9 @@ export function Button({
   variant = "primary",
   className = "",
   fullWidth = false,
+  type = "button",
+  disabled = false,
+  onClick,
 }: ButtonProps) {
   const reduce = useReducedMotion();
   const v = variantStyles[variant];
@@ -143,7 +149,12 @@ export function Button({
             {content}
           </Link>
         ) : (
-          <button type="button" className={classes}>
+          <button
+            type={type}
+            disabled={disabled}
+            onClick={onClick}
+            className={classes}
+          >
             {content}
           </button>
         )}
