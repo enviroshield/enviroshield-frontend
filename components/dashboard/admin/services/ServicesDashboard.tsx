@@ -13,7 +13,7 @@ import {
   Trash,
   XCircle,
 } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import {
   tableFeatures,
@@ -49,11 +49,11 @@ import DashboardError from "../../DashboardError";
 import DashboardLoading from "../../DashboardLoading";
 import { formatDate } from "./../../../../utils/formatDate";
 
+import Image from "next/image";
 import CreateServiceModal from "./CreateServiceModal";
 import DeleteServiceDialog from "./DeleteServiceDialog";
 import UpdateServiceModal from "./UpdateServiceModal";
 import ViewServiceModal from "./ViewServiceModal";
-import Image from "next/image";
 
 const features = tableFeatures({});
 
@@ -74,10 +74,16 @@ export default function ServicesDashboard() {
   );
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
+  const endpoint = useMemo(() => {
+    const params = new URLSearchParams();
+    params.set("page", String(currentPage));
+    params.set("limit", String(limit));
+    if (filterStatus) params.set("status", filterStatus);
+    return `/service?${params.toString()}`;
+  }, [currentPage, limit, filterStatus]);
+
   const { data, isLoading, isError, refetch } =
-    useFetch<IServiceResponse>(
-      `/service?page=${currentPage}&limit=${limit}`,
-    );
+    useFetch<IServiceResponse>(endpoint);
 
   const services = data?.data || [];
   const meta = data?.meta;
@@ -93,7 +99,7 @@ export default function ServicesDashboard() {
   };
 
   const handleFilterChange = (value: string | null) => {
-    setFilterStatus(value ?? "");
+    setFilterStatus(value === "all" || value === null ? "" : value);
     setCurrentPage(1);
   };
 
@@ -112,14 +118,6 @@ export default function ServicesDashboard() {
     setLimit(Number(newLimit));
     setCurrentPage(1);
   };
-
-  const filteredServices = services.filter((service) => {
-    if (!filterStatus) return true;
-
-    return filterStatus === "published"
-      ? service.status === "published"
-      : service.status !== "published";
-  });
 
   const columns: ColumnDef<typeof features, IService>[] = [
     {
@@ -199,7 +197,9 @@ export default function ServicesDashboard() {
                 ? `BDT ${price.toLocaleString("en-BD")}`
                 : "Quote Pending"}
             </div>
-            <span className="text-[11px] text-slate-400">starting from</span>
+            <span className="text-[11px] text-slate-400">
+              starting from
+            </span>
           </div>
         );
       },
@@ -325,7 +325,7 @@ export default function ServicesDashboard() {
   const table = useTable({
     features,
     columns,
-    data: filteredServices,
+    data: services,
   });
 
   if (isLoading) {
@@ -382,8 +382,8 @@ export default function ServicesDashboard() {
           </SelectTrigger>
 
           <SelectContent>
+            <SelectItem value="all">All status</SelectItem>
             <SelectItem value="published">Published</SelectItem>
-
             <SelectItem value="draft">Draft</SelectItem>
           </SelectContent>
         </Select>
@@ -400,7 +400,7 @@ export default function ServicesDashboard() {
       </div>
 
       {/* Service table */}
-      {filteredServices.length === 0 ? (
+      {services.length === 0 ? (
         <DashboardEmpty
           title="No services found"
           description="Get started by adding your first Enviroshield service."
@@ -449,7 +449,7 @@ export default function ServicesDashboard() {
       )}
 
       {/* Pagination */}
-      {filteredServices.length > 0 && (
+      {services.length > 0 && (
         <div className="mt-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">

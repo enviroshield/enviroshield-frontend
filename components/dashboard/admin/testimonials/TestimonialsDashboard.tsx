@@ -15,7 +15,7 @@ import {
   Trash,
   XCircle,
 } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import {
   tableFeatures,
@@ -76,10 +76,16 @@ export default function TestimonialsDashboard() {
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
+  const endpoint = useMemo(() => {
+    const params = new URLSearchParams();
+    params.set("page", String(currentPage));
+    params.set("limit", String(limit));
+    if (filterStatus) params.set("status", filterStatus);
+    return `/testimonial?${params.toString()}`;
+  }, [currentPage, limit, filterStatus]);
+
   const { data, isLoading, isError, refetch } =
-    useFetch<ITestimonialResponse>(
-      `/testimonial?page=${currentPage}&limit=${limit}`,
-    );
+    useFetch<ITestimonialResponse>(endpoint);
 
   const testimonials = data?.data || [];
   const meta = data?.meta;
@@ -100,7 +106,7 @@ export default function TestimonialsDashboard() {
   };
 
   const handleFilterChange = (value: string | null) => {
-    setFilterStatus(value ?? "");
+    setFilterStatus(value === "all" || value === null ? "" : value);
     setCurrentPage(1);
   };
 
@@ -119,14 +125,6 @@ export default function TestimonialsDashboard() {
     setLimit(Number(newLimit));
     setCurrentPage(1);
   };
-
-  const filteredTestimonials = testimonials.filter((testimonial) => {
-    if (!filterStatus) return true;
-
-    return filterStatus === "published"
-      ? testimonial.status === "published"
-      : testimonial.status !== "published";
-  });
 
   const columns: ColumnDef<typeof features, ITestimonial>[] = [
     {
@@ -302,7 +300,7 @@ export default function TestimonialsDashboard() {
   const table = useTable({
     features,
     columns,
-    data: filteredTestimonials,
+    data: testimonials,
   });
 
   if (isLoading) {
@@ -363,8 +361,8 @@ export default function TestimonialsDashboard() {
           </SelectTrigger>
 
           <SelectContent>
+            <SelectItem value="all">All status</SelectItem>
             <SelectItem value="published">Published</SelectItem>
-
             <SelectItem value="draft">Draft</SelectItem>
           </SelectContent>
         </Select>
@@ -381,7 +379,7 @@ export default function TestimonialsDashboard() {
       </div>
 
       {/* Testimonial table */}
-      {filteredTestimonials.length === 0 ? (
+      {testimonials.length === 0 ? (
         <DashboardEmpty
           title="No testimonials found"
           description="Get started by adding your first customer testimonial."
@@ -430,7 +428,7 @@ export default function TestimonialsDashboard() {
       )}
 
       {/* Pagination */}
-      {filteredTestimonials.length > 0 && (
+      {testimonials.length > 0 && (
         <div className="mt-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">

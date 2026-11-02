@@ -14,7 +14,7 @@ import {
   XCircle,
 } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import {
   tableFeatures,
@@ -81,10 +81,17 @@ export default function ProjectsDashboard() {
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
+  const endpoint = useMemo(() => {
+    const params = new URLSearchParams();
+    params.set("page", String(currentPage));
+    params.set("limit", String(limit));
+    if (filterStatus) params.set("status", filterStatus);
+    return `/project?${params.toString()}`;
+  }, [currentPage, limit, filterStatus]);
+
   const { data, isLoading, isError, refetch } =
-    useFetch<IProjectResponse>(
-      `/project?page=${currentPage}&limit=${limit}`,
-    );
+    useFetch<IProjectResponse>(endpoint);
+
   const {
     data: serviceData,
     isLoading: servicesLoading,
@@ -112,7 +119,7 @@ export default function ProjectsDashboard() {
   };
 
   const handleFilterChange = (value: string | null) => {
-    setFilterStatus(value ?? "");
+    setFilterStatus(value === "all" || value === null ? "" : value);
     setCurrentPage(1);
   };
 
@@ -131,14 +138,6 @@ export default function ProjectsDashboard() {
     setLimit(Number(newLimit));
     setCurrentPage(1);
   };
-
-  const filteredProjects = projects.filter((project) => {
-    if (!filterStatus) return true;
-
-    return filterStatus === "published"
-      ? project.status === "published"
-      : project.status !== "published";
-  });
 
   const columns: ColumnDef<typeof features, IProject>[] = [
     {
@@ -341,7 +340,7 @@ export default function ProjectsDashboard() {
   const table = useTable({
     features,
     columns,
-    data: filteredProjects,
+    data: projects,
   });
 
   if (isLoading) {
@@ -398,8 +397,8 @@ export default function ProjectsDashboard() {
           </SelectTrigger>
 
           <SelectContent>
+            <SelectItem value="all">All status</SelectItem>
             <SelectItem value="published">Published</SelectItem>
-
             <SelectItem value="draft">Draft</SelectItem>
           </SelectContent>
         </Select>
@@ -416,7 +415,7 @@ export default function ProjectsDashboard() {
       </div>
 
       {/* Project table */}
-      {filteredProjects.length === 0 ? (
+      {projects.length === 0 ? (
         <DashboardEmpty
           title="No projects found"
           description="Get started by adding your first Enviroshield project."
@@ -465,7 +464,7 @@ export default function ProjectsDashboard() {
       )}
 
       {/* Pagination */}
-      {filteredProjects.length > 0 && (
+      {projects.length > 0 && (
         <div className="mt-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">

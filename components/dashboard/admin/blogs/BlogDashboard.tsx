@@ -15,7 +15,7 @@ import {
   XCircle,
 } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import {
   tableFeatures,
@@ -79,10 +79,16 @@ export default function BlogDashboard() {
     null,
   );
 
+  const endpoint = useMemo(() => {
+    const params = new URLSearchParams();
+    params.set("page", String(currentPage));
+    params.set("limit", String(limit));
+    if (filterStatus) params.set("status", filterStatus);
+    return `/blog?${params.toString()}`;
+  }, [currentPage, limit, filterStatus]);
+
   const { data, isLoading, isError, refetch } =
-    useFetch<IBlogResponse>(
-      `/blog?page=${currentPage}&limit=${limit}`,
-    );
+    useFetch<IBlogResponse>(endpoint);
 
   const blogs = data?.data || [];
   const meta = data?.meta;
@@ -103,7 +109,7 @@ export default function BlogDashboard() {
   };
 
   const handleFilterChange = (value: string | null) => {
-    setFilterStatus(value ?? "");
+    setFilterStatus(value === "all" || value === null ? "" : value);
     setCurrentPage(1);
   };
 
@@ -122,14 +128,6 @@ export default function BlogDashboard() {
     setLimit(Number(newLimit));
     setCurrentPage(1);
   };
-
-  const filteredBlogs = blogs.filter((blog) => {
-    if (!filterStatus) return true;
-
-    return filterStatus === "published"
-      ? blog.status === "published"
-      : blog.status !== "published";
-  });
 
   const columns: ColumnDef<typeof features, IBlog>[] = [
     {
@@ -306,7 +304,7 @@ export default function BlogDashboard() {
   const table = useTable({
     features,
     columns,
-    data: filteredBlogs,
+    data: blogs,
   });
 
   if (isLoading) {
@@ -369,8 +367,8 @@ export default function BlogDashboard() {
           </SelectTrigger>
 
           <SelectContent>
+            <SelectItem value="all">All status</SelectItem>
             <SelectItem value="published">Published</SelectItem>
-
             <SelectItem value="draft">Draft</SelectItem>
           </SelectContent>
         </Select>
@@ -390,7 +388,7 @@ export default function BlogDashboard() {
           BLOG TABLE
       ===================================================== */}
 
-      {filteredBlogs.length === 0 ? (
+      {blogs.length === 0 ? (
         <DashboardEmpty
           title="No blogs found"
           description="Get started by adding your first Enviroshield blog."
@@ -442,7 +440,7 @@ export default function BlogDashboard() {
           PAGINATION
       ===================================================== */}
 
-      {filteredBlogs.length > 0 && (
+      {blogs.length > 0 && (
         <div className="mt-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">
