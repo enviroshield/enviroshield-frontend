@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 import { urlRedirects } from "./config/redirects";
 
 const nextConfig: NextConfig = {
+  trailingSlash: false,
+
   images: {
     remotePatterns: [
       {

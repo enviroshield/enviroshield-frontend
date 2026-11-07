@@ -35,8 +35,11 @@ test("app/robots.ts has valid crawl rules and correct sitemap reference", () => 
   assert(content.includes('allow: "/"'), "Must allow root");
   assert(content.includes('"/dashboard/"'), "Must disallow /dashboard/");
   assert(content.includes('"/api/"'), "Must disallow /api/");
-  assert(!content.includes('"/login"'), "Auth routes must not be in robots.txt disallow (to allow crawling page noindex)");
-  assert(!content.includes('"/register"'), "Register must not be in robots.txt disallow");
+  assert(content.includes('"/login"'), "Must disallow /login");
+  assert(content.includes('"/register"'), "Must disallow /register");
+  assert(content.includes('"/cart"'), "Must disallow /cart");
+  assert(content.includes('"/checkout"'), "Must disallow /checkout");
+  assert(content.includes('"/*?*search=*"'), "Must block search parameter query traps");
   assert(content.includes("sitemap: `${siteUrl}/sitemap.xml`"), "Must reference absolute sitemap");
 });
 
@@ -81,8 +84,7 @@ test("Listing pages (services, projects, blog) use clean page 1 & paginated cano
 test("Products listing: filters emit noindex, follow; unhandled queries do not trigger false noindex", () => {
   const page = fs.readFileSync(path.join(frontendRoot, "app/(main)/products/page.tsx"), "utf8");
   assert(page.includes("hasCategory = /^[0-9a-fA-F]{24}$/.test(rawCategoryId)"), "Must validate MongoDB hex ID for category filter");
-  assert(page.includes("hasFilters = hasCategory || hasPrice"), "Metadata hasFilters must match page hasFilters exactly");
-  assert(!page.includes("hasSearch"), "Metadata must not check search query when UI does not support search");
+  assert(page.includes("hasFilters = hasCategory || hasPrice || hasExtraFilters"), "Metadata hasFilters must match page hasFilters exactly");
   assert(page.includes("index: !hasFilters"), "Must set robots index to false when filters are active");
   assert(page.includes("follow: true"), "Must allow crawlers to follow links when filtered");
 });

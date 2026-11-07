@@ -40,11 +40,27 @@ export const urlRedirects: UrlRedirectRule[] = [
     status: "active",
   },
   {
+    source: "/service/:slug*",
+    destination: "/services/:slug*",
+    permanent: true,
+    reason: "Legacy WordPress service permalink",
+    evidence: "Migration mapping",
+    status: "active",
+  },
+  {
     source: "/project",
     destination: "/projects",
     permanent: true,
     reason: "Singular alias for projects listing route",
     evidence: "Backend API module convention /project mapped to frontend /projects",
+    status: "active",
+  },
+  {
+    source: "/project/:slug*",
+    destination: "/projects/:slug*",
+    permanent: true,
+    reason: "Legacy WordPress project permalink",
+    evidence: "Migration mapping",
     status: "active",
   },
   {
@@ -56,6 +72,14 @@ export const urlRedirects: UrlRedirectRule[] = [
     status: "active",
   },
   {
+    source: "/product/:slug*",
+    destination: "/products/:slug*",
+    permanent: true,
+    reason: "Legacy WordPress product permalink",
+    evidence: "Migration mapping",
+    status: "active",
+  },
+  {
     source: "/blogs",
     destination: "/blog",
     permanent: true,
@@ -63,5 +87,12 @@ export const urlRedirects: UrlRedirectRule[] = [
     evidence: "Backend API module convention /blogs mapped to frontend /blog",
     status: "active",
   },
+  {
+    source: "/blogs/:slug*",
+    destination: "/blog/:slug*",
+    permanent: true,
+    reason: "Legacy blog permalink alias",
+    evidence: "Migration mapping",
+    status: "active",
+  },
 ];
-

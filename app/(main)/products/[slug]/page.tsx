@@ -185,11 +185,7 @@ export async function generateMetadata({
         images: [ogImage],
       },
     };
-  } catch (error) {
-    if (!(error instanceof Error) || error.message !== "Product not found.") {
-      throw error;
-    }
-
+  } catch {
     return {
       title: "Product not found | Enviroshield",
       description: "The requested Enviroshield product could not be found.",
@@ -228,10 +224,8 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
   try {
     product = await getPublishedProductBySlug(slug);
-  } catch (error) {
-    if (!(error instanceof Error) || error.message !== "Product not found.") {
-      throw error;
-    }
+  } catch {
+    product = null;
   }
 
   // Only published API products can render.

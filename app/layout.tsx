@@ -9,6 +9,7 @@ import { Toaster } from "sonner";
 import { getPublicSettings } from "@/lib/api/settings";
 import { TrackingScripts } from "@/components/tracking/TrackingScripts";
 import { CookieConsentBanner } from "@/components/consent/CookieConsentBanner";
+import OrganizationSchema from "@/components/seo/OrganizationSchema";
 
 import "./globals.css";
 
@@ -95,35 +96,7 @@ export default async function RootLayout({
         <TrackingScripts settings={settings} />
 
         <TooltipProvider>
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{
-              __html: JSON.stringify({
-                "@context": "https://schema.org",
-                "@graph": [
-                  {
-                    "@type": "Organization",
-                    "@id": `${siteUrl}/#organization`,
-                    name: "EnviroShield Pvt. Ltd.",
-                    url: siteUrl,
-                    logo: {
-                      "@type": "ImageObject",
-                      url: `${siteUrl}/images/logo.png`,
-                    },
-                  },
-                  {
-                    "@type": "WebSite",
-                    "@id": `${siteUrl}/#website`,
-                    url: siteUrl,
-                    name: "EnviroShield",
-                    publisher: {
-                      "@id": `${siteUrl}/#organization`,
-                    },
-                  },
-                ],
-              }),
-            }}
-          />
+          <OrganizationSchema />
           {children}
 
           <CookieConsentBanner consentSettings={settings.consent} />
