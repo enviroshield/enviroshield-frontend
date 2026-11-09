@@ -116,6 +116,15 @@ export function AdminSettingsManager({
         newErrors["marketing.metaPixel.pixelId"] =
           "Meta Pixel ID must contain 8–20 digits";
       }
+
+      if (
+        settings.marketing.metaPixel.capi?.enabled &&
+        !settings.marketing.metaPixel.capi.accessTokenConfigured &&
+        !settings.marketing.metaPixel.capi.accessToken?.trim()
+      ) {
+        newErrors["marketing.metaPixel.capi.accessToken"] =
+          "Access token is required when Meta CAPI is enabled";
+      }
     }
 
     // Google Ads validation

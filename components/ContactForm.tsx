@@ -22,6 +22,7 @@ import { usePost } from "@/hooks/swr/usePost";
 import { EASE, viewportOnce } from "./animations/variants";
 import { useState } from "react";
 import { trackConversion } from "@/lib/analytics/events";
+import { getConversionContext } from "@/lib/analytics/conversion-context";
 
 const projectTypeOptions = [
   { value: "residential", label: "Residential" },
@@ -191,6 +192,8 @@ export function ContactForm() {
 
   async function onSubmit(values: ContactFormValues) {
     try {
+      const conversionContext = getConversionContext("lead");
+
       const payload = {
         fullName: values.fullName,
         phoneNumber: values.phoneNumber,
@@ -208,6 +211,7 @@ export function ContactForm() {
         siteVisitRequired: values.siteVisitRequired,
         projectTimeline: values.projectTimeline,
         message: values.message,
+        conversionContext,
       };
 
       const response = await postContact(payload);
@@ -217,9 +221,13 @@ export function ContactForm() {
           response.message || "Your message has been sent successfully.",
         );
 
-        trackConversion("contact_form_submitted", {
-          projectType: values.projectType,
-        });
+        trackConversion(
+          "contact_form_submitted",
+          {
+            projectType: values.projectType,
+          },
+          { eventId: conversionContext.eventId },
+        );
 
         setSent(true);
         reset();

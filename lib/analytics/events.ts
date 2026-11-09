@@ -7,13 +7,27 @@ export type ConversionAction =
   | "consultation_booking_submitted"
   | "phone_number_clicked"
   | "email_link_clicked"
-  | "whatsapp_link_clicked";
+  | "whatsapp_link_clicked"
+  | "purchase";
+
+export interface TrackConversionOptions {
+  eventId?: string;
+}
 
 type TrackingWindow = Window & {
   dataLayer?: unknown[];
-  gtag?: (command: string, actionOrConfig: string, params?: Record<string, unknown>) => void;
+  gtag?: (
+    command: string,
+    actionOrConfig: string,
+    params?: Record<string, unknown>,
+  ) => void;
   fbq?: {
-    (command: "track" | "trackCustom", eventName: string, params?: Record<string, unknown>): void;
+    (
+      command: "track" | "trackCustom",
+      eventName: string,
+      params?: Record<string, unknown>,
+      options?: { eventID?: string },
+    ): void;
     (command: "consent", action: "grant" | "revoke"): void;
     (command: "init", pixelId: string): void;
   };
@@ -28,6 +42,7 @@ export function setClientTrackingSettings(settings: ISettings) {
 export function trackConversion(
   action: ConversionAction,
   metadata?: Record<string, unknown>,
+  options?: TrackConversionOptions,
 ) {
   if (typeof window === "undefined") return;
 
@@ -44,11 +59,14 @@ export function trackConversion(
 
   // Clean non-PII payload
   const safePayload: Record<string, unknown> = {
-    event_category: "lead_generation",
+    event_category: action === "purchase" ? "ecommerce" : "lead_generation",
     event_label: action,
     page_location: window.location.pathname,
+    ...(options?.eventId ? { event_id: options.eventId } : {}),
     ...(metadata || {}),
   };
+
+  const fbqOptions = options?.eventId ? { eventID: options.eventId } : undefined;
 
   // 1. Google Analytics & GTM dataLayer
   if (allowAnalytics) {
@@ -70,24 +88,49 @@ export function trackConversion(
       switch (action) {
         case "contact_form_submitted":
         case "quote_request_submitted":
-          currentWindow.fbq("track", "Lead", {
-            content_name: action,
-            ...safePayload,
-          });
+          currentWindow.fbq(
+            "track",
+            "Lead",
+            {
+              content_name: action,
+              ...safePayload,
+            },
+            fbqOptions,
+          );
           break;
         case "consultation_booking_submitted":
-          currentWindow.fbq("track", "Schedule", {
-            content_name: action,
-            ...safePayload,
-          });
+          currentWindow.fbq(
+            "track",
+            "Schedule",
+            {
+              content_name: action,
+              ...safePayload,
+            },
+            fbqOptions,
+          );
+          break;
+        case "purchase":
+          currentWindow.fbq(
+            "track",
+            "Purchase",
+            {
+              ...safePayload,
+            },
+            fbqOptions,
+          );
           break;
         case "phone_number_clicked":
         case "email_link_clicked":
         case "whatsapp_link_clicked":
-          currentWindow.fbq("track", "Contact", {
-            content_name: action,
-            ...safePayload,
-          });
+          currentWindow.fbq(
+            "track",
+            "Contact",
+            {
+              content_name: action,
+              ...safePayload,
+            },
+            fbqOptions,
+          );
           break;
         default:
           currentWindow.fbq("trackCustom", action, safePayload);

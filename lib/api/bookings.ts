@@ -19,6 +19,13 @@ export interface CreateBookingRequest {
   serviceId: string;
   project: BookingProject;
   isSiteVisit?: boolean;
+  conversionContext?: {
+    eventId?: string;
+    fbp?: string;
+    fbc?: string;
+    eventSourceUrl?: string;
+    marketingConsent?: boolean;
+  };
 }
 
 export interface BookingUserSummary {

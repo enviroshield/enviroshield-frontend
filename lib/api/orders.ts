@@ -17,6 +17,13 @@ export interface CreateOrderRequest {
   };
   deliveryZone: DeliveryZone;
   customerNote?: string;
+  conversionContext?: {
+    eventId?: string;
+    fbp?: string;
+    fbc?: string;
+    eventSourceUrl?: string;
+    marketingConsent?: boolean;
+  };
 }
 
 export interface CreatedOrderConfirmation {

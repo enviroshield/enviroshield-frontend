@@ -24,6 +24,7 @@ import { z } from "zod";
 import Container from "@/components/Container";
 import { Button } from "@/components/ui/button";
 import { trackConversion } from "@/lib/analytics/events";
+import { getConversionContext } from "@/lib/analytics/conversion-context";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -149,6 +150,8 @@ export default function ServiceBookingForm({ service }: ServiceBookingFormProps)
         ? Number(values.areaSize)
         : undefined;
 
+    const conversionContext = getConversionContext("book");
+
     const payload: CreateBookingRequest = {
       serviceId: service._id,
       project: {
@@ -158,6 +161,7 @@ export default function ServiceBookingForm({ service }: ServiceBookingFormProps)
         ...(values.message?.trim() ? { message: values.message.trim() } : {}),
       },
       isSiteVisit: Boolean(values.isSiteVisit),
+      conversionContext,
     };
 
     try {
@@ -169,9 +173,13 @@ export default function ServiceBookingForm({ service }: ServiceBookingFormProps)
 
       toast.success("Service booking request submitted successfully!");
 
-      trackConversion("consultation_booking_submitted", {
-        serviceId: service._id,
-      });
+      trackConversion(
+        "consultation_booking_submitted",
+        {
+          serviceId: service._id,
+        },
+        { eventId: conversionContext.eventId },
+      );
 
       router.push(
         `/services/booking-success?bookingId=${encodeURIComponent(response.data._id)}`,

@@ -27,9 +27,18 @@ export interface IAnalyticsSettings {
   gtm: IGtmSettings;
 }
 
+export interface IMetaCapiSettings {
+  enabled: boolean;
+  accessToken?: string;
+  accessTokenConfigured?: boolean;
+  clearAccessToken?: boolean;
+  testEventCode?: string;
+}
+
 export interface IMetaPixelSettings {
   enabled: boolean;
   pixelId: string;
+  capi?: IMetaCapiSettings;
 }
 
 export interface IGoogleAdsConversionLabels {
@@ -103,6 +112,12 @@ export const defaultSettingsValues: ISettings = {
     metaPixel: {
       enabled: false,
       pixelId: "",
+      capi: {
+        enabled: false,
+        accessToken: "",
+        accessTokenConfigured: false,
+        testEventCode: "",
+      },
     },
     googleAds: {
       enabled: false,

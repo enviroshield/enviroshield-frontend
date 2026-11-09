@@ -63,6 +63,9 @@ Configuration is centralized in MongoDB via the backend `Settings` singleton doc
 | | `gtm.containerId` | `^GTM-[A-Z0-9]+$` (e.g. `GTM-XXXXXXX`) | Google Tag Manager Web Container ID. |
 | **Advertising** | `metaPixel.enabled` | Boolean | Enable/disable Meta Pixel tracking. |
 | | `metaPixel.pixelId` | `^\d{8,20}$` (numeric digits) | Meta Events Manager Pixel ID. |
+| | `metaPixel.capi.enabled` | Boolean | Enable/disable Meta Conversions API (server-side tracking). |
+| | `metaPixel.capi.accessToken` | Secret string (Write-only) | Meta System User Access Token (encrypted at rest with AES-256-GCM). |
+| | `metaPixel.capi.testEventCode`| String (Optional) | Meta Test Event Code for testing via Events Manager. |
 | | `googleAds.enabled` | Boolean | Enable/disable Google Ads conversion reporting. |
 | | `googleAds.conversionId` | `^(AW-)?[0-9]+$` (e.g. `AW-123456789`) | Google Ads Conversion Tracking ID. |
 | | `googleAds.conversionLabels` | Alphanumeric string per action | Label mapping for conversions (see Section 5). |
@@ -94,9 +97,16 @@ Configuration is centralized in MongoDB via the backend `Settings` singleton doc
 1. In Google Tag Manager, locate your **Container ID** in the top navigation bar (format: `GTM-XXXXXXX`).
 2. In Enviroshield Admin Dashboard $\rightarrow$ **Settings** $\rightarrow$ **Analytics**, toggle **Google Tag Manager** to ON, paste your Container ID, and click **Save Settings**.
 
-### D. Meta Pixel
+### D. Meta Pixel & Conversions API (CAPI)
 1. In [Meta Events Manager](https://business.facebook.com/events_manager2), go to **Data Sources** and copy your **Pixel ID** (15–16 digit number).
-2. In Enviroshield Admin Dashboard $\rightarrow$ **Settings** $\rightarrow$ **Advertising**, toggle **Meta Pixel** to ON, paste your Pixel ID, and click **Save Settings**.
+2. Under **Settings → Conversions API**, generate a **System User Access Token**.
+3. In Enviroshield Admin Dashboard $\rightarrow$ **Settings** $\rightarrow$ **Advertising**:
+   - Toggle **Meta Pixel** to ON and paste your Pixel ID.
+   - Toggle **Meta Conversions API** to ON and paste your Access Token.
+   - (Optional) Enter a **Test Event Code** (e.g. `TEST12345`) while verifying in Events Manager.
+   - Click **Save Settings**.
+4. The backend securely encrypts the token at rest using AES-256-GCM. The token is never returned to the browser or included in public HTML.
+5. All conversion events (`Lead`, `Schedule`, `Purchase`) are dispatched from both the browser Pixel and server CAPI sharing the exact same `eventID` for automatic Meta deduplication.
 
 ---
 

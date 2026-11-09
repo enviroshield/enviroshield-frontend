@@ -40,6 +40,8 @@ import type {
 import { authClient } from "@/lib/auth-client";
 import { clearCart } from "@/lib/cart";
 import { getProductImageUrl } from "@/lib/products/images";
+import { trackConversion } from "@/lib/analytics/events";
+import { getConversionContext } from "@/lib/analytics/conversion-context";
 
 const checkoutSchema = z.object({
   name: z
@@ -203,6 +205,7 @@ export default function CheckoutForm() {
     setRequestError("");
 
     const phone = values.phone.trim().replace(/[\s()-]/g, "");
+    const conversionContext = getConversionContext("order");
 
     const payload: CreateOrderRequest = {
       items: items.map((item) => ({
@@ -226,6 +229,7 @@ export default function CheckoutForm() {
       ...(values.customerNote.trim()
         ? { customerNote: values.customerNote.trim() }
         : {}),
+      conversionContext,
     };
 
     try {
@@ -234,6 +238,28 @@ export default function CheckoutForm() {
       if (!order?.data?._id || !order?.data?.orderNumber) {
         throw new Error("The order response was incomplete.");
       }
+
+      // Fire Purchase event through browser Pixel with matching event ID for deduplication
+      trackConversion(
+        "purchase",
+        {
+          order_id: order.data._id,
+          order_number: order.data.orderNumber,
+          currency: order.data.currency || "BDT",
+          value: order.data.totalAmount,
+          content_type: "product",
+          contents: items.map((item) => ({
+            id: item.productId,
+            quantity: item.quantity,
+            item_price: item.price,
+          })),
+          num_items: items.reduce(
+            (acc: number, item) => acc + item.quantity,
+            0,
+          ),
+        },
+        { eventId: conversionContext.eventId },
+      );
 
       clearCart();
 
