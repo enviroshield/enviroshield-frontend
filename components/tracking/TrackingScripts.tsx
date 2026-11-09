@@ -1,13 +1,13 @@
 "use client";
 
-import Script from "next/script";
-import { useEffect } from "react";
+import { setClientTrackingSettings } from "@/lib/analytics/events";
 import {
   CONSENT_EVENT_NAME,
   VisitorConsent,
 } from "@/lib/consent/consent-store";
-import { setClientTrackingSettings } from "@/lib/analytics/events";
 import { ISettings } from "@/types/settings.type";
+import Script from "next/script";
+import { useEffect } from "react";
 import { GlobalLinkTracker } from "./GlobalLinkTracker";
 
 interface TrackingScriptsProps {
@@ -31,13 +31,18 @@ export function TrackingScripts({ settings }: TrackingScriptsProps) {
   const { analytics, marketing, consent } = settings;
 
   const isConsentEnabled = Boolean(consent?.enabled);
-  const ga4Enabled = Boolean(analytics?.ga4?.enabled && analytics?.ga4?.measurementId);
-  const gtmEnabled = Boolean(analytics?.gtm?.enabled && analytics?.gtm?.containerId);
+  const ga4Enabled = Boolean(
+    analytics?.ga4?.enabled && analytics?.ga4?.measurementId,
+  );
+  const gtmEnabled = Boolean(
+    analytics?.gtm?.enabled && analytics?.gtm?.containerId,
+  );
   const metaPixelEnabled = Boolean(
     marketing?.metaPixel?.enabled && marketing?.metaPixel?.pixelId,
   );
   const googleAdsEnabled = Boolean(
-    marketing?.googleAds?.enabled && marketing?.googleAds?.conversionId,
+    marketing?.googleAds?.enabled &&
+    marketing?.googleAds?.conversionId,
   );
 
   useEffect(() => {
@@ -53,10 +58,14 @@ export function TrackingScripts({ settings }: TrackingScriptsProps) {
         // Update Google Consent Mode v2
         if (typeof currentWindow.gtag === "function") {
           currentWindow.gtag("consent", "update", {
-            analytics_storage: detail.analytics ? "granted" : "denied",
+            analytics_storage: detail.analytics
+              ? "granted"
+              : "denied",
             ad_storage: detail.marketing ? "granted" : "denied",
             ad_user_data: detail.marketing ? "granted" : "denied",
-            ad_personalization: detail.marketing ? "granted" : "denied",
+            ad_personalization: detail.marketing
+              ? "granted"
+              : "denied",
           });
         }
 
@@ -73,9 +82,44 @@ export function TrackingScripts({ settings }: TrackingScriptsProps) {
 
     window.addEventListener(CONSENT_EVENT_NAME, handleConsentChange);
     return () => {
-      window.removeEventListener(CONSENT_EVENT_NAME, handleConsentChange);
+      window.removeEventListener(
+        CONSENT_EVENT_NAME,
+        handleConsentChange,
+      );
     };
   }, []);
+
+  // Load Google Tag Manager after the component mounts.
+  useEffect(() => {
+    if (!gtmEnabled || !analytics?.gtm?.containerId) return;
+
+    // Prevent duplicate GTM installations.
+    if (document.getElementById("enviroshield-gtm-loader")) return;
+
+    const containerId = analytics.gtm.containerId;
+
+    const trackingWindow = window as Window & {
+      dataLayer?: Array<Record<string, unknown>>;
+    };
+
+    // Initialize the data layer.
+    trackingWindow.dataLayer = trackingWindow.dataLayer || [];
+
+    // Initialize GTM.
+    trackingWindow.dataLayer.push({
+      "gtm.start": Date.now(),
+      event: "gtm.js",
+    });
+
+    // Create and load the GTM script.
+    const script = document.createElement("script");
+
+    script.id = "enviroshield-gtm-loader";
+    script.async = true;
+    script.src = `https://www.googletagmanager.com/gtm.js?id=${containerId}`;
+
+    document.head.appendChild(script);
+  }, [gtmEnabled, analytics?.gtm?.containerId]);
 
   return (
     <>
@@ -155,23 +199,6 @@ export function TrackingScripts({ settings }: TrackingScriptsProps) {
             }}
           />
         </>
-      )}
-
-      {/* 3. Google Tag Manager */}
-      {gtmEnabled && (
-        <Script
-          id="gtm-script"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-              new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-              j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-              'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-              })(window,document,'dataLayer','${analytics.gtm.containerId}');
-            `,
-          }}
-        />
       )}
 
       {/* 4. Meta Pixel */}
