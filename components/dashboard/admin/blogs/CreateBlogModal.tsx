@@ -16,6 +16,7 @@ import { z } from "zod";
 import { usePost } from "@/hooks/swr/usePost";
 import { usePersistentFormDraft } from "@/hooks/usePersistentFormDraft";
 
+import { formatAltFromFileName } from "@/lib/utils";
 import { ImageUploader } from "@/components/image-uploader";
 import {
   Dialog,
@@ -589,7 +590,13 @@ export default function CreateBlogModal({
                             imagePublicId={watch(
                               "coverImage.publicId",
                             )}
-                            onChange={(url, publicId) => {
+                            onFileSelect={(file) => {
+                              setValue("coverImage.alt", formatAltFromFileName(file.name), {
+                                shouldDirty: true,
+                                shouldValidate: true,
+                              });
+                            }}
+                            onChange={(url, publicId, file) => {
                               field.onChange(url);
 
                               setValue(
@@ -600,6 +607,13 @@ export default function CreateBlogModal({
                                   shouldValidate: true,
                                 },
                               );
+
+                              if (file) {
+                                setValue("coverImage.alt", formatAltFromFileName(file.name), {
+                                  shouldDirty: true,
+                                  shouldValidate: true,
+                                });
+                              }
 
                               syncOgImageWithCover(url, publicId);
                             }}

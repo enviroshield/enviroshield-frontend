@@ -10,6 +10,7 @@ import { z } from "zod";
 import { usePost } from "@/hooks/swr/usePost";
 import { usePersistentFormDraft } from "@/hooks/usePersistentFormDraft";
 
+import { formatAltFromFileName } from "@/lib/utils";
 import { ImageUploader } from "@/components/image-uploader";
 import {
   Dialog,
@@ -339,7 +340,17 @@ export default function CreateTestimonialModal({
                         <ImageUploader
                           value={field.value || ""}
                           imagePublicId={clientImagePublicId || ""}
-                          onChange={(url, publicId) => {
+                          onFileSelect={(file) => {
+                            setValue(
+                              "clientImage.alt",
+                              formatAltFromFileName(file.name),
+                              {
+                                shouldDirty: true,
+                                shouldValidate: true,
+                              },
+                            );
+                          }}
+                          onChange={(url, publicId, file) => {
                             field.onChange(url);
 
                             setValue(
@@ -350,6 +361,17 @@ export default function CreateTestimonialModal({
                                 shouldValidate: true,
                               },
                             );
+
+                            if (file) {
+                              setValue(
+                                "clientImage.alt",
+                                formatAltFromFileName(file.name),
+                                {
+                                  shouldDirty: true,
+                                  shouldValidate: true,
+                                },
+                              );
+                            }
                           }}
                         />
 

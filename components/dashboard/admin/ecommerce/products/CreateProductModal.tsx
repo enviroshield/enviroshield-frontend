@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { usePost } from "@/hooks/swr/usePost";
 import { useFetch } from "@/hooks/swr/useFetch";
 import { usePersistentFormDraft } from "@/hooks/usePersistentFormDraft";
+import { formatAltFromFileName } from "@/lib/utils";
 
 import { ImageUploader } from "@/components/image-uploader";
 import {
@@ -756,12 +757,24 @@ export default function CreateProductModal({
                         <ImageUploader
                           value={field.value}
                           imagePublicId={primaryImagePublicId}
-                          onChange={(url, publicId) => {
+                          onFileSelect={(file) => {
+                            setValue("primaryImage.alt", formatAltFromFileName(file.name), {
+                              shouldDirty: true,
+                              shouldValidate: true,
+                            });
+                          }}
+                          onChange={(url, publicId, file) => {
                             field.onChange(url);
                             setValue("primaryImage.publicId", publicId, {
                               shouldDirty: true,
                               shouldValidate: true,
                             });
+                            if (file) {
+                              setValue("primaryImage.alt", formatAltFromFileName(file.name), {
+                                shouldDirty: true,
+                                shouldValidate: true,
+                              });
+                            }
                             syncOgImageWithPrimary(url, publicId);
                           }}
                         />
@@ -806,8 +819,14 @@ export default function CreateProductModal({
                     <ImageUploader
                       value={galleryImage.url}
                       imagePublicId={galleryImage.publicId}
-                      onChange={(url, publicId) => {
+                      onFileSelect={(file) => {
+                        setGalleryAlt(formatAltFromFileName(file.name));
+                      }}
+                      onChange={(url, publicId, file) => {
                         setGalleryImage({ url, publicId });
+                        if (file) {
+                          setGalleryAlt(formatAltFromFileName(file.name));
+                        }
                       }}
                     />
 

@@ -16,6 +16,7 @@ import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import { formatAltFromFileName } from "@/lib/utils";
 import { ImageUploader } from "@/components/image-uploader";
 import {
   Dialog,
@@ -922,12 +923,24 @@ function ImageFields({
             <ImageUploader
               value={field.value}
               imagePublicId={watch(publicIdName)}
-              onChange={(url, publicId) => {
+              onFileSelect={(file) => {
+                setValue(altName, formatAltFromFileName(file.name), {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                });
+              }}
+              onChange={(url, publicId, file) => {
                 field.onChange(url);
                 setValue(publicIdName, publicId, {
                   shouldDirty: true,
                   shouldValidate: true,
                 });
+                if (file) {
+                  setValue(altName, formatAltFromFileName(file.name), {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  });
+                }
               }}
             />
             {imageErrors?.url?.message && (

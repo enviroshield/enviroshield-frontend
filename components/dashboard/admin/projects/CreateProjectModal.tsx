@@ -16,6 +16,7 @@ import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import { formatAltFromFileName } from "@/lib/utils";
 import { ImageUploader } from "@/components/image-uploader";
 import {
   Dialog,
@@ -914,7 +915,17 @@ export default function CreateProjectModal({
                                   imagePublicId={watch(
                                     `gallery.${index}.publicId`,
                                   )}
-                                  onChange={(url, publicId) => {
+                                  onFileSelect={(file) => {
+                                    setValue(
+                                      `gallery.${index}.alt`,
+                                      formatAltFromFileName(file.name),
+                                      {
+                                        shouldDirty: true,
+                                        shouldValidate: true,
+                                      },
+                                    );
+                                  }}
+                                  onChange={(url, publicId, file) => {
                                     field.onChange(url);
 
                                     setValue(
@@ -925,6 +936,17 @@ export default function CreateProjectModal({
                                         shouldValidate: true,
                                       },
                                     );
+
+                                    if (file) {
+                                      setValue(
+                                        `gallery.${index}.alt`,
+                                        formatAltFromFileName(file.name),
+                                        {
+                                          shouldDirty: true,
+                                          shouldValidate: true,
+                                        },
+                                      );
+                                    }
                                   }}
                                 />
 
@@ -1299,13 +1321,26 @@ function ImageFields({
             <ImageUploader
               value={field.value}
               imagePublicId={watch(`${name}.publicId`)}
-              onChange={(url, publicId) => {
+              onFileSelect={(file) => {
+                setValue(`${name}.alt`, formatAltFromFileName(file.name), {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                });
+              }}
+              onChange={(url, publicId, file) => {
                 field.onChange(url);
 
                 setValue(`${name}.publicId`, publicId, {
                   shouldDirty: true,
                   shouldValidate: true,
                 });
+
+                if (file) {
+                  setValue(`${name}.alt`, formatAltFromFileName(file.name), {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  });
+                }
 
                 onImageChange?.(url, publicId);
               }}

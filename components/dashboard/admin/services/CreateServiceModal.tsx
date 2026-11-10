@@ -15,6 +15,7 @@ import { useState, type ReactNode } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { formatAltFromFileName } from "@/lib/utils";
 import { ImageUploader } from "@/components/image-uploader";
 import {
   Dialog,
@@ -1122,13 +1123,26 @@ function ImageFields({
             <ImageUploader
               value={field.value}
               imagePublicId={watch(publicIdName)}
-              onChange={(url, publicId) => {
+              onFileSelect={(file) => {
+                setValue(altName, formatAltFromFileName(file.name), {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                });
+              }}
+              onChange={(url, publicId, file) => {
                 field.onChange(url);
 
                 setValue(publicIdName, publicId, {
                   shouldDirty: true,
                   shouldValidate: true,
                 });
+
+                if (file) {
+                  setValue(altName, formatAltFromFileName(file.name), {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  });
+                }
 
                 onImageChange?.(url, publicId);
               }}
@@ -1230,7 +1244,17 @@ function ContentSection({
               <ImageUploader
                 value={field.value}
                 imagePublicId={watch(`${sectionName}.image.publicId`)}
-                onChange={(url, publicId) => {
+                onFileSelect={(file) => {
+                  setValue(
+                    `${sectionName}.image.alt`,
+                    formatAltFromFileName(file.name),
+                    {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                    },
+                  );
+                }}
+                onChange={(url, publicId, file) => {
                   field.onChange(url);
 
                   setValue(
@@ -1241,6 +1265,17 @@ function ContentSection({
                       shouldValidate: true,
                     },
                   );
+
+                  if (file) {
+                    setValue(
+                      `${sectionName}.image.alt`,
+                      formatAltFromFileName(file.name),
+                      {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      },
+                    );
+                  }
                 }}
               />
 

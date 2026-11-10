@@ -13,13 +13,15 @@ import { toast } from "sonner";
 interface ImageUploaderProps {
   value?: string;
   imagePublicId?: string;
-  onChange: (url: string, public_id: string) => void;
+  onChange: (url: string, public_id: string, file?: File) => void;
+  onFileSelect?: (file: File) => void;
 }
 
 export const ImageUploader = ({
   value,
   imagePublicId: imagePublicInitialId,
   onChange,
+  onFileSelect,
 }: ImageUploaderProps) => {
   const [preview, setPreview] = useState<string | null>(
     value || null,
@@ -61,6 +63,8 @@ export const ImageUploader = ({
       toast.error("Please select a valid image file.");
       return;
     }
+
+    onFileSelect?.(file);
 
     const previousLocalPreview = localPreviewRef.current;
     if (previousLocalPreview) {
@@ -133,7 +137,7 @@ export const ImageUploader = ({
 
       setImagePublicId(data.public_id);
       setPreview(data.url);
-      onChange(data.url, data.public_id);
+      onChange(data.url, data.public_id, file);
     } catch (error) {
       if (localPreviewRef.current) {
         URL.revokeObjectURL(localPreviewRef.current);

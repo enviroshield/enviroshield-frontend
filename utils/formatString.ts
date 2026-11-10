@@ -24,3 +24,16 @@ export function capitalize(value: string, fallback = ""): string {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
+/**
+ * Generates clean, human-readable alt text from an uploaded file name.
+ * e.g. "enviroshield-pure-silk.png" -> "Enviroshield Pure Silk"
+ * e.g. "waterproofing_coating_bucket.jpg" -> "Waterproofing Coating Bucket"
+ */
+export function formatAltFromFileName(filename?: string, fallback = ""): string {
+  if (!filename) return fallback;
+  const withoutExt = filename.replace(/\.[a-zA-Z0-9]+$/, "").trim();
+  const cleaned = withoutExt.replace(/[-_]+/g, " ").replace(/\s+/g, " ").trim();
+  if (!cleaned) return fallback;
+  return cleaned.replace(/\b\w/g, (char) => char.toUpperCase());
+}
+

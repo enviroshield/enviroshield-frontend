@@ -7,6 +7,7 @@ import {
   EditorContent,
   useEditor,
 } from "@tiptap/react";
+import { formatAltFromFileName } from "@/lib/utils";
 import StarterKit from "@tiptap/starter-kit";
 import {
   AlignCenter,
@@ -158,7 +159,7 @@ export default function BlogEditor({
         .focus()
         .setImage({
           src: data.url,
-          alt: file.name,
+          alt: formatAltFromFileName(file.name),
         })
         .run();
     } catch (error) {
