@@ -288,7 +288,7 @@ function OrderTrackingTimeline({ order }: { order: AdminOrder }) {
                     }
                     animate={{ opacity: 1 }}
                     transition={nodeFade}
-                    className={`absolute inset-0 block ${
+                    className={`absolute inset-0 block whitespace-nowrap ${
                       isCurrent
                         ? "font-semibold text-blue"
                         : "text-foreground"
@@ -449,9 +449,14 @@ export default function OrderDetailsModal({
                       </div>
                       <div className="min-w-[140px] flex-1">
                         <p className="font-medium">{item.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          SKU: {item.sku}
-                        </p>
+                        <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                          {item.weight || item.size ? (
+                            <span className="rounded bg-blue/10 px-1.5 py-0.5 font-semibold text-blue">
+                              Weight: {item.weight || item.size}
+                            </span>
+                          ) : null}
+                          <span>SKU: {item.sku}</span>
+                        </div>
                       </div>
                       <div className="grid w-full grid-cols-3 gap-2 text-sm sm:w-auto sm:min-w-[300px]">
                         <Detail

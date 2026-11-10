@@ -152,9 +152,10 @@ export default function CartDrawer({
                 <ul className="min-h-0 flex-1 divide-y divide-line overflow-y-auto overscroll-contain px-6">
                   {items.map((item) => {
                     const image = getProductImageUrl(item.image);
+                    const itemKey = `${item.productId}:${item.variantId || ""}`;
                     return (
                       <li
-                        key={item.productId}
+                        key={itemKey}
                         className="flex gap-4 py-5"
                       >
                         <Link
@@ -187,16 +188,23 @@ export default function CartDrawer({
                               >
                                 {item.name}
                               </Link>
-                              {item.sku && (
-                                <p className="mt-1 text-xs text-ink/55">
-                                  SKU: {item.sku}
-                                </p>
-                              )}
+                              <div className="mt-1 flex flex-wrap items-center gap-2">
+                                {(item.weight || item.size) && (
+                                  <span className="inline-flex items-center rounded bg-blue/10 px-1.5 py-0.5 text-[11px] font-semibold text-blue">
+                                    Weight: {item.weight || item.size}
+                                  </span>
+                                )}
+                                {item.sku && (
+                                  <p className="text-xs text-ink/55">
+                                    SKU: {item.sku}
+                                  </p>
+                                )}
+                              </div>
                             </div>
                             <button
                               type="button"
                               onClick={() =>
-                                removeItem(item.productId)
+                                removeItem(item.productId, item.variantId)
                               }
                               aria-label={`Remove ${item.name} from cart`}
                               className="grid size-8 shrink-0 place-items-center rounded-full text-ink/50 transition-colors hover:bg-red-50 hover:text-red-600 focus-visible:outline-2 focus-visible:outline-blue"
@@ -212,6 +220,7 @@ export default function CartDrawer({
                                   setQuantity(
                                     item.productId,
                                     item.quantity - 1,
+                                    item.variantId,
                                   )
                                 }
                                 disabled={item.quantity <= 1}
@@ -232,6 +241,7 @@ export default function CartDrawer({
                                   setQuantity(
                                     item.productId,
                                     item.quantity + 1,
+                                    item.variantId,
                                   )
                                 }
                                 disabled={

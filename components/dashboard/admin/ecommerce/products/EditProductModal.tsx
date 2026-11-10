@@ -11,7 +11,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import { toast } from "sonner";
 
@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -64,6 +65,17 @@ const seoSchema = z.object({
   noIndex: z.boolean(),
 });
 
+const variantSchema = z.object({
+  _id: z.string().optional(),
+  weight: z.string().trim().min(1, "Weight is required"),
+  size: z.string().trim().optional(),
+  price: z.coerce.number().positive("Price must be greater than zero"),
+  costPrice: z.coerce.number().min(0, "Cost price cannot be negative").default(0),
+  sku: z.string().trim().optional(),
+  stockQuantity: z.coerce.number().int().min(0, "Stock cannot be negative").default(0),
+  lowStockThreshold: z.coerce.number().int().min(0).default(5),
+});
+
 const formSchema = z.object({
   name: z.string().trim().min(1, "Product name is required"),
   slug: z
@@ -80,16 +92,30 @@ const formSchema = z.object({
   description: z.any(),
   primaryImage: imageSchema,
   gallery: z.array(imageSchema).optional().default([]),
-  price: z.coerce.number().positive("Price must be greater than zero"),
-  costPrice: z.coerce.number().min(0, "Cost price cannot be negative"),
-  weight: z.coerce.number().positive("Weight must be greater than zero"),
+  variants: z
+    .array(variantSchema)
+    .min(1, "Add at least one product weight variant")
+    .refine(
+      (variants) => {
+        const weights = variants.map((v) =>
+          (v.weight || v.size || "").trim().toLowerCase(),
+        );
+        return new Set(weights).size === weights.length;
+      },
+      { message: "Duplicate variant weights are not allowed" },
+    ),
+  price: z.coerce.number().min(0).optional().default(0),
+  costPrice: z.coerce.number().min(0).optional().default(0),
+  weight: z.coerce.number().min(0).optional().default(0),
   tdsUrl: z.string().trim().url("Enter a valid TDS URL"),
   tdsPublicId: z.string().trim().min(1, "TDS public ID is required"),
-  stockQuantity: z.coerce.number().int().min(0, "Stock cannot be negative"),
+  stockQuantity: z.coerce.number().int().min(0).optional().default(0),
   lowStockThreshold: z.coerce
     .number()
     .int()
-    .min(0, "Low-stock threshold cannot be negative"),
+    .min(0, "Low-stock threshold cannot be negative")
+    .optional()
+    .default(5),
   status: z.enum(["draft", "published"]),
   isFeatured: z.boolean(),
   seo: seoSchema,
@@ -123,9 +149,20 @@ const defaultValues: FormValues = {
     alt: "",
   },
   gallery: [],
+  variants: [
+    {
+      weight: "",
+      size: "",
+      price: 0,
+      costPrice: 0,
+      sku: "",
+      stockQuantity: 0,
+      lowStockThreshold: 5,
+    },
+  ],
   price: 0,
   costPrice: 0,
-  weight: 1,
+  weight: 0,
   tdsUrl: "",
   tdsPublicId: "",
   stockQuantity: 0,
@@ -169,9 +206,32 @@ const getProductFormValues = (product: IProduct): FormValues => ({
         alt: image.alt ?? "",
       }))
     : [],
+  variants:
+    Array.isArray(product.variants) && product.variants.length > 0
+      ? product.variants.map((v) => ({
+          _id: v._id,
+          weight: v.weight || v.size || "",
+          size: v.size || v.weight || "",
+          price: v.price ?? 0,
+          costPrice: v.costPrice ?? 0,
+          sku: v.sku ?? "",
+          stockQuantity: v.stockQuantity ?? 0,
+          lowStockThreshold: v.lowStockThreshold ?? 5,
+        }))
+      : [
+          {
+            weight: product.weight > 0 ? `${product.weight} kg` : "Standard",
+            size: product.weight > 0 ? `${product.weight} kg` : "Standard",
+            price: product.price ?? 0,
+            costPrice: product.costPrice ?? 0,
+            sku: product.sku ?? "",
+            stockQuantity: product.stockQuantity ?? 0,
+            lowStockThreshold: product.lowStockThreshold ?? 5,
+          },
+        ],
   price: product.price ?? 0,
   costPrice: product.costPrice ?? 0,
-  weight: product.weight ?? 1,
+  weight: product.weight ?? 0,
   tdsUrl: product.tdsUrl ?? "",
   tdsPublicId: product.tdsPublicId ?? "",
   stockQuantity: product.stockQuantity ?? 0,
@@ -222,15 +282,7 @@ const steps = [
 const stepFields = [
   ["name", "slug", "sku", "categoryId", "shortDescription"],
   ["description", "primaryImage", "gallery"],
-  [
-    "price",
-    "costPrice",
-    "weight",
-    "stockQuantity",
-    "lowStockThreshold",
-    "tdsUrl",
-    "tdsPublicId",
-  ],
+  ["variants", "tdsUrl", "tdsPublicId"],
   ["status", "isFeatured", "seo"],
 ] as const;
 
@@ -269,6 +321,11 @@ export default function EditProductModal({
   } = useForm<FormInputValues, unknown, FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues,
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "variants",
   });
 
   const currentKeywords = watch("seo.keywords") ?? [];
@@ -382,6 +439,13 @@ export default function EditProductModal({
     if (!product) return;
 
     try {
+      const prices = data.variants.map((v) => v.price);
+      const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
+      const totalStock = data.variants.reduce(
+        (sum, v) => sum + (v.stockQuantity || 0),
+        0,
+      );
+
       const payload = {
         name: data.name.trim(),
         slug: data.slug.trim(),
@@ -391,13 +455,25 @@ export default function EditProductModal({
         description: data.description,
         primaryImage: data.primaryImage,
         gallery: data.gallery,
-        price: data.price,
-        costPrice: data.costPrice,
-        weight: data.weight,
+        variants: data.variants.map((v) => {
+          const label = (v.weight || v.size || "").trim();
+          return {
+            ...v,
+            weight: label,
+            size: label,
+          };
+        }),
+        price: minPrice,
+        costPrice: data.costPrice || 0,
+        weight: (() => {
+          const first = data.variants[0]?.weight || "";
+          const parsed = parseFloat(first.replace(/[^0-9.]/g, ""));
+          return !isNaN(parsed) && parsed > 0 ? parsed : 0;
+        })(),
         tdsUrl: data.tdsUrl.trim(),
         tdsPublicId: data.tdsPublicId.trim(),
-        stockQuantity: data.stockQuantity,
-        lowStockThreshold: data.lowStockThreshold,
+        stockQuantity: totalStock,
+        lowStockThreshold: data.lowStockThreshold || 5,
         status: data.status,
         isFeatured: data.isFeatured,
         publishedAt:
@@ -873,122 +949,151 @@ export default function EditProductModal({
               {/* STEP 3: PRICING, INVENTORY & TDS */}
               {currentStep === 2 && (
                 <section className="space-y-6">
-                  <div>
-                    <h3 className="text-lg font-bold text-navy">
-                      Pricing & Inventory
-                    </h3>
-                    <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                      Enter pricing, stock levels, product weight and technical
-                      data sheet details.
-                    </p>
+                  <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                      <h3 className="text-lg font-bold text-navy">
+                        Weight & Pricing Variants
+                      </h3>
+                      <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                        Define available weights (e.g., 1 Kg, 5 Kg, 20 Kg, 4 Ltr), pricing, and stock for each variant.
+                      </p>
+                    </div>
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        append({
+                          weight: "",
+                          size: "",
+                          price: 0,
+                          costPrice: 0,
+                          sku: "",
+                          stockQuantity: 0,
+                          lowStockThreshold: 5,
+                        })
+                      }
+                      className="inline-flex items-center gap-1.5 border-blue text-blue hover:bg-blue/10"
+                    >
+                      <Plus size={15} />
+                      Add Variant
+                    </Button>
                   </div>
 
-                  <div className="grid gap-5 md:grid-cols-3">
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="product-price"
-                        className="font-semibold text-navy"
-                      >
-                        Selling Price *
-                      </Label>
-                      <Input
-                        id="product-price"
-                        type="number"
-                        min="0.01"
-                        step="0.01"
-                        {...register("price")}
-                      />
-                      {errors.price && (
-                        <p className="text-sm text-destructive">
-                          {errors.price.message}
-                        </p>
-                      )}
-                    </div>
+                  {errors.variants && !Array.isArray(errors.variants) && (
+                    <p className="rounded-xl border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive">
+                      {(errors.variants as any).message || (errors.variants as any).root?.message}
+                    </p>
+                  )}
 
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="product-cost-price"
-                        className="font-semibold text-navy"
-                      >
-                        Cost Price *
-                      </Label>
-                      <Input
-                        id="product-cost-price"
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        {...register("costPrice")}
-                      />
-                      {errors.costPrice && (
-                        <p className="text-sm text-destructive">
-                          {errors.costPrice.message}
-                        </p>
-                      )}
-                    </div>
+                  <div className="space-y-4">
+                    {fields.map((field, index) => {
+                      const variantError = errors.variants?.[index];
+                      return (
+                        <div
+                          key={field.id}
+                          className="relative rounded-2xl border bg-card p-5 shadow-sm transition-all hover:border-blue/30"
+                        >
+                          <div className="mb-4 flex items-center justify-between border-b pb-3">
+                            <span className="text-xs font-bold uppercase tracking-wider text-blue">
+                              Variant #{index + 1}
+                            </span>
+                            {fields.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => remove(index)}
+                                className="inline-flex items-center gap-1 text-xs font-semibold text-destructive hover:underline"
+                              >
+                                <Trash2 size={13} />
+                                Remove
+                              </button>
+                            )}
+                          </div>
 
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="product-weight"
-                        className="font-semibold text-navy"
-                      >
-                        Weight *
-                      </Label>
-                      <Input
-                        id="product-weight"
-                        type="number"
-                        min="0.01"
-                        step="0.01"
-                        {...register("weight")}
-                      />
-                      {errors.weight && (
-                        <p className="text-sm text-destructive">
-                          {errors.weight.message}
-                        </p>
-                      )}
-                    </div>
+                          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+                            <div className="space-y-1.5">
+                              <Label className="text-xs font-semibold text-navy">
+                                Weight *
+                              </Label>
+                              <Input
+                                placeholder="e.g. 1 Kg, 5 Kg, 20 Kg"
+                                {...register(`variants.${index}.weight`)}
+                              />
+                              {variantError?.weight && (
+                                <p className="text-xs text-destructive">
+                                  {variantError.weight.message}
+                                </p>
+                              )}
+                            </div>
 
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="product-stock"
-                        className="font-semibold text-navy"
-                      >
-                        Stock Quantity <span className="!text-yellow-700 !text-[12px]">NB: (Update from adjust stock)</span>
-                      </Label>
-                      <Input
-                        id="product-stock"
-                        type="number"
-                        min="0"
-                        step="1"
-                        {...register("stockQuantity")}
-                        disabled
-                      />
-                      {errors.stockQuantity && (
-                        <p className="text-sm text-destructive">
-                          {errors.stockQuantity.message}
-                        </p>
-                      )}
-                    </div>
+                            <div className="space-y-1.5">
+                              <Label className="text-xs font-semibold text-navy">
+                                Cost Price (৳)
+                              </Label>
+                              <Input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                placeholder="0.00"
+                                {...register(`variants.${index}.costPrice`, { valueAsNumber: true })}
+                              />
+                              {variantError?.costPrice && (
+                                <p className="text-xs text-destructive">
+                                  {variantError.costPrice.message}
+                                </p>
+                              )}
+                            </div>
 
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="product-low-stock"
-                        className="font-semibold text-navy"
-                      >
-                        Low Stock Threshold *
-                      </Label>
-                      <Input
-                        id="product-low-stock"
-                        type="number"
-                        min="0"
-                        step="1"
-                        {...register("lowStockThreshold")}
-                      />
-                      {errors.lowStockThreshold && (
-                        <p className="text-sm text-destructive">
-                          {errors.lowStockThreshold.message}
-                        </p>
-                      )}
-                    </div>
+                            <div className="space-y-1.5">
+                              <Label className="text-xs font-semibold text-navy">
+                                Selling Price (৳) *
+                              </Label>
+                              <Input
+                                type="number"
+                                min="0.01"
+                                step="0.01"
+                                placeholder="0.00"
+                                {...register(`variants.${index}.price`, { valueAsNumber: true })}
+                              />
+                              {variantError?.price && (
+                                <p className="text-xs text-destructive">
+                                  {variantError.price.message}
+                                </p>
+                              )}
+                            </div>
+
+                            <div className="space-y-1.5">
+                              <Label className="text-xs font-semibold text-navy">
+                                Stock Quantity *
+                              </Label>
+                              <Input
+                                type="number"
+                                min="0"
+                                step="1"
+                                placeholder="0"
+                                {...register(`variants.${index}.stockQuantity`, { valueAsNumber: true })}
+                              />
+                              {variantError?.stockQuantity && (
+                                <p className="text-xs text-destructive">
+                                  {variantError.stockQuantity.message}
+                                </p>
+                              )}
+                            </div>
+
+                            <div className="space-y-1.5">
+                              <Label className="text-xs font-semibold text-navy">
+                                Variant SKU (opt)
+                              </Label>
+                              <Input
+                                placeholder="e.g. ENV-096"
+                                {...register(`variants.${index}.sku`)}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
 
                   <div className="space-y-5 rounded-2xl border bg-muted/10 p-5">
@@ -1001,43 +1106,45 @@ export default function EditProductModal({
                       </p>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="product-tds-url"
-                        className="font-semibold text-navy"
-                      >
-                        TDS URL *
-                      </Label>
-                      <Input
-                        id="product-tds-url"
-                        type="url"
-                        placeholder="https://example.com/product-tds.pdf"
-                        {...register("tdsUrl")}
-                      />
-                      {errors.tdsUrl && (
-                        <p className="text-sm text-destructive">
-                          {errors.tdsUrl.message}
-                        </p>
-                      )}
-                    </div>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="product-tds-url"
+                          className="font-semibold text-navy"
+                        >
+                          TDS URL *
+                        </Label>
+                        <Input
+                          id="product-tds-url"
+                          type="url"
+                          placeholder="https://example.com/product-tds.pdf"
+                          {...register("tdsUrl")}
+                        />
+                        {errors.tdsUrl && (
+                          <p className="text-sm text-destructive">
+                            {errors.tdsUrl.message}
+                          </p>
+                        )}
+                      </div>
 
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="product-tds-public-id"
-                        className="font-semibold text-navy"
-                      >
-                        TDS Public ID *
-                      </Label>
-                      <Input
-                        id="product-tds-public-id"
-                        placeholder="enviroshield/products/product-tds"
-                        {...register("tdsPublicId")}
-                      />
-                      {errors.tdsPublicId && (
-                        <p className="text-sm text-destructive">
-                          {errors.tdsPublicId.message}
-                        </p>
-                      )}
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="product-tds-public-id"
+                          className="font-semibold text-navy"
+                        >
+                          TDS Public ID *
+                        </Label>
+                        <Input
+                          id="product-tds-public-id"
+                          placeholder="enviroshield/products/product-tds"
+                          {...register("tdsPublicId")}
+                        />
+                        {errors.tdsPublicId && (
+                          <p className="text-sm text-destructive">
+                            {errors.tdsPublicId.message}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </section>

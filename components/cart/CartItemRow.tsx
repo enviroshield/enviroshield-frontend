@@ -44,11 +44,18 @@ export default function CartItemRow({ item }: { item: CartItem }) {
             >
               {item.name}
             </Link>
-            {item.sku && (
-              <p className="mt-1 text-xs text-ink/55">
-                SKU: {item.sku}
-              </p>
-            )}
+            <div className="mt-1 flex flex-wrap items-center gap-2">
+              {(item.weight || item.size) && (
+                <span className="inline-flex items-center rounded-md bg-blue/10 px-2 py-0.5 text-xs font-semibold text-blue">
+                  Weight: {item.weight || item.size}
+                </span>
+              )}
+              {item.sku && (
+                <p className="text-xs text-ink/55">
+                  SKU: {item.sku}
+                </p>
+              )}
+            </div>
             <p className="mt-2 text-sm font-semibold text-blue">
               {money(item.price)}{" "}
               <span className="font-normal text-ink/55">each</span>
@@ -56,7 +63,7 @@ export default function CartItemRow({ item }: { item: CartItem }) {
           </div>
           <button
             type="button"
-            onClick={() => removeItem(item.productId)}
+            onClick={() => removeItem(item.productId, item.variantId)}
             aria-label={`Remove ${item.name} from cart`}
             className="inline-flex size-9 shrink-0 items-center justify-center rounded-full text-ink/55 transition-colors hover:bg-red-50 hover:text-red-600 focus-visible:outline-2 focus-visible:outline-blue"
           >
@@ -68,7 +75,7 @@ export default function CartItemRow({ item }: { item: CartItem }) {
             <button
               type="button"
               onClick={() =>
-                setQuantity(item.productId, item.quantity - 1)
+                setQuantity(item.productId, item.quantity - 1, item.variantId)
               }
               disabled={item.quantity <= 1}
               aria-label={`Decrease ${item.name} quantity`}
@@ -82,7 +89,7 @@ export default function CartItemRow({ item }: { item: CartItem }) {
             <button
               type="button"
               onClick={() =>
-                setQuantity(item.productId, item.quantity + 1)
+                setQuantity(item.productId, item.quantity + 1, item.variantId)
               }
               disabled={
                 item.quantity >= (item.stockQuantity ?? 99) ||

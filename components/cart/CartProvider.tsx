@@ -25,8 +25,8 @@ type CartContextValue = {
   hydrated: boolean;
   count: number;
   subtotal: number;
-  setQuantity: (productId: string, quantity: number) => void;
-  removeItem: (productId: string) => void;
+  setQuantity: (productId: string, quantity: number, variantId?: string) => void;
+  removeItem: (productId: string, variantId?: string) => void;
   refresh: () => void;
 };
 

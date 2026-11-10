@@ -1,5 +1,8 @@
 export type CartItem = {
   productId: string;
+  variantId?: string;
+  weight?: string;
+  size?: string;
   slug: string;
   sku?: string;
   name: string;
@@ -20,6 +23,10 @@ const cartListeners = new Set<() => void>();
 
 function notifyCartListeners() {
   cartListeners.forEach((listener) => listener());
+}
+
+export function getItemKey(productId: string, variantId?: string): string {
+  return `${productId}:${variantId || ""}`;
 }
 
 export function subscribeToCart(listener: () => void) {
@@ -87,6 +94,8 @@ export function readCart(): CartItem[] {
 
     const validItems = parsed.filter(isCartItem).map((item) => ({
       ...item,
+      variantId: typeof item.variantId === "string" ? item.variantId : "",
+      size: typeof item.size === "string" ? item.size : "",
       sku: typeof item.sku === "string" ? item.sku : "",
       imageAlt: typeof item.imageAlt === "string" ? item.imageAlt : item.name,
       quantity: Math.min(99, item.quantity),
@@ -117,7 +126,11 @@ export function addToCart(
 ): number {
   if (!Number.isFinite(quantity) || quantity < 1) return 0;
   const items = readCart();
-  const existing = items.find((candidate) => candidate.productId === item.productId);
+  const existing = items.find(
+    (candidate) =>
+      candidate.productId === item.productId &&
+      (candidate.variantId || "") === (item.variantId || ""),
+  );
   const limit = Math.max(1, Math.min(99, max));
   const next = Math.min((existing?.quantity ?? 0) + Math.floor(quantity), limit);
 
@@ -131,23 +144,41 @@ export function addToCart(
   return next;
 }
 
-export function updateCartQuantity(productId: string, quantity: number) {
-  const items = readCart()
-    .map((item) => {
-      if (item.productId !== productId) return item;
-      const stockLimit = Number.isFinite(item.stockQuantity)
-        ? Math.max(1, item.stockQuantity ?? 1)
-        : 99;
-      return {
-        ...item,
-        quantity: Math.max(1, Math.min(99, stockLimit, Math.floor(quantity) || 1)),
-      };
-    });
+export function updateCartQuantity(
+  productId: string,
+  quantity: number,
+  variantId?: string,
+) {
+  const targetVariant = variantId || "";
+  const items = readCart().map((item) => {
+    const matches =
+      item.productId === productId &&
+      (variantId !== undefined ? (item.variantId || "") === targetVariant : true);
+
+    if (!matches) return item;
+
+    const stockLimit = Number.isFinite(item.stockQuantity)
+      ? Math.max(1, item.stockQuantity ?? 1)
+      : 99;
+    return {
+      ...item,
+      quantity: Math.max(1, Math.min(99, stockLimit, Math.floor(quantity) || 1)),
+    };
+  });
   writeCart(items);
 }
 
-export function removeFromCart(productId: string) {
-  writeCart(readCart().filter((item) => item.productId !== productId));
+export function removeFromCart(productId: string, variantId?: string) {
+  const targetVariant = variantId || "";
+  writeCart(
+    readCart().filter((item) => {
+      if (item.productId !== productId) return true;
+      if (variantId !== undefined) {
+        return (item.variantId || "") !== targetVariant;
+      }
+      return false;
+    }),
+  );
 }
 
 export function clearCart() {

@@ -650,6 +650,9 @@ export default function CheckoutSuccessContent({
                         <p className="mt-1 text-xs text-ink/55">
                           {money(item.unitPrice, currency)} ×{" "}
                           {item.quantity}
+                          {item.weight || item.size
+                            ? ` · Weight: ${item.weight || item.size}`
+                            : ""}
                           {item.sku ? ` · SKU ${item.sku}` : ""}
                         </p>
                       </div>

@@ -73,7 +73,10 @@ export default function CartPageContent() {
                 </div>
 
                 {items.map((item) => (
-                  <CartItemRow key={item.productId} item={item} />
+                  <CartItemRow
+                    key={`${item.productId}:${item.variantId || ""}`}
+                    item={item}
+                  />
                 ))}
               </div>
 
@@ -107,10 +110,11 @@ export default function CartPageContent() {
                 <ul className="divide-y divide-line">
                   {items.map((item) => {
                     const image = getProductImageUrl(item.image);
+                    const itemKey = `${item.productId}:${item.variantId || ""}`;
 
                     return (
                       <li
-                        key={item.productId}
+                        key={itemKey}
                         className="flex items-center gap-3 py-4 sm:gap-4"
                       >
                         <div className="relative size-[68px] shrink-0 overflow-hidden rounded-2xl border border-line bg-mist/60">
@@ -133,6 +137,11 @@ export default function CartPageContent() {
                           <p className="text-sm font-bold leading-5 text-navy">
                             {item.name}
                           </p>
+                          {(item.weight || item.size) && (
+                            <p className="mt-0.5 text-xs font-semibold text-blue">
+                              Weight: {item.weight || item.size}
+                            </p>
+                          )}
 
                           <p className="mt-1 text-xs text-ink/55">
                             {money(item.price)} × {item.quantity}

@@ -2,7 +2,7 @@ import BlogContent from "@/components/blog/BlogContent";
 import { Button } from "@/components/Button";
 import Container from "@/components/Container";
 import { ProductCard } from "@/components/ProductCard";
-import AddToCart from "@/components/products/AddToCart";
+import ProductPurchaseSection from "@/components/products/ProductPurchaseSection";
 import ProductGallery from "@/components/products/ProductGallery";
 import { Reveal } from "@/components/Reveal";
 import {
@@ -312,27 +312,49 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       name: "Enviroshield",
     },
 
-    ...(price
+    ...(product.variants && product.variants.length > 0
       ? {
           offers: {
-            "@type": "Offer",
+            "@type": "AggregateOffer",
             url: articleUrl,
-            price: product.price,
             priceCurrency: "BDT",
-
-            availability: available
-              ? "https://schema.org/InStock"
-              : "https://schema.org/OutOfStock",
-
-            seller: {
-              "@type": "Organization",
-              "@id": `${siteUrl}/#organization`,
-              name: "Enviroshield",
-              url: siteUrl,
-            },
+            lowPrice: Math.min(...product.variants.map((v) => v.price)),
+            highPrice: Math.max(...product.variants.map((v) => v.price)),
+            offerCount: product.variants.length,
+            offers: product.variants.map((v) => ({
+              "@type": "Offer",
+              name: `${product.name} - ${v.size}`,
+              sku: v.sku || product.sku,
+              price: v.price,
+              priceCurrency: "BDT",
+              availability:
+                v.stockQuantity > 0
+                  ? "https://schema.org/InStock"
+                  : "https://schema.org/OutOfStock",
+            })),
           },
         }
-      : {}),
+      : price
+        ? {
+            offers: {
+              "@type": "Offer",
+              url: articleUrl,
+              price: product.price,
+              priceCurrency: "BDT",
+
+              availability: available
+                ? "https://schema.org/InStock"
+                : "https://schema.org/OutOfStock",
+
+              seller: {
+                "@type": "Organization",
+                "@id": `${siteUrl}/#organization`,
+                name: "Enviroshield",
+                url: siteUrl,
+              },
+            },
+          }
+        : {}),
   };
 
   const webPageJsonLd = {
@@ -511,127 +533,11 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             {/* Product information */}
 
             <Reveal dir="up" delay={0.12}>
-              <div className="overflow-hidden rounded-[20px] border border-line bg-white shadow-[0_10px_40px_rgba(0,51,78,0.07)] min-[901px]:sticky min-[901px]:top-28">
-                {/* Price header */}
-
-                <div className="border-b border-line p-7 max-[600px]:p-5">
-                  <p className="text-[11px] font-extrabold uppercase tracking-[0.15em] text-blue">
-                    Product information
-                  </p>
-
-                  <div className="mt-4 flex flex-wrap items-end justify-between gap-3">
-                    <div>
-                      <p className="text-[12px] font-bold uppercase tracking-[0.1em] text-ink/60">
-                        Price
-                      </p>
-
-                      <p className="mt-1 text-[36px] font-extrabold leading-none tracking-[-0.035em] text-navy">
-                        {price || "Contact for pricing"}
-                      </p>
-                    </div>
-                  </div>
-
-                  {!price && (
-                    <p className="mt-2 text-[13px] text-ink/60">
-                      Contact our team for current pricing.
-                    </p>
-                  )}
-
-                  <span
-                    className={`mt-5 inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-[12px] font-bold ${stock.pill}`}
-                  >
-                    <span className={`size-2 rounded-full ${stock.dot}`} />
-                    {stock.label}
-                  </span>
-                </div>
-
-                <div className="p-7 max-[600px]:p-5">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="rounded-xl bg-muted p-4">
-                      <div className="mb-2 flex items-center gap-2 text-ink/60">
-                        <Tag size={16} aria-hidden="true" />
-                        <span className="text-[11px] font-bold uppercase tracking-[0.08em]">
-                          SKU
-                        </span>
-                      </div>
-
-                      <p className="break-words text-[14px] font-bold text-navy">
-                        {product.sku || "Not specified"}
-                      </p>
-                    </div>
-
-                    <div className="rounded-xl bg-muted p-4">
-                      <div className="mb-2 flex items-center gap-2 text-ink/60">
-                        <Scale size={16} aria-hidden="true" />
-                        <span className="text-[11px] font-bold uppercase tracking-[0.08em]">
-                          Weight
-                        </span>
-                      </div>
-
-                      <p className="break-words text-[14px] font-bold text-navy">
-                        {product.weight > 0
-                          ? `${product.weight} kg`
-                          : "Not specified"}
-                      </p>
-                    </div>
-
-                    <div className="rounded-xl bg-muted p-4">
-                      <div className="mb-2 flex items-center gap-2 text-ink/60">
-                        <Layers size={16} aria-hidden="true" />
-                        <span className="text-[11px] font-bold uppercase tracking-[0.08em]">
-                          Category
-                        </span>
-                      </div>
-
-                      <p className="break-words text-[14px] font-bold text-navy">
-                        {categoryName}
-                      </p>
-                    </div>
-
-                    <div className="rounded-xl bg-muted p-4">
-                      <div className="mb-2 flex items-center gap-2 text-ink/60">
-                        <CalendarDays size={16} aria-hidden="true" />
-                        <span className="text-[11px] font-bold uppercase tracking-[0.08em]">
-                          Listed
-                        </span>
-                      </div>
-
-                      <p className="break-words text-[14px] font-bold text-navy">
-                        {publishedOn || "—"}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-6 flex flex-col gap-3">
-                    {price ? (
-                      <AddToCart product={product} stock={stockQuantity} />
-                    ) : (
-                      <Button href="/contact" fullWidth>
-                        Ask about this product
-                      </Button>
-                    )}
-
-                    {tdsUrl && (
-                      <a
-                        href={tdsUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label={`Open technical data sheet for ${product.name} in a new tab`}
-                        className={tdsLinkClass}
-                      >
-                        <FileText size={17} aria-hidden="true" />
-                        View TDS
-                        <ArrowUpRight size={15} aria-hidden="true" />
-                      </a>
-                    )}
-                  </div>
-
-                  <p className="mt-5 text-center text-[12px] leading-6 text-ink/60">
-                    Questions about specifications, bulk orders or suitability?
-                    Our team is happy to help.
-                  </p>
-                </div>
-              </div>
+              <ProductPurchaseSection
+                product={product}
+                categoryName={categoryName}
+                publishedOn={publishedOn}
+              />
             </Reveal>
           </div>
         </Container>
@@ -705,11 +611,16 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                         value: product.sku || "Not specified",
                       },
                       {
-                        label: "Pack weight",
+                        label: "Available Weights",
                         value:
-                          product.weight > 0
-                            ? `${product.weight} kg`
-                            : "Not specified",
+                          product.variants && product.variants.length > 0
+                            ? product.variants
+                                .map((v) => v.weight || v.size)
+                                .filter(Boolean)
+                                .join(", ")
+                            : product.weight > 0
+                              ? `${product.weight} kg`
+                              : "Not specified",
                       },
                       {
                         label: "Price",

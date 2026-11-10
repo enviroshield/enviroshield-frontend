@@ -249,8 +249,17 @@ export default function ViewProductModal({
                 <InfoCard label="Product ID" value={product._id} mono />
 
                 <InfoCard
-                  label="Weight"
-                  value={`${product.weight ?? 0} kg`}
+                  label="Weights"
+                  value={
+                    product.variants && product.variants.length > 0
+                      ? product.variants
+                          .map((v) => v.weight || v.size)
+                          .filter(Boolean)
+                          .join(", ")
+                      : product.weight > 0
+                        ? `${product.weight} kg`
+                        : "Not specified"
+                  }
                   icon={<Truck className="h-4 w-4" />}
                 />
               </div>
@@ -269,36 +278,100 @@ export default function ViewProductModal({
             <section>
               <SectionHeading
                 eyebrow="Commerce"
-                title="Pricing & Inventory"
-                description="Current selling price, cost, and stock availability."
+                title="Weights, Pricing & Inventory"
+                description="All available weights, individual prices, and variant inventory levels."
               />
+
+              {product.variants && product.variants.length > 0 ? (
+                <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm">
+                      <thead className="border-b border-slate-100 bg-slate-50/75 text-xs font-bold uppercase tracking-wider text-slate-500">
+                        <tr>
+                          <th className="px-5 py-3.5">Weight</th>
+                          <th className="px-5 py-3.5">Price</th>
+                          <th className="px-5 py-3.5">Cost</th>
+                          <th className="px-5 py-3.5">Stock</th>
+                          <th className="px-5 py-3.5">SKU</th>
+                          <th className="px-5 py-3.5 text-right">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {product.variants.map((v, i) => {
+                          const vOutOfStock = v.stockQuantity <= 0;
+                          const vLowStock =
+                            !vOutOfStock &&
+                            v.stockQuantity <= (v.lowStockThreshold ?? product.lowStockThreshold ?? 5);
+
+                          return (
+                            <tr key={v._id || i} className="hover:bg-slate-50/50">
+                              <td className="px-5 py-3.5 font-bold text-navy">
+                                {v.weight || v.size}
+                              </td>
+                              <td className="px-5 py-3.5 font-extrabold text-blue">
+                                ৳{(v.price ?? 0).toLocaleString("en-BD")}
+                              </td>
+                              <td className="px-5 py-3.5 text-slate-500">
+                                ৳{(v.costPrice ?? 0).toLocaleString("en-BD")}
+                              </td>
+                              <td className="px-5 py-3.5 font-semibold text-slate-700">
+                                {v.stockQuantity}
+                              </td>
+                              <td className="px-5 py-3.5 font-mono text-xs text-slate-500">
+                                {v.sku || product.sku}
+                              </td>
+                              <td className="px-5 py-3.5 text-right">
+                                <span
+                                  className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                                    vOutOfStock
+                                      ? "bg-red-50 text-red-700"
+                                      : vLowStock
+                                        ? "bg-amber-50 text-amber-700"
+                                        : "bg-emerald-50 text-emerald-700"
+                                  }`}
+                                >
+                                  {vOutOfStock
+                                    ? "Out of stock"
+                                    : vLowStock
+                                      ? "Low stock"
+                                      : "In stock"}
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ) : null}
 
               <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <MetricCard
-                  label="Selling Price"
+                  label="Starting Price"
                   value={`৳${(product.price ?? 0).toLocaleString("en-BD")}`}
-                  detail="Current product price"
+                  detail={product.variants?.length ? `${product.variants.length} variant(s)` : "Current product price"}
                   accent="blue"
                 />
 
                 <MetricCard
                   label="Cost Price"
                   value={`৳${(product.costPrice ?? 0).toLocaleString("en-BD")}`}
-                  detail="Product cost"
+                  detail="Base product cost"
                   accent="gray"
                 />
 
                 <MetricCard
-                  label="Available Stock"
+                  label="Total Stock"
                   value={`${product.stockQuantity ?? 0}`}
-                  detail="Units available"
+                  detail="Across all variants"
                   accent={isOutOfStock ? "red" : isLowStock ? "amber" : "green"}
                 />
 
                 <MetricCard
-                  label="Low Stock Threshold"
+                  label="Low Stock Alert"
                   value={`${product.lowStockThreshold ?? 0}`}
-                  detail="Low-stock alert level"
+                  detail="Default alert level"
                   accent="amber"
                 />
               </div>

@@ -3,7 +3,7 @@ import { axiosInstance } from "@/lib/axios";
 export type DeliveryZone = "dhaka" | "outside_dhaka";
 
 export interface CreateOrderRequest {
-  items: { productId: string; quantity: number }[];
+  items: { productId: string; variantId?: string; quantity: number }[];
   customer: {
     name: string;
     phone: string;
@@ -31,6 +31,9 @@ export interface CreatedOrderConfirmation {
   orderNumber: string;
   items: {
     productId: string;
+    variantId?: string;
+    weight?: string;
+    size?: string;
     name: string;
     slug: string;
     sku?: string;

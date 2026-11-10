@@ -1,7 +1,7 @@
 "use client";
 
 import { addToCart } from "@/lib/cart";
-import type { IPublishedProduct } from "@/types/product.type";
+import type { IPublishedProduct, IProductVariant } from "@/types/product.type";
 import { useLenis } from "lenis/react";
 import { Check, Minus, Plus, ShoppingCart } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -11,6 +11,7 @@ type Props = {
     IPublishedProduct,
     "_id" | "slug" | "sku" | "name" | "price" | "primaryImage"
   >;
+  selectedVariant?: IProductVariant;
   /** Units available. 0 disables the button. */
   stock: number;
 };
@@ -25,7 +26,7 @@ type CartAddAnimationDetail = {
   quantity: number;
 };
 
-export default function AddToCart({ product, stock }: Props) {
+export default function AddToCart({ product, selectedVariant, stock }: Props) {
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
 
@@ -47,13 +48,22 @@ export default function AddToCart({ product, stock }: Props) {
   const handleAdd = () => {
     if (outOfStock) return;
 
+    const variantPrice = selectedVariant?.price ?? product.price;
+    const variantSku = selectedVariant?.sku || product.sku;
+    const variantWeight = selectedVariant?.weight || selectedVariant?.size;
+    const variantSize = selectedVariant?.size || selectedVariant?.weight;
+    const variantId = selectedVariant?._id;
+
     addToCart(
       {
         productId: product._id,
+        variantId,
+        weight: variantWeight,
+        size: variantSize,
         slug: product.slug,
-        sku: product.sku,
+        sku: variantSku,
         name: product.name,
-        price: product.price,
+        price: variantPrice,
         image: product.primaryImage?.url ?? "",
         imageAlt: product.primaryImage?.alt || product.name,
         stockQuantity: stock,
@@ -183,7 +193,9 @@ export default function AddToCart({ product, stock }: Props) {
         aria-live="polite"
         className="min-h-[18px] text-[12px] text-ink/60"
       >
-        {added ? `${qty} × ${product.name} added to your cart.` : ""}
+        {added
+          ? `${qty} × ${product.name}${selectedVariant?.size ? ` (${selectedVariant.size})` : ""} added to your cart.`
+          : ""}
       </p>
     </div>
   );

@@ -287,17 +287,32 @@ export default function ProductsDashboard() {
     {
       accessorKey: "price",
       header: "Price",
-      cell: ({ row }) => (
-        <div className="min-w-[100px]">
-          <p className="font-semibold text-slate-800">
-            ৳{row.original.price.toLocaleString("en-BD")}
-          </p>
+      cell: ({ row }) => {
+        const variants = row.original.variants || [];
+        const hasVariants = variants.length > 1;
+        const prices = variants.map((v) => v.price);
+        const minPrice = prices.length ? Math.min(...prices) : row.original.price;
+        const maxPrice = prices.length ? Math.max(...prices) : row.original.price;
 
-          <p className="mt-1 text-[11px] text-slate-400">
-            Cost: ৳{row.original.costPrice.toLocaleString("en-BD")}
-          </p>
-        </div>
-      ),
+        return (
+          <div className="min-w-[100px]">
+            <p className="font-semibold text-slate-800">
+              {hasVariants
+                ? `৳${minPrice.toLocaleString("en-BD")} – ৳${maxPrice.toLocaleString("en-BD")}`
+                : `৳${row.original.price.toLocaleString("en-BD")}`}
+            </p>
+
+            <p className="mt-1 flex items-center gap-1.5 text-[11px] text-slate-400">
+              {hasVariants ? (
+                <span className="rounded bg-blue/10 px-1.5 py-0.5 text-[10px] font-semibold text-blue">
+                  {variants.length} weights
+                </span>
+              ) : null}
+              Cost: ৳{row.original.costPrice.toLocaleString("en-BD")}
+            </p>
+          </div>
+        );
+      },
     },
     {
       accessorKey: "stockQuantity",

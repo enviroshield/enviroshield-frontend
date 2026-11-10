@@ -454,7 +454,13 @@ export default function MyOrdersDashboard({
                             </p>
                             <p className="mt-1 text-sm font-medium leading-relaxed text-foreground">
                               {order.items
-                                .map((item) => item.name)
+                                .map((item) => {
+                                  const variantLabel =
+                                    item.weight || item.size;
+                                  return variantLabel
+                                    ? `${item.name} (${variantLabel})`
+                                    : item.name;
+                                })
                                 .join(", ")}
                             </p>
                           </div>

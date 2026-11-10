@@ -8,6 +8,17 @@ export interface IProductImage {
   alt: string;
 }
 
+export interface IProductVariant {
+  _id?: string;
+  weight?: string;
+  size?: string;
+  price: number;
+  costPrice?: number;
+  sku?: string;
+  stockQuantity: number;
+  lowStockThreshold?: number;
+}
+
 export interface IProductSeo {
   metaTitle: string;
   metaDescription: string;
@@ -29,6 +40,7 @@ export interface IProduct {
   description: Record<string, unknown>;
   primaryImage: IProductImage;
   gallery: IProductImage[];
+  variants: IProductVariant[];
   price: number;
   costPrice: number;
   weight: number;

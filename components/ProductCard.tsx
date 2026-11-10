@@ -121,15 +121,24 @@ export function ProductCard({
         <div className="mt-auto flex items-end justify-between gap-3 pt-3">
           <div>
             <p className="text-[11px] font-medium uppercase tracking-wider text-ink/50">
-              Price
+              {product.variants && product.variants.length > 1 ? "Starting from" : "Price"}
             </p>
 
             <p className="text-[22px] font-extrabold leading-none text-blue">
-              {price !== null &&
-              Number.isFinite(price) &&
-              price >= 0
-                ? `${CURRENCY}${price.toLocaleString("en-BD")}`
-                : "Contact us"}
+              {(() => {
+                const variants = product.variants || [];
+                const lowestPrice =
+                  variants.length > 0
+                    ? Math.min(...variants.map((v) => v.price))
+                    : price;
+
+                if (lowestPrice !== null && Number.isFinite(lowestPrice) && lowestPrice >= 0) {
+                  return variants.length > 1
+                    ? `From ${CURRENCY}${lowestPrice.toLocaleString("en-BD")}`
+                    : `${CURRENCY}${lowestPrice.toLocaleString("en-BD")}`;
+                }
+                return "Contact us";
+              })()}
             </p>
           </div>
 
