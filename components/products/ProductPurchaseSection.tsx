@@ -7,6 +7,7 @@ import { formatTaka } from "@/lib/utils";
 import { Tag, Scale, Layers, CalendarDays, FileText, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/Button";
 import { getTrustedTdsUrl } from "@/lib/products/tds";
+import { PdfViewerModal } from "@/components/pdf-viewer-modal";
 
 type Props = {
   product: IPublishedProduct;
@@ -38,6 +39,7 @@ export default function ProductPurchaseSection({
     const inStock = variants.find((v) => v.stockQuantity > 0);
     return inStock || variants[0];
   });
+  const [isTdsModalOpen, setIsTdsModalOpen] = useState(false);
 
   const currentPrice = selectedVariant.price ?? product.price;
   const currentStock = Number.isFinite(selectedVariant.stockQuantity)
@@ -242,17 +244,25 @@ export default function ProductPurchaseSection({
             const safeTdsUrl = getTrustedTdsUrl(product.tdsUrl);
             if (!safeTdsUrl) return null;
             return (
-              <a
-                href={safeTdsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`Open technical data sheet for ${product.name} in a new tab`}
-                className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-line bg-white px-5 text-[13px] font-bold text-navy transition-colors hover:border-blue hover:text-blue"
-              >
-                <FileText size={17} aria-hidden="true" />
-                View TDS
-                <ArrowUpRight size={15} aria-hidden="true" />
-              </a>
+              <>
+                <button
+                  type="button"
+                  onClick={() => setIsTdsModalOpen(true)}
+                  aria-label={`Open technical data sheet for ${product.name}`}
+                  className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-line bg-white px-5 text-[13px] font-bold text-navy transition-colors hover:border-blue hover:text-blue cursor-pointer"
+                >
+                  <FileText size={17} aria-hidden="true" />
+                  View Technical Data Sheet (TDS)
+                  <ArrowUpRight size={15} aria-hidden="true" />
+                </button>
+
+                <PdfViewerModal
+                  isOpen={isTdsModalOpen}
+                  onClose={() => setIsTdsModalOpen(false)}
+                  pdfUrl={safeTdsUrl}
+                  title={`Technical Data Sheet - ${product.name}`}
+                />
+              </>
             );
           })()}
         </div>

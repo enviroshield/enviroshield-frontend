@@ -4,6 +4,7 @@ import Container from "@/components/Container";
 import { ProductCard } from "@/components/ProductCard";
 import ProductPurchaseSection from "@/components/products/ProductPurchaseSection";
 import ProductGallery from "@/components/products/ProductGallery";
+import { TdsSpecificationButton } from "@/components/products/TdsSpecificationButton";
 import { Reveal } from "@/components/Reveal";
 import {
   getPublishedProductBySlug,
@@ -654,33 +655,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
                   {tdsUrl && (
                     <div className="border-t border-line p-4">
-                      <a
-                        href={tdsUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label={`Open technical data sheet for ${product.name} in a new tab`}
-                        className="group flex items-center gap-3 rounded-xl border border-line p-3 transition-colors hover:border-blue"
-                      >
-                        <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-blue text-white">
-                          <FileText size={18} aria-hidden="true" />
-                        </span>
-
-                        <span className="min-w-0 flex-1">
-                          <span className="block text-[14px] font-bold text-navy">
-                            Technical data sheet
-                          </span>
-
-                          <span className="block text-[12px] text-ink/60">
-                            View TDS
-                          </span>
-                        </span>
-
-                        <ArrowUpRight
-                          size={16}
-                          aria-hidden="true"
-                          className="shrink-0 text-ink/50 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-blue"
-                        />
-                      </a>
+                      <TdsSpecificationButton
+                        tdsUrl={tdsUrl}
+                        productName={product.name}
+                      />
                     </div>
                   )}
                 </aside>

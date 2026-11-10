@@ -78,6 +78,7 @@ export const ImageUploader = ({
     const formData = new FormData();
     formData.append("file", file);
 
+    const previousPublicId = imagePublicId;
     setUploading(true);
     setProgress(0);
 
@@ -133,6 +134,13 @@ export const ImageUploader = ({
       if (localPreviewRef.current) {
         URL.revokeObjectURL(localPreviewRef.current);
         localPreviewRef.current = null;
+      }
+
+      // If replacing an existing image, delete the old image from Cloudinary
+      if (previousPublicId && previousPublicId !== data.public_id) {
+        deleteImage(previousPublicId).catch((err) => {
+          console.error("Failed to delete old image on replace:", err);
+        });
       }
 
       setImagePublicId(data.public_id);

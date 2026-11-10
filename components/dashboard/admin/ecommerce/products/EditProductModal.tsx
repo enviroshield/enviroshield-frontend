@@ -21,6 +21,7 @@ import { useFetch } from "@/hooks/swr/useFetch";
 import { formatAltFromFileName } from "@/lib/utils";
 
 import { ImageUploader } from "@/components/image-uploader";
+import { PdfUploader } from "@/components/pdf-uploader";
 import {
   Dialog,
   DialogContent,
@@ -1187,56 +1188,44 @@ export default function EditProductModal({
                     })}
                   </div>
 
-                  <div className="space-y-5 rounded-2xl border bg-muted/10 p-5">
+                  <div className="space-y-4 rounded-2xl border bg-muted/10 p-5">
                     <div>
                       <h4 className="text-sm font-bold text-navy">
-                        Technical Data Sheet (TDS)
+                        Technical Data Sheet (TDS) *
                       </h4>
                       <p className="mt-1 text-xs text-muted-foreground">
-                        Enter the document URL and public ID manually for now.
+                        Upload the product Technical Data Sheet (PDF document). Hosted on Cloudinary.
                       </p>
                     </div>
 
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="product-tds-url"
-                          className="font-semibold text-navy"
-                        >
-                          TDS URL *
-                        </Label>
-                        <Input
-                          id="product-tds-url"
-                          type="url"
-                          placeholder="https://example.com/product-tds.pdf"
-                          {...register("tdsUrl")}
+                    <Controller
+                      control={control}
+                      name="tdsUrl"
+                      render={({ field }) => (
+                        <PdfUploader
+                          value={field.value}
+                          pdfPublicId={watch("tdsPublicId")}
+                          onChange={(url, publicId) => {
+                            field.onChange(url);
+                            setValue("tdsPublicId", publicId, {
+                              shouldDirty: true,
+                              shouldValidate: true,
+                            });
+                          }}
                         />
-                        {errors.tdsUrl && (
-                          <p className="text-sm text-destructive">
-                            {errors.tdsUrl.message}
-                          </p>
-                        )}
-                      </div>
+                      )}
+                    />
 
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="product-tds-public-id"
-                          className="font-semibold text-navy"
-                        >
-                          TDS Public ID *
-                        </Label>
-                        <Input
-                          id="product-tds-public-id"
-                          placeholder="enviroshield/products/product-tds"
-                          {...register("tdsPublicId")}
-                        />
-                        {errors.tdsPublicId && (
-                          <p className="text-sm text-destructive">
-                            {errors.tdsPublicId.message}
-                          </p>
-                        )}
-                      </div>
-                    </div>
+                    {errors.tdsUrl && (
+                      <p className="text-sm text-destructive">
+                        {errors.tdsUrl.message}
+                      </p>
+                    )}
+                    {errors.tdsPublicId && !errors.tdsUrl && (
+                      <p className="text-sm text-destructive">
+                        {errors.tdsPublicId.message}
+                      </p>
+                    )}
                   </div>
                 </section>
               )}

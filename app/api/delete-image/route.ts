@@ -14,7 +14,7 @@ export async function DELETE(req: Request) {
   }
 
   try {
-    const { public_id } = await req.json();
+    const { public_id, resource_type } = await req.json();
 
     if (!public_id) {
       return NextResponse.json(
@@ -23,7 +23,20 @@ export async function DELETE(req: Request) {
       );
     }
 
-    const result = await cloudinary.uploader.destroy(public_id);
+    const primaryType = resource_type || "image";
+    let result = await cloudinary.uploader.destroy(public_id, {
+      resource_type: primaryType,
+      invalidate: true,
+    });
+
+    // If Cloudinary didn't delete it under primaryType, try the other resource_type (raw vs image)
+    if (result?.result !== "ok") {
+      const fallbackType = primaryType === "raw" ? "image" : "raw";
+      result = await cloudinary.uploader.destroy(public_id, {
+        resource_type: fallbackType,
+        invalidate: true,
+      });
+    }
 
     return NextResponse.json(result);
   } catch {

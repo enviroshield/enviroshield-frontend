@@ -15,8 +15,9 @@ import {
   XCircle,
 } from "lucide-react";
 import Image from "next/image";
+import { useState } from "react";
 
-
+import { PdfViewerModal } from "@/components/pdf-viewer-modal";
 import type { IProduct } from "@/types";
 import { formatDate } from "@/utils/formatDate";
 import { HeroMeta, InfoCard, OgImagePreview, SectionHeading, SeoCard, TimelineItem } from "../../common/ViewModalUI";
@@ -45,6 +46,8 @@ export default function ViewProductModal({
   setIsModalOpen,
   product,
 }: ViewProductModalProps) {
+  const [isTdsModalOpen, setIsTdsModalOpen] = useState(false);
+
   if (!product) return null;
 
   const isPublished = product.status === "published";
@@ -468,21 +471,38 @@ export default function ViewProductModal({
                       </div>
                     </div>
 
-                    <a
-                      href={product.tdsUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-full border border-blue/30 px-4 text-xs font-semibold text-navy transition-colors hover:bg-blue/5 hover:text-blue"
-                    >
-                      View document
-                      <ExternalLink className="h-3.5 w-3.5" />
-                    </a>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setIsTdsModalOpen(true)}
+                        className="inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-full bg-blue px-4 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-blue/90"
+                      >
+                        <FileText className="h-3.5 w-3.5" />
+                        View TDS
+                      </button>
+                      <a
+                        href={product.tdsUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-full border border-blue/30 px-3 text-xs font-semibold text-navy transition-colors hover:bg-blue/5 hover:text-blue"
+                        title="Open in new tab"
+                      >
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </a>
+                    </div>
                   </div>
                 ) : (
                   <EmptyMessage message="No technical data sheet has been uploaded." />
                 )}
               </div>
             </section>
+
+            <PdfViewerModal
+              isOpen={isTdsModalOpen}
+              onClose={() => setIsTdsModalOpen(false)}
+              pdfUrl={product.tdsUrl}
+              title={`Technical Data Sheet - ${product.name}`}
+            />
 
             {/* SEO */}
             {product.seo && (
