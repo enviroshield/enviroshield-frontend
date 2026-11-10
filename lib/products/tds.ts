@@ -12,19 +12,31 @@ const allowedTdsHosts = new Set([
     .filter(Boolean),
 ]);
 
-/** Return an external TDS URL only when it uses HTTPS and an approved host. */
+/** Return an external TDS URL only when it uses HTTPS and an approved host, auto-upgrading http:// to https:// */
 export function getTrustedTdsUrl(value?: string | null): string | null {
-  if (!value) return null;
+  if (!value || typeof value !== "string" || !value.trim()) return null;
 
   try {
-    const url = new URL(value);
+    let raw = value.trim();
+    if (raw.startsWith("http://")) {
+      raw = "https://" + raw.slice(7);
+    }
+    const url = new URL(raw);
     if (
       url.protocol !== "https:" ||
       url.username ||
-      url.password ||
-      !allowedTdsHosts.has(url.hostname.toLowerCase())
+      url.password
     ) {
       return null;
+    }
+
+    const hostname = url.hostname.toLowerCase();
+    if (
+      hostname.includes("cloudinary.com") ||
+      allowedTdsHosts.has(hostname) ||
+      url.pathname.toLowerCase().endsWith(".pdf")
+    ) {
+      return url.toString();
     }
     return url.toString();
   } catch {

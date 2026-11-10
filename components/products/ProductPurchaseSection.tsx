@@ -249,11 +249,11 @@ export default function ProductPurchaseSection({
                   type="button"
                   onClick={() => setIsTdsModalOpen(true)}
                   aria-label={`Open technical data sheet for ${product.name}`}
-                  className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-line bg-white px-5 text-[13px] font-bold text-navy transition-colors hover:border-blue hover:text-blue cursor-pointer"
+                  className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full border-2 border-blue/20 bg-blue/5 px-5 text-[14px] font-bold text-navy shadow-xs transition-all duration-200 hover:border-blue hover:bg-blue/10 hover:text-blue cursor-pointer"
                 >
-                  <FileText size={17} aria-hidden="true" />
-                  View Technical Data Sheet (TDS)
-                  <ArrowUpRight size={15} aria-hidden="true" />
+                  <FileText size={18} className="text-blue" aria-hidden="true" />
+                  View TDS
+                  <ArrowUpRight size={16} className="text-blue" aria-hidden="true" />
                 </button>
 
                 <PdfViewerModal
