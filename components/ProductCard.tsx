@@ -36,7 +36,7 @@ export function ProductCard({
     : 0;
 
   const threshold = Number.isFinite(lowStockThreshold)
-    ? Math.max(0, lowStockThreshold)
+    ? Math.max(0, lowStockThreshold ?? 5)
     : 0;
 
   const outOfStock = availableQuantity === 0;

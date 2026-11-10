@@ -26,8 +26,8 @@ export default function ProductPurchaseSection({
       : [
           {
             _id: undefined,
-            weight: product.weight > 0 ? `${product.weight} kg` : "Standard",
-            size: product.weight > 0 ? `${product.weight} kg` : "Standard",
+            weight: (product.weight && product.weight > 0) ? `${product.weight} kg` : "Standard",
+            size: (product.weight && product.weight > 0) ? `${product.weight} kg` : "Standard",
             price: product.price,
             stockQuantity: product.stockQuantity,
             lowStockThreshold: product.lowStockThreshold,
@@ -190,7 +190,7 @@ export default function ProductPurchaseSection({
             <p className="break-words text-[14px] font-bold text-navy">
               {selectedVariant.weight ||
                 selectedVariant.size ||
-                (product.weight > 0 ? `${product.weight} kg` : "Not specified")}
+                ((product.weight && product.weight > 0) ? `${product.weight} kg` : "Not specified")}
             </p>
           </div>
 

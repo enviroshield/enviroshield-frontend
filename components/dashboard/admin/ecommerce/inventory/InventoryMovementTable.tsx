@@ -113,6 +113,25 @@ export default function InventoryMovementTable({
         },
       },
       {
+        id: "variant",
+        header: "Variant / Weight",
+        cell: ({ row }) => {
+          const m = row.original;
+          const label = m.variantWeight || m.variantSize;
+          if (!label) {
+            return <span className="text-xs text-slate-400">—</span>;
+          }
+          return (
+            <Badge
+              variant="outline"
+              className="rounded-lg border-blue/20 bg-blue/5 text-[11px] font-semibold text-blue"
+            >
+              {label}
+            </Badge>
+          );
+        },
+      },
+      {
         accessorKey: "movementType",
         header: "Movement Type",
         cell: ({ row }) => {

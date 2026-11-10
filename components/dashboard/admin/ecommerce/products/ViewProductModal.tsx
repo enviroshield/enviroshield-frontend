@@ -51,9 +51,37 @@ export default function ViewProductModal({
   if (!product) return null;
 
   const isPublished = product.status === "published";
-  const isOutOfStock = product.stockQuantity <= 0;
+  const variants = product.variants || [];
+  const prices = variants.map((v) => v.price).filter((p) => typeof p === "number");
+  const minPrice = prices.length ? Math.min(...prices) : product.price ?? 0;
+  const maxPrice = prices.length ? Math.max(...prices) : product.price ?? 0;
+  const priceDisplay =
+    minPrice === maxPrice
+      ? `৳${minPrice.toLocaleString("en-BD")}`
+      : `৳${minPrice.toLocaleString("en-BD")} – ৳${maxPrice.toLocaleString("en-BD")}`;
+
+  const costs = variants
+    .map((v) => v.costPrice)
+    .filter((c): c is number => typeof c === "number" && c > 0);
+  const minCost = costs.length ? Math.min(...costs) : undefined;
+  const maxCost = costs.length ? Math.max(...costs) : undefined;
+  const costDisplay =
+    minCost !== undefined && maxCost !== undefined
+      ? minCost === maxCost
+        ? `৳${minCost.toLocaleString("en-BD")}`
+        : `৳${minCost.toLocaleString("en-BD")} – ৳${maxCost.toLocaleString("en-BD")}`
+      : "Not specified";
+
+  const isOutOfStock = (product.stockQuantity ?? 0) <= 0;
+  const hasLowStockVariant = variants.some(
+    (v) =>
+      v.stockQuantity <=
+      (v.lowStockThreshold ?? product.lowStockThreshold ?? 5),
+  );
   const isLowStock =
-    !isOutOfStock && product.stockQuantity <= product.lowStockThreshold;
+    !isOutOfStock &&
+    (hasLowStockVariant ||
+      (product.stockQuantity ?? 0) <= (product.lowStockThreshold ?? 5));
 
   const description =
     product.description &&
@@ -259,7 +287,7 @@ export default function ViewProductModal({
                           .map((v) => v.weight || v.size)
                           .filter(Boolean)
                           .join(", ")
-                      : product.weight > 0
+                      : (product.weight && product.weight > 0)
                         ? `${product.weight} kg`
                         : "Not specified"
                   }
@@ -351,31 +379,31 @@ export default function ViewProductModal({
 
               <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <MetricCard
-                  label="Starting Price"
-                  value={`৳${(product.price ?? 0).toLocaleString("en-BD")}`}
-                  detail={product.variants?.length ? `${product.variants.length} variant(s)` : "Current product price"}
+                  label="Price Range"
+                  value={priceDisplay}
+                  detail={variants.length > 1 ? `${variants.length} weight variants` : "Standard pricing"}
                   accent="blue"
                 />
 
                 <MetricCard
-                  label="Cost Price"
-                  value={`৳${(product.costPrice ?? 0).toLocaleString("en-BD")}`}
-                  detail="Base product cost"
+                  label="Cost Range"
+                  value={costDisplay}
+                  detail="Per variant cost price"
                   accent="gray"
                 />
 
                 <MetricCard
                   label="Total Stock"
-                  value={`${product.stockQuantity ?? 0}`}
-                  detail="Across all variants"
+                  value={`${(product.stockQuantity ?? 0).toLocaleString("en-BD")} units`}
+                  detail={variants.length > 1 ? `Combined across ${variants.length} weights` : "Available inventory"}
                   accent={isOutOfStock ? "red" : isLowStock ? "amber" : "green"}
                 />
 
                 <MetricCard
-                  label="Low Stock Alert"
-                  value={`${product.lowStockThreshold ?? 0}`}
-                  detail="Default alert level"
-                  accent="amber"
+                  label="Stock Health"
+                  value={isOutOfStock ? "Out of Stock" : isLowStock ? "Low Stock" : "In Stock"}
+                  detail={isOutOfStock ? "No units left" : isLowStock ? "Needs restock" : "Sufficient inventory"}
+                  accent={isOutOfStock ? "red" : isLowStock ? "amber" : "green"}
                 />
               </div>
             </section>

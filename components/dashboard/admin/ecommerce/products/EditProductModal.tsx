@@ -108,18 +108,8 @@ const formSchema = z.object({
       },
       { message: "Duplicate variant weights are not allowed" },
     ),
-  price: z.coerce.number().min(0).optional().default(0),
-  costPrice: z.coerce.number().min(0).optional().default(0),
-  weight: z.coerce.number().min(0).optional().default(0),
   tdsUrl: z.string().trim().url("Enter a valid TDS URL"),
   tdsPublicId: z.string().trim().min(1, "TDS public ID is required"),
-  stockQuantity: z.coerce.number().int().min(0).optional().default(0),
-  lowStockThreshold: z.coerce
-    .number()
-    .int()
-    .min(0, "Low-stock threshold cannot be negative")
-    .optional()
-    .default(5),
   status: z.enum(["draft", "published"]),
   isFeatured: z.boolean(),
   seo: seoSchema,
@@ -164,13 +154,8 @@ const defaultValues: FormValues = {
       lowStockThreshold: 5,
     },
   ],
-  price: 0,
-  costPrice: 0,
-  weight: 0,
   tdsUrl: "",
   tdsPublicId: "",
-  stockQuantity: 0,
-  lowStockThreshold: 5,
   status: "draft",
   isFeatured: false,
   seo: {
@@ -224,8 +209,8 @@ const getProductFormValues = (product: IProduct): FormValues => ({
         }))
       : [
           {
-            weight: product.weight > 0 ? `${product.weight} kg` : "Standard",
-            size: product.weight > 0 ? `${product.weight} kg` : "Standard",
+            weight: (product.weight && product.weight > 0) ? `${product.weight} kg` : "Standard",
+            size: (product.weight && product.weight > 0) ? `${product.weight} kg` : "Standard",
             price: product.price ?? 0,
             costPrice: product.costPrice ?? 0,
             sku: product.sku ?? "",
@@ -233,13 +218,8 @@ const getProductFormValues = (product: IProduct): FormValues => ({
             lowStockThreshold: product.lowStockThreshold ?? 5,
           },
         ],
-  price: product.price ?? 0,
-  costPrice: product.costPrice ?? 0,
-  weight: product.weight ?? 0,
   tdsUrl: product.tdsUrl ?? "",
   tdsPublicId: product.tdsPublicId ?? "",
-  stockQuantity: product.stockQuantity ?? 0,
-  lowStockThreshold: product.lowStockThreshold ?? 5,
   status: product.status === "published" ? "published" : "draft",
   isFeatured: product.isFeatured ?? false,
   seo: {
@@ -484,16 +464,10 @@ export default function EditProductModal({
           };
         }),
         price: minPrice,
-        costPrice: data.costPrice || 0,
-        weight: (() => {
-          const first = data.variants[0]?.weight || "";
-          const parsed = parseFloat(first.replace(/[^0-9.]/g, ""));
-          return !isNaN(parsed) && parsed > 0 ? parsed : 0;
-        })(),
         tdsUrl: data.tdsUrl.trim(),
         tdsPublicId: data.tdsPublicId.trim(),
         stockQuantity: totalStock,
-        lowStockThreshold: data.lowStockThreshold || 5,
+        lowStockThreshold: 5,
         status: data.status,
         isFeatured: data.isFeatured,
         publishedAt:

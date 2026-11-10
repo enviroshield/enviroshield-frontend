@@ -307,6 +307,13 @@ export default function ProductsDashboard() {
         const minPrice = prices.length ? Math.min(...prices) : row.original.price;
         const maxPrice = prices.length ? Math.max(...prices) : row.original.price;
 
+        const costs = variants
+          .map((v) => v.costPrice)
+          .filter((c): c is number => typeof c === "number" && c > 0);
+        const minCost = costs.length ? Math.min(...costs) : row.original.costPrice;
+        const maxCost = costs.length ? Math.max(...costs) : row.original.costPrice;
+        const hasCost = minCost !== undefined && minCost > 0;
+
         return (
           <div className="min-w-[90px]">
             <p className="font-semibold text-slate-800 text-sm">
@@ -315,14 +322,19 @@ export default function ProductsDashboard() {
                 : `৳${row.original.price.toLocaleString("en-BD")}`}
             </p>
 
-            <p className="mt-0.5 flex items-center gap-1 text-[11px] text-slate-400">
+            <div className="mt-0.5 flex flex-wrap items-center gap-1 text-[11px] text-slate-400">
               {hasVariants ? (
                 <span className="rounded bg-blue/10 px-1.5 py-0.5 text-[10px] font-semibold text-blue">
                   {variants.length} weights
                 </span>
               ) : null}
-              Cost: ৳{row.original.costPrice.toLocaleString("en-BD")}
-            </p>
+              {hasCost && maxCost !== undefined && (
+                <span>
+                  Cost: ৳{minCost.toLocaleString("en-BD")}
+                  {minCost !== maxCost ? ` – ৳${maxCost.toLocaleString("en-BD")}` : ""}
+                </span>
+              )}
+            </div>
           </div>
         );
       },
@@ -332,10 +344,17 @@ export default function ProductsDashboard() {
       header: "Stock",
       cell: ({ row }) => {
         const product = row.original;
+        const variants = product.variants || [];
         const isOutOfStock = product.stockQuantity <= 0;
+        const hasLowStockVariant = variants.some(
+          (v) =>
+            v.stockQuantity <=
+            (v.lowStockThreshold ?? product.lowStockThreshold ?? 5),
+        );
         const isLowStock =
           !isOutOfStock &&
-          product.stockQuantity <= product.lowStockThreshold;
+          (hasLowStockVariant ||
+            product.stockQuantity <= (product.lowStockThreshold ?? 5));
 
         return (
           <div className="min-w-[90px] space-y-0.5">

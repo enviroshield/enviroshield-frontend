@@ -247,7 +247,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     : 0;
 
   const lowStockThreshold = Number.isFinite(product.lowStockThreshold)
-    ? Math.max(0, product.lowStockThreshold)
+    ? Math.max(0, product.lowStockThreshold ?? 5)
     : 0;
 
   const available = stockQuantity > 0;
@@ -619,7 +619,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                                 .map((v) => v.weight || v.size)
                                 .filter(Boolean)
                                 .join(", ")
-                            : product.weight > 0
+                            : (product.weight && product.weight > 0)
                               ? `${product.weight} kg`
                               : "Not specified",
                       },

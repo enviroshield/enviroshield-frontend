@@ -42,12 +42,12 @@ export interface IProduct {
   gallery: IProductImage[];
   variants: IProductVariant[];
   price: number;
-  costPrice: number;
-  weight: number;
+  costPrice?: number;
+  weight?: number;
   tdsUrl: string;
   tdsPublicId: string;
   stockQuantity: number;
-  lowStockThreshold: number;
+  lowStockThreshold?: number;
   status: TProductStatus;
   isFeatured: boolean;
   publishedAt: string | null;

@@ -108,18 +108,8 @@ const formSchema = z.object({
       },
       { message: "Duplicate variant weights are not allowed" },
     ),
-  price: z.coerce.number().min(0).optional().default(0),
-  costPrice: z.coerce.number().min(0).optional().default(0),
-  weight: z.coerce.number().min(0).optional().default(0),
   tdsUrl: z.string().trim().url("Enter a valid TDS URL"),
   tdsPublicId: z.string().trim().min(1, "TDS public ID is required"),
-  stockQuantity: z.coerce.number().int().min(0).optional().default(0),
-  lowStockThreshold: z.coerce
-    .number()
-    .int()
-    .min(0, "Low-stock threshold cannot be negative")
-    .optional()
-    .default(5),
   status: z.enum(["draft", "published"]),
   isFeatured: z.boolean(),
   seo: seoSchema,
@@ -164,13 +154,8 @@ const defaultValues: FormValues = {
       lowStockThreshold: 5,
     },
   ],
-  price: 0,
-  costPrice: 0,
-  weight: 0,
   tdsUrl: "",
   tdsPublicId: "",
-  stockQuantity: 0,
-  lowStockThreshold: 5,
   status: "draft",
   isFeatured: false,
   seo: {
@@ -409,16 +394,10 @@ export default function CreateProductModal({
           };
         }),
         price: minPrice,
-        costPrice: data.costPrice || 0,
-        weight: (() => {
-          const first = data.variants[0]?.weight || "";
-          const parsed = parseFloat(first.replace(/[^0-9.]/g, ""));
-          return !isNaN(parsed) && parsed > 0 ? parsed : 0;
-        })(),
         tdsUrl: data.tdsUrl.trim(),
         tdsPublicId: data.tdsPublicId.trim(),
         stockQuantity: totalStock,
-        lowStockThreshold: data.lowStockThreshold || 5,
+        lowStockThreshold: 5,
         status: data.status,
         isFeatured: data.isFeatured,
         publishedAt:

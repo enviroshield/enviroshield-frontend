@@ -70,6 +70,9 @@ export interface InventoryMovement {
           publicId?: string;
         };
       };
+  variantId?: string;
+  variantWeight?: string;
+  variantSize?: string;
   movementType: InventoryMovementType;
   quantity: number;
   previousStock: number;
@@ -91,6 +94,7 @@ export interface InventoryMovementsResponse {
 }
 
 export interface StockAdjustmentPayload {
+  variantId?: string;
   movementType: "increase" | "decrease";
   quantity: number;
   reason: string;

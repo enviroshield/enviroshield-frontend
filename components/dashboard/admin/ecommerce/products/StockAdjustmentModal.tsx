@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { ArrowDown, ArrowUp, Loader2, PackagePlus } from "lucide-react";
 import { toast } from "sonner";
 import { mutate } from "swr";
@@ -36,7 +36,7 @@ type StockAdjustmentModalProps = {
   onClose: () => void;
 };
 
-type AdjustmentField = "movementType" | "quantity" | "reason";
+type AdjustmentField = "variantId" | "movementType" | "quantity" | "reason";
 type AdjustmentErrors = Partial<Record<AdjustmentField, string>>;
 type ErrorSource = { path: string; message: string };
 type ApiErrorPayload = {
@@ -72,6 +72,7 @@ function readApiError(error: unknown) {
 
 function getAdjustmentField(path: string): AdjustmentField | undefined {
   const field = path.toLowerCase().split(".").at(-1);
+  if (field === "variantid") return "variantId";
   if (field === "quantity") return "quantity";
   if (field === "reason") return "reason";
   if (field === "movementtype") return "movementType";
@@ -84,6 +85,10 @@ export default function StockAdjustmentModal({
   revalidateKey,
   onClose,
 }: StockAdjustmentModalProps) {
+  const variants = useMemo(() => product?.variants ?? [], [product?.variants]);
+  const hasVariants = variants.length > 0;
+
+  const [selectedVariantId, setSelectedVariantId] = useState<string>("");
   const [movementType, setMovementType] =
     useState<InventoryMovementType>("increase");
   const [quantity, setQuantity] = useState("");
@@ -91,11 +96,33 @@ export default function StockAdjustmentModal({
   const [errors, setErrors] = useState<AdjustmentErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Default to first variant when opened
+  useEffect(() => {
+    if (open && hasVariants && variants[0]?._id) {
+      setSelectedVariantId(variants[0]._id);
+    } else {
+      setSelectedVariantId("");
+    }
+  }, [open, hasVariants, variants]);
+
+  const selectedVariant = useMemo(() => {
+    if (!hasVariants) return undefined;
+    return (
+      variants.find((v) => v._id === selectedVariantId) ??
+      variants[0]
+    );
+  }, [hasVariants, variants, selectedVariantId]);
+
   const resetForm = () => {
     setMovementType("increase");
     setQuantity("");
     setReason("");
     setErrors({});
+    if (hasVariants && variants[0]?._id) {
+      setSelectedVariantId(variants[0]._id);
+    } else {
+      setSelectedVariantId("");
+    }
   };
 
   const handleClose = () => {
@@ -136,11 +163,30 @@ export default function StockAdjustmentModal({
     const nextErrors: AdjustmentErrors = {};
     const quantityValue = Number(quantity);
 
-    if (!quantity.trim() || !Number.isFinite(quantityValue) || quantityValue <= 0) {
-      nextErrors.quantity = "Enter a quantity greater than zero.";
+    if (hasVariants && !selectedVariant) {
+      nextErrors.variantId = "Please select a product variant.";
     }
+
+    if (
+      !quantity.trim() ||
+      !Number.isFinite(quantityValue) ||
+      quantityValue <= 0 ||
+      !Number.isInteger(quantityValue)
+    ) {
+      nextErrors.quantity = "Enter a positive whole number for quantity.";
+    } else if (movementType === "decrease") {
+      const currentAvailable = selectedVariant
+        ? selectedVariant.stockQuantity
+        : product.stockQuantity;
+      if (quantityValue > currentAvailable) {
+        nextErrors.quantity = `Insufficient stock. Maximum available to decrease is ${currentAvailable} units.`;
+      }
+    }
+
     if (!reason.trim()) {
       nextErrors.reason = "Enter a reason for this stock adjustment.";
+    } else if (reason.trim().length < 3) {
+      nextErrors.reason = "Reason must contain at least 3 characters.";
     }
 
     setErrors(nextErrors);
@@ -152,6 +198,7 @@ export default function StockAdjustmentModal({
       const response = await axiosInstance.post<InventoryAdjustmentResponse>(
         `/inventory/${encodeURIComponent(product._id)}/adjust`,
         {
+          variantId: hasVariants ? (selectedVariant?._id || selectedVariantId) : undefined,
           movementType,
           quantity: quantityValue,
           reason: reason.trim(),
@@ -165,6 +212,8 @@ export default function StockAdjustmentModal({
       }
 
       const updatedProduct = result.data.product;
+
+      // Optimistically update list cache
       void mutate<IProductResponse>(
         revalidateKey,
         (current) =>
@@ -173,7 +222,11 @@ export default function StockAdjustmentModal({
                 ...current,
                 data: current.data.map((item) =>
                   item._id === updatedProduct._id
-                    ? { ...item, stockQuantity: updatedProduct.stockQuantity }
+                    ? {
+                        ...item,
+                        stockQuantity: updatedProduct.stockQuantity,
+                        variants: updatedProduct.variants ?? item.variants,
+                      }
                     : item,
                 ),
               }
@@ -182,7 +235,10 @@ export default function StockAdjustmentModal({
       );
       void mutate(revalidateKey);
       void mutate(
-        (key) => typeof key === "string" && key.startsWith("/inventory/"),
+        (key) => typeof key === "string" && key.startsWith("/inventory"),
+      );
+      void mutate(
+        (key) => typeof key === "string" && key.startsWith("/product"),
       );
 
       toast.success(result.message || "Stock adjusted successfully.");
@@ -200,8 +256,14 @@ export default function StockAdjustmentModal({
     quantity.trim() !== "" &&
     Number.isFinite(numericQuantity) &&
     numericQuantity > 0;
-  const projectedStock = product
+
+  const totalProjectedStock = product
     ? product.stockQuantity +
+      (movementType === "increase" ? numericQuantity : -numericQuantity)
+    : undefined;
+
+  const variantProjectedStock = selectedVariant
+    ? selectedVariant.stockQuantity +
       (movementType === "increase" ? numericQuantity : -numericQuantity)
     : undefined;
 
@@ -221,42 +283,159 @@ export default function StockAdjustmentModal({
             Adjust Stock
           </DialogTitle>
           <DialogDescription className="text-sm leading-6">
-            Record a stock increase or decrease for this product.
+            Record a stock increase or decrease for this product and its variant.
           </DialogDescription>
           <div className="pt-1">
             <p className="text-sm font-semibold text-navy">
               {product?.name ?? "Selected product"}
             </p>
             {product?.sku && (
-              <p className="mt-1 text-xs text-slate-500">SKU: {product.sku}</p>
+              <p className="mt-1 text-xs text-slate-500">Base SKU: {product.sku}</p>
             )}
           </div>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} noValidate>
           <div className="space-y-5 px-6 py-6 sm:px-8">
+            {/* VARIANT SELECTOR */}
+            {hasVariants && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label
+                    htmlFor="stock-adjustment-variant"
+                    className="font-semibold text-navy text-xs"
+                  >
+                    Select Product Variant / Weight <span className="text-red-500">*</span>
+                  </Label>
+                  {selectedVariant?.sku && (
+                    <span className="text-[11px] font-mono text-slate-500">
+                      Variant SKU: <strong className="text-slate-700">{selectedVariant.sku}</strong>
+                    </span>
+                  )}
+                </div>
+                <Select
+                  value={selectedVariant?._id ?? selectedVariantId}
+                  onValueChange={(value) => {
+                    setSelectedVariantId(value ?? "");
+                    setErrors((current) => ({
+                      ...current,
+                      variantId: undefined,
+                      quantity: undefined,
+                    }));
+                  }}
+                  disabled={isSubmitting}
+                >
+                  <SelectTrigger
+                    id="stock-adjustment-variant"
+                    className="h-11 rounded-xl border-slate-200 w-full"
+                    aria-invalid={Boolean(errors.variantId)}
+                  >
+                    <SelectValue placeholder="Choose a variant">
+                      {selectedVariant ? (
+                        <span className="flex items-center gap-2 text-xs">
+                          <span className="font-semibold text-navy">
+                            {selectedVariant.weight || selectedVariant.size || "Standard"}
+                          </span>
+                          <span className="text-slate-400">·</span>
+                          <span className="text-slate-500">
+                            Stock: <strong className="text-slate-700">{selectedVariant.stockQuantity}</strong>
+                          </span>
+                          <span className="text-slate-400">·</span>
+                          <span className="text-blue font-medium">
+                            ৳{selectedVariant.price.toLocaleString("en-BD")}
+                          </span>
+                        </span>
+                      ) : undefined}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {variants.map((v) => {
+                      const label = v.weight || v.size || "Standard";
+                      return (
+                        <SelectItem key={v._id} value={v._id}>
+                          <div className="flex items-center justify-between gap-4 w-full text-xs">
+                            <span className="font-semibold text-navy">
+                              {label}
+                            </span>
+                            <span className="text-slate-500">
+                              Stock: <strong className="text-slate-800">{v.stockQuantity}</strong>
+                            </span>
+                            <span className="text-blue font-medium">
+                              ৳{v.price.toLocaleString("en-BD")}
+                            </span>
+                          </div>
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
+                {errors.variantId && (
+                  <p className="text-sm text-destructive">{errors.variantId}</p>
+                )}
+              </div>
+            )}
+
+            {/* STOCK PREVIEW CARD */}
             <div className="rounded-xl border border-blue/15 bg-blue/[0.04] p-4">
-              <p className="text-xs font-medium text-slate-500">Current stock</p>
-              <p className="mt-1 text-lg font-bold text-navy">
-                {product?.stockQuantity.toLocaleString("en-BD") ?? "—"} units
-              </p>
-              {hasQuantity && product && (
-                <p className="mt-1 text-xs text-slate-500">
-                  Expected stock after adjustment: {projectedStock?.toLocaleString("en-BD")} units
-                  <span className="ml-1">(preview; server validation applies)</span>
-                </p>
+              {hasVariants && selectedVariant ? (
+                <div>
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <p className="text-xs font-medium text-slate-500">
+                        Selected Variant Stock ({selectedVariant.weight || selectedVariant.size})
+                      </p>
+                      <p className="mt-1 text-xl font-bold text-navy">
+                        {selectedVariant.stockQuantity.toLocaleString("en-BD")} units
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs font-medium text-slate-500">
+                        Total Across All Variants
+                      </p>
+                      <p className="mt-1 text-sm font-semibold text-slate-700">
+                        {product?.stockQuantity.toLocaleString("en-BD") ?? "—"} units
+                      </p>
+                    </div>
+                  </div>
+                  {hasQuantity && (
+                    <div className="mt-3 border-t border-blue/10 pt-2.5 flex items-center justify-between text-xs">
+                      <div>
+                        <span className="text-slate-500">After adjustment: </span>
+                        <strong className="text-navy">
+                          {variantProjectedStock?.toLocaleString("en-BD")} units
+                        </strong>
+                      </div>
+                      <span className="text-slate-500">
+                        Total: {totalProjectedStock?.toLocaleString("en-BD")} units
+                      </span>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div>
+                  <p className="text-xs font-medium text-slate-500">Current stock</p>
+                  <p className="mt-1 text-lg font-bold text-navy">
+                    {product?.stockQuantity.toLocaleString("en-BD") ?? "—"} units
+                  </p>
+                  {hasQuantity && product && (
+                    <p className="mt-1 text-xs text-slate-500">
+                      Expected stock after adjustment: {totalProjectedStock?.toLocaleString("en-BD")} units
+                    </p>
+                  )}
+                </div>
               )}
             </div>
 
+            {/* MOVEMENT TYPE */}
             <div className="space-y-2">
-              <Label htmlFor="stock-adjustment-type" className="font-semibold text-navy">
+              <Label htmlFor="stock-adjustment-type" className="font-semibold text-navy text-xs">
                 Movement Type
               </Label>
               <Select
                 value={movementType}
                 onValueChange={(value) => {
                   setMovementType(value === "decrease" ? "decrease" : "increase");
-                  setErrors((current) => ({ ...current, movementType: undefined }));
+                  setErrors((current) => ({ ...current, movementType: undefined, quantity: undefined }));
                 }}
                 disabled={isSubmitting}
               >
@@ -268,8 +447,8 @@ export default function StockAdjustmentModal({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="increase">Increase Stock</SelectItem>
-                  <SelectItem value="decrease">Decrease Stock</SelectItem>
+                  <SelectItem value="increase">Increase Stock (Restock / Return)</SelectItem>
+                  <SelectItem value="decrease">Decrease Stock (Damage / Manual Correction)</SelectItem>
                 </SelectContent>
               </Select>
               {errors.movementType && (
@@ -277,16 +456,17 @@ export default function StockAdjustmentModal({
               )}
             </div>
 
+            {/* QUANTITY */}
             <div className="space-y-2">
-              <Label htmlFor="stock-adjustment-quantity" className="font-semibold text-navy">
-                Quantity
+              <Label htmlFor="stock-adjustment-quantity" className="font-semibold text-navy text-xs">
+                Quantity <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="stock-adjustment-quantity"
                 type="number"
-                min="0.01"
-                step="any"
-                inputMode="decimal"
+                min="1"
+                step="1"
+                inputMode="numeric"
                 value={quantity}
                 onChange={(event) => {
                   setQuantity(event.target.value);
@@ -295,7 +475,7 @@ export default function StockAdjustmentModal({
                 disabled={isSubmitting}
                 aria-invalid={Boolean(errors.quantity)}
                 aria-describedby={errors.quantity ? "stock-quantity-error" : undefined}
-                placeholder="Enter quantity"
+                placeholder="Enter whole number quantity"
                 className="h-10 rounded-xl border-slate-200"
               />
               {errors.quantity && (
@@ -305,9 +485,10 @@ export default function StockAdjustmentModal({
               )}
             </div>
 
+            {/* REASON */}
             <div className="space-y-2">
-              <Label htmlFor="stock-adjustment-reason" className="font-semibold text-navy">
-                Reason
+              <Label htmlFor="stock-adjustment-reason" className="font-semibold text-navy text-xs">
+                Reason <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="stock-adjustment-reason"
@@ -320,7 +501,7 @@ export default function StockAdjustmentModal({
                 disabled={isSubmitting}
                 aria-invalid={Boolean(errors.reason)}
                 aria-describedby={errors.reason ? "stock-reason-error" : undefined}
-                placeholder="e.g. New stock received"
+                placeholder="e.g. Received new shipment from factory"
                 className="h-10 rounded-xl border-slate-200"
               />
               {errors.reason && (
