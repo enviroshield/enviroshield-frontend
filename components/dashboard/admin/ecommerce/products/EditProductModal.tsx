@@ -8,6 +8,7 @@ import {
   Save,
   Loader2,
   Plus,
+  Sparkles,
   Trash2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -43,6 +44,7 @@ import {
 import type { ICategoryResponse } from "@/types/category.type";
 import type { IProduct } from "@/types/product.type";
 import { generateSlug } from "@/utils/generateSlug";
+import { generateProductSku, generateVariantSku } from "@/utils/generateSku";
 
 import DashboardButton from "@/components/dashboard/DashboardButton";
 import BlogEditor from "../../blogs/BlogEditor";
@@ -87,7 +89,7 @@ const formSchema = z.object({
       /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
       "Use lowercase letters, numbers, and hyphens only",
     ),
-  sku: z.string().trim().min(1, "SKU is required"),
+  sku: z.string().trim().optional(),
   categoryId: z.string().min(1, "Select a category"),
   shortDescription: z.string().trim().min(1, "Short description is required"),
   description: z.any(),
@@ -338,6 +340,19 @@ export default function EditProductModal({
   const ogImageUrl = watch("seo.ogImage");
   const ogImagePublicId = watch("seo.ogImagePublicId");
 
+  const syncVariantSkusWithProductSku = (newProductSku: string) => {
+    const currentVariants = watch("variants") || [];
+    currentVariants.forEach((v, idx) => {
+      if (v.weight?.trim()) {
+        setValue(
+          `variants.${idx}.sku`,
+          generateVariantSku(newProductSku, v.weight, idx + 1),
+          { shouldDirty: true, shouldValidate: true }
+        );
+      }
+    });
+  };
+
   useEffect(() => {
     if (!open || !product) return;
 
@@ -447,21 +462,24 @@ export default function EditProductModal({
         0,
       );
 
+      const productSku = (data.sku?.trim() || generateProductSku(data.name)).toUpperCase();
+
       const payload = {
         name: data.name.trim(),
         slug: data.slug.trim(),
-        sku: data.sku.trim(),
+        sku: productSku,
         categoryId: data.categoryId,
         shortDescription: data.shortDescription.trim(),
         description: data.description,
         primaryImage: data.primaryImage,
         gallery: data.gallery,
-        variants: data.variants.map((v) => {
+        variants: data.variants.map((v, i) => {
           const label = (v.weight || v.size || "").trim();
           return {
             ...v,
             weight: label,
             size: label,
+            sku: (v.sku?.trim() || generateVariantSku(productSku, label, i + 1)).toUpperCase(),
           };
         }),
         price: minPrice,
@@ -683,15 +701,33 @@ export default function EditProductModal({
                     </div>
 
                     <div className="space-y-2">
-                      <Label
-                        htmlFor="product-sku"
-                        className="font-semibold text-navy"
-                      >
-                        SKU *
-                      </Label>
+                      <div className="flex items-center justify-between">
+                        <Label
+                          htmlFor="product-sku"
+                          className="font-semibold text-navy"
+                        >
+                          SKU *
+                        </Label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const nameVal = watch("name");
+                            const generated = generateProductSku(nameVal || "PRODUCT");
+                            setValue("sku", generated, {
+                              shouldDirty: true,
+                              shouldValidate: true,
+                            });
+                            syncVariantSkusWithProductSku(generated);
+                          }}
+                          className="inline-flex items-center gap-1 text-xs font-semibold text-blue hover:underline"
+                        >
+                          <Sparkles size={13} />
+                          Auto Generate
+                        </button>
+                      </div>
                       <Input
                         id="product-sku"
-                        placeholder="WS-001"
+                        placeholder="e.g. ENV-PUR-SILK"
                         {...register("sku")}
                       />
                       {errors.sku && (
@@ -1037,7 +1073,23 @@ export default function EditProductModal({
                               </Label>
                               <Input
                                 placeholder="e.g. 1 Kg, 5 Kg, 20 Kg"
-                                {...register(`variants.${index}.weight`)}
+                                {...register(`variants.${index}.weight`, {
+                                  onChange: (e) => {
+                                    const weightVal = e.target.value;
+                                    const currentProdSku =
+                                      watch("sku") ||
+                                      generateProductSku(watch("name") || "PRODUCT");
+                                    const autoVariantSku = generateVariantSku(
+                                      currentProdSku,
+                                      weightVal,
+                                      index + 1
+                                    );
+                                    setValue(`variants.${index}.sku`, autoVariantSku, {
+                                      shouldDirty: true,
+                                      shouldValidate: true,
+                                    });
+                                  },
+                                })}
                               />
                               {variantError?.weight && (
                                 <p className="text-xs text-destructive">
@@ -1101,11 +1153,31 @@ export default function EditProductModal({
                             </div>
 
                             <div className="space-y-1.5">
-                              <Label className="text-xs font-semibold text-navy">
-                                Variant SKU (opt)
-                              </Label>
+                              <div className="flex items-center justify-between">
+                                <Label className="text-xs font-semibold text-navy">
+                                  Variant SKU
+                                </Label>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const currentProdSku =
+                                      watch("sku") ||
+                                      generateProductSku(watch("name") || "PRODUCT");
+                                    const weightVal = watch(`variants.${index}.weight`);
+                                    setValue(
+                                      `variants.${index}.sku`,
+                                      generateVariantSku(currentProdSku, weightVal, index + 1),
+                                      { shouldDirty: true, shouldValidate: true }
+                                    );
+                                  }}
+                                  className="text-[11px] font-semibold text-blue hover:underline"
+                                  title="Auto-generate variant SKU from weight"
+                                >
+                                  Auto
+                                </button>
+                              </div>
                               <Input
-                                placeholder="e.g. ENV-096"
+                                placeholder="e.g. ENV-PUR-SILK-5KG"
                                 {...register(`variants.${index}.sku`)}
                               />
                             </div>
