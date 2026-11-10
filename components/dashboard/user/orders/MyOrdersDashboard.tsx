@@ -19,6 +19,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { axiosInstance } from "@/lib/axios";
 
 import DashboardButton from "@/components/dashboard/DashboardButton";
 import DashboardError from "@/components/dashboard/DashboardError";
@@ -66,6 +68,11 @@ export default function MyOrdersDashboard({
 }: {
   userId: string;
 }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const urlOrderId = searchParams.get("orderId");
+
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [status, setStatus] = useState<OrderStatusFilter>("all");
@@ -112,6 +119,48 @@ export default function MyOrdersDashboard({
   const { data, isLoading, isError, refetch } =
     useFetch<OrdersResponse>(endpoint);
   const orders = data?.data ?? [];
+
+  // Auto-open order details modal when navigated via notification (?orderId=...)
+  useEffect(() => {
+    if (!urlOrderId) return;
+
+    const found = orders.find(
+      (o) => o._id === urlOrderId || o.orderNumber === urlOrderId,
+    );
+    if (found) {
+      setSelectedOrder(found);
+      return;
+    }
+
+    let isCancelled = false;
+    async function loadMyOrder() {
+      try {
+        const res = await axiosInstance.get<{ success: boolean; data: AdminOrder }>(
+          `/order/mine/${encodeURIComponent(urlOrderId!)}`,
+        );
+        if (!isCancelled && res.data?.data) {
+          setSelectedOrder(res.data.data);
+        }
+      } catch (err) {
+        console.error("Failed to load user order from notification link:", err);
+      }
+    }
+    void loadMyOrder();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [urlOrderId, orders]);
+
+  const handleCloseOrderDetails = () => {
+    setSelectedOrder(null);
+    if (urlOrderId) {
+      const nextParams = new URLSearchParams(searchParams.toString());
+      nextParams.delete("orderId");
+      const qs = nextParams.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    }
+  };
   const meta = data?.meta;
   const hasActiveFilters =
     Boolean(search.trim()) ||
@@ -628,7 +677,7 @@ export default function MyOrdersDashboard({
       <OrderDetailsModal
         order={selectedOrder}
         open={Boolean(selectedOrder)}
-        onClose={() => setSelectedOrder(null)}
+        onClose={handleCloseOrderDetails}
         showTrackingTimeline
         displayPaymentStatus={
           selectedOrder

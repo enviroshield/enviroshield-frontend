@@ -14,7 +14,9 @@ import {
   Truck,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
+import { axiosInstance } from "@/lib/axios";
 
 import {
   tableFeatures,
@@ -105,6 +107,11 @@ const getDisplayedPaymentStatus = (order: AdminOrder) =>
   order.status === "cancelled" ? "cancelled" : order.paymentStatus;
 
 export default function OrdersDashboard() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const urlOrderId = searchParams.get("orderId");
+
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [orderStatus, setOrderStatus] = useState("");
@@ -141,6 +148,42 @@ export default function OrdersDashboard() {
   const meta = data?.meta;
   const totalPages = meta?.totalPages ?? 1;
 
+  // Auto-open order details modal when navigated via notification link (?orderId=...)
+  useEffect(() => {
+    if (!urlOrderId) return;
+
+    // Check if order exists in the current fetched page
+    const found = orders.find(
+      (o) => o._id === urlOrderId || o.orderNumber === urlOrderId,
+    );
+    if (found) {
+      setSelectedOrder(found);
+      setActiveAction("details");
+      return;
+    }
+
+    // Otherwise fetch the specific order directly
+    let isCancelled = false;
+    async function loadOrder() {
+      try {
+        const res = await axiosInstance.get<{ success: boolean; data: AdminOrder }>(
+          `/order/${encodeURIComponent(urlOrderId!)}`,
+        );
+        if (!isCancelled && res.data?.data) {
+          setSelectedOrder(res.data.data);
+          setActiveAction("details");
+        }
+      } catch (err) {
+        console.error("Failed to load order from notification link:", err);
+      }
+    }
+    void loadOrder();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [urlOrderId, orders]);
+
   const handleSearchChange = (value: string) => {
     setSearch(value);
     setCurrentPage(1);
@@ -167,6 +210,12 @@ export default function OrdersDashboard() {
   const closeAction = () => {
     setActiveAction(null);
     setSelectedOrder(null);
+    if (urlOrderId) {
+      const nextParams = new URLSearchParams(searchParams.toString());
+      nextParams.delete("orderId");
+      const qs = nextParams.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    }
   };
 
   const handleActionSuccess = async () => {

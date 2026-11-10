@@ -80,40 +80,73 @@ export function resolveNotificationLink(
 ): string {
   const isAdmin = role === "admin";
   const rawUrl = notification.actionUrl;
+  let targetUrl = rawUrl || "";
 
-  if (rawUrl) {
-    if (isAdmin) {
-      return rawUrl;
+  if (targetUrl) {
+    if (!isAdmin) {
+      // For regular users, map any admin destinations to user-appropriate destinations
+      if (targetUrl.startsWith("/dashboard/ecommerce/orders")) {
+        targetUrl = "/dashboard/my-orders";
+      } else if (targetUrl.startsWith("/dashboard/service-bookings")) {
+        targetUrl = "/dashboard/my-services";
+      } else if (
+        targetUrl.startsWith("/dashboard/contacts") ||
+        targetUrl.startsWith("/dashboard/ecommerce/inventory") ||
+        targetUrl.startsWith("/dashboard/users") ||
+        targetUrl.startsWith("/dashboard/services")
+      ) {
+        targetUrl = "/dashboard";
+      }
     }
-    // For regular users, map any admin destinations to user-appropriate destinations
-    if (rawUrl.startsWith("/dashboard/ecommerce/orders")) {
-      return "/dashboard/my-orders";
+  } else {
+    // Fallback if no actionUrl is set
+    switch (notification.entityType) {
+      case "order":
+        targetUrl = isAdmin ? "/dashboard/ecommerce/orders" : "/dashboard/my-orders";
+        break;
+      case "booking":
+        targetUrl = isAdmin ? "/dashboard/service-bookings" : "/dashboard/my-services";
+        break;
+      case "contact":
+        targetUrl = isAdmin ? "/dashboard/contacts" : "/dashboard";
+        break;
+      case "product":
+        targetUrl = isAdmin ? "/dashboard/ecommerce/inventory" : "/dashboard";
+        break;
+      default:
+        targetUrl = "/dashboard";
+        break;
     }
-    if (rawUrl.startsWith("/dashboard/service-bookings")) {
-      return "/dashboard/my-services";
-    }
+  }
+
+  // Attach modal trigger parameter if entityId exists
+  if (notification.entityId) {
+    const separator = targetUrl.includes("?") ? "&" : "?";
     if (
-      rawUrl.startsWith("/dashboard/contacts") ||
-      rawUrl.startsWith("/dashboard/ecommerce/inventory") ||
-      rawUrl.startsWith("/dashboard/users") ||
-      rawUrl.startsWith("/dashboard/services")
+      notification.entityType === "order" ||
+      targetUrl.includes("/orders") ||
+      targetUrl.includes("/my-orders")
     ) {
-      return "/dashboard";
+      if (!targetUrl.includes("orderId=")) {
+        targetUrl = `${targetUrl}${separator}orderId=${encodeURIComponent(notification.entityId)}`;
+      }
+    } else if (
+      notification.entityType === "booking" ||
+      targetUrl.includes("/service-bookings") ||
+      targetUrl.includes("/my-services")
+    ) {
+      if (!targetUrl.includes("bookingId=")) {
+        targetUrl = `${targetUrl}${separator}bookingId=${encodeURIComponent(notification.entityId)}`;
+      }
+    } else if (
+      notification.entityType === "contact" ||
+      targetUrl.includes("/contacts")
+    ) {
+      if (!targetUrl.includes("contactId=")) {
+        targetUrl = `${targetUrl}${separator}contactId=${encodeURIComponent(notification.entityId)}`;
+      }
     }
-    return rawUrl;
   }
 
-  // Fallback if no actionUrl is set
-  switch (notification.entityType) {
-    case "order":
-      return isAdmin ? "/dashboard/ecommerce/orders" : "/dashboard/my-orders";
-    case "booking":
-      return isAdmin ? "/dashboard/service-bookings" : "/dashboard/my-services";
-    case "contact":
-      return isAdmin ? "/dashboard/contacts" : "/dashboard";
-    case "product":
-      return isAdmin ? "/dashboard/ecommerce/inventory" : "/dashboard";
-    default:
-      return "/dashboard";
-  }
+  return targetUrl;
 }

@@ -20,6 +20,8 @@ import {
   Search,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { axiosInstance } from "@/lib/axios";
 
 import DashboardButton from "@/components/dashboard/DashboardButton";
 import DashboardEmpty from "@/components/dashboard/DashboardEmpty";
@@ -74,6 +76,11 @@ const STATUS_OPTIONS: BookingStatus[] = [
 ];
 
 export default function ServiceBookingsDashboard() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const urlBookingId = searchParams.get("bookingId");
+
   const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState("");
@@ -107,6 +114,51 @@ export default function ServiceBookingsDashboard() {
     useFetch<BookingListResponse>(endpoint);
 
   const bookings = data?.data ?? [];
+
+  // Auto-open booking details modal when navigated via notification link (?bookingId=...)
+  useEffect(() => {
+    if (!urlBookingId) return;
+
+    const found = bookings.find(
+      (b) => b._id === urlBookingId || b.bookingNumber === urlBookingId,
+    );
+    if (found) {
+      setSelectedBooking(found);
+      setIsViewModalOpen(true);
+      return;
+    }
+
+    let isCancelled = false;
+    async function loadBooking() {
+      try {
+        const res = await axiosInstance.get<{ success: boolean; data: Booking }>(
+          `/booking/${encodeURIComponent(urlBookingId!)}`,
+        );
+        if (!isCancelled && res.data?.data) {
+          setSelectedBooking(res.data.data);
+          setIsViewModalOpen(true);
+        }
+      } catch (err) {
+        console.error("Failed to load booking from notification link:", err);
+      }
+    }
+    void loadBooking();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [urlBookingId, bookings]);
+
+  const handleCloseViewModal = () => {
+    setIsViewModalOpen(false);
+    setSelectedBooking(null);
+    if (urlBookingId) {
+      const nextParams = new URLSearchParams(searchParams.toString());
+      nextParams.delete("bookingId");
+      const qs = nextParams.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    }
+  };
   const meta = data?.meta;
   const totalPages = Math.max(1, meta?.totalPages ?? 1);
   const currentPageNum = meta?.page ?? currentPage;
@@ -551,8 +603,11 @@ export default function ServiceBookingsDashboard() {
       <ViewBookingModal
         isModalOpen={isViewModalOpen}
         setIsModalOpen={(open) => {
-          setIsViewModalOpen(open);
-          if (!open) setSelectedBooking(null);
+          if (!open) {
+            handleCloseViewModal();
+          } else {
+            setIsViewModalOpen(true);
+          }
         }}
         booking={selectedBooking}
       />

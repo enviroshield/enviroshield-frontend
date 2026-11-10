@@ -14,6 +14,7 @@ import {
   X,
   XCircle,
 } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 import {
@@ -41,6 +42,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useFetch } from "@/hooks/swr/useFetch";
+import { axiosInstance } from "@/lib/axios";
 import type {
   Booking,
   BookingListResponse,
@@ -66,6 +68,11 @@ const BOOKING_STATUSES: BookingStatus[] = [
 ];
 
 export default function MyServicesDashboard() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const urlBookingId = searchParams.get("bookingId");
+
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [status, setStatus] = useState<BookingStatusFilter>("all");
@@ -98,6 +105,48 @@ export default function MyServicesDashboard() {
 
   const bookings = data?.data ?? [];
   const meta = data?.meta;
+
+  // Auto-open booking details modal when navigated via notification link (?bookingId=...)
+  useEffect(() => {
+    if (!urlBookingId) return;
+
+    const found = bookings.find(
+      (b) => b._id === urlBookingId || b.bookingNumber === urlBookingId,
+    );
+    if (found) {
+      setSelectedBooking(found);
+      return;
+    }
+
+    let isCancelled = false;
+    async function loadBooking() {
+      try {
+        const res = await axiosInstance.get<{ success: boolean; data: Booking }>(
+          `/booking/mine/${encodeURIComponent(urlBookingId!)}`,
+        );
+        if (!isCancelled && res.data?.data) {
+          setSelectedBooking(res.data.data);
+        }
+      } catch (err) {
+        console.error("Failed to load booking from notification link:", err);
+      }
+    }
+    void loadBooking();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [urlBookingId, bookings]);
+
+  const handleCloseBookingDetails = () => {
+    setSelectedBooking(null);
+    if (urlBookingId) {
+      const nextParams = new URLSearchParams(searchParams.toString());
+      nextParams.delete("bookingId");
+      const qs = nextParams.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    }
+  };
   const hasActiveFilters = Boolean(search.trim()) || status !== "all";
   const isSearchPending = search.trim() !== debouncedSearch;
   const totalPages = Math.max(1, meta?.totalPages ?? 1);
@@ -541,7 +590,7 @@ export default function MyServicesDashboard() {
       <MyBookingDetailsDialog
         booking={selectedBooking}
         open={Boolean(selectedBooking)}
-        onClose={() => setSelectedBooking(null)}
+        onClose={handleCloseBookingDetails}
       />
       <CancelMyBookingDialog
         booking={bookingToCancel}

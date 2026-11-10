@@ -14,7 +14,8 @@ import {
   Trash2,
   User,
 } from "lucide-react";
-import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import {
   tableFeatures,
@@ -23,6 +24,7 @@ import {
 } from "@tanstack/react-table";
 
 import { useFetch } from "@/hooks/swr/useFetch";
+import { axiosInstance } from "@/lib/axios";
 import type {
   IContact,
   IContactResponse,
@@ -118,6 +120,11 @@ function getStatusBadgeClass(status: TContactStatus) {
 }
 
 export default function ContactsDashboard() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const urlContactId = searchParams.get("contactId");
+
   const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit] = useState(10);
 
@@ -156,6 +163,49 @@ export default function ContactsDashboard() {
 
   const contacts = data?.data || [];
   const meta = data?.meta;
+
+  // Auto-open contact details modal when navigated via notification link (?contactId=...)
+  useEffect(() => {
+    if (!urlContactId) return;
+
+    const found = contacts.find((c) => c._id === urlContactId);
+    if (found) {
+      setSelectedContact(found);
+      setIsViewModalOpen(true);
+      return;
+    }
+
+    let isCancelled = false;
+    async function loadContact() {
+      try {
+        const res = await axiosInstance.get<{ success: boolean; data: IContact }>(
+          `/contact/${encodeURIComponent(urlContactId!)}`,
+        );
+        if (!isCancelled && res.data?.data) {
+          setSelectedContact(res.data.data);
+          setIsViewModalOpen(true);
+        }
+      } catch (err) {
+        console.error("Failed to load contact from notification link:", err);
+      }
+    }
+    void loadContact();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [urlContactId, contacts]);
+
+  const handleCloseViewModal = () => {
+    setIsViewModalOpen(false);
+    setSelectedContact(null);
+    if (urlContactId) {
+      const nextParams = new URLSearchParams(searchParams.toString());
+      nextParams.delete("contactId");
+      const qs = nextParams.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    }
+  };
 
   const handleView = (contact: IContact) => {
     setSelectedContact(contact);
@@ -615,10 +665,10 @@ export default function ContactsDashboard() {
       <ViewContactModal
         isModalOpen={isViewModalOpen}
         setIsModalOpen={(open) => {
-          setIsViewModalOpen(open);
-
           if (!open) {
-            setSelectedContact(null);
+            handleCloseViewModal();
+          } else {
+            setIsViewModalOpen(true);
           }
         }}
         contact={selectedContact}
