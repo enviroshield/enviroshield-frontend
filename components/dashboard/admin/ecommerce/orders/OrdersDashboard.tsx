@@ -297,77 +297,90 @@ export default function OrdersDashboard() {
       cell: ({ row }) => {
         const order = row.original;
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <DashboardButton
-                variant="outline"
-                className="h-8 w-8 rounded-lg border-blue/30 bg-muted/30 p-0 text-navy shadow-sm transition-all duration-200 hover:border-blue/30 hover:bg-blue/10 hover:text-blue hover:shadow-md"
-                icon={<MoreHorizontal className="h-4 w-4" />}
-                ariaLabel={`Actions for order ${order.orderNumber}`}
-              />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-52">
-              <DropdownMenuGroup>
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  className="cursor-pointer"
-                  onClick={() => {
-                    setSelectedOrder(order);
-                    setActiveAction("details");
-                  }}
-                >
-                  <Eye className="mr-2 h-4 w-4" />
-                  View Details
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="cursor-pointer"
-                  disabled={
-                    order.status === "delivered" ||
-                    order.status === "cancelled"
-                  }
-                  onClick={() => {
-                    setSelectedOrder(order);
-                    setActiveAction("status");
-                  }}
-                >
-                  <Truck className="mr-2 h-4 w-4" />
-                  Update Order Status
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="cursor-pointer"
-                  disabled={
-                    order.paymentStatus === "failed" ||
-                    order.paymentStatus === "refunded"
-                  }
-                  onClick={() => {
-                    setSelectedOrder(order);
-                    setActiveAction("payment");
-                  }}
-                >
-                  <CheckCircle className="mr-2 h-4 w-4" />
-                  Update Payment Status
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="cursor-pointer text-red-600 focus:text-red-600"
-                  disabled={
-                    ![
-                      "pending",
-                      "confirmed",
-                      "processing",
-                    ].includes(order.status)
-                  }
-                  onClick={() => {
-                    setSelectedOrder(order);
-                    setActiveAction("cancel");
-                  }}
-                >
-                  <Ban className="mr-2 h-4 w-4" />
-                  Cancel Order
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex items-center gap-1.5">
+            <DashboardButton
+              variant="outline"
+              className="h-8 w-8 rounded-lg border-blue/30 bg-muted/30 p-0 text-navy shadow-sm transition-all duration-200 hover:border-blue/30 hover:bg-blue/10 hover:text-blue hover:shadow-md"
+              icon={<Eye className="h-4 w-4" />}
+              onClick={() => {
+                setSelectedOrder(order);
+                setActiveAction("details");
+              }}
+              ariaLabel={`View details for order ${order.orderNumber}`}
+            />
+
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <DashboardButton
+                  variant="outline"
+                  className="h-8 w-8 rounded-lg border-blue/30 bg-muted/30 p-0 text-navy shadow-sm transition-all duration-200 hover:border-blue/30 hover:bg-blue/10 hover:text-blue hover:shadow-md"
+                  icon={<MoreHorizontal className="h-4 w-4" />}
+                  ariaLabel={`Actions for order ${order.orderNumber}`}
+                />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-52">
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    onClick={() => {
+                      setSelectedOrder(order);
+                      setActiveAction("details");
+                    }}
+                  >
+                    <Eye className="mr-2 h-4 w-4" />
+                    View Details
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    disabled={
+                      order.status === "delivered" ||
+                      order.status === "cancelled"
+                    }
+                    onClick={() => {
+                      setSelectedOrder(order);
+                      setActiveAction("status");
+                    }}
+                  >
+                    <Truck className="mr-2 h-4 w-4" />
+                    Update Order Status
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    disabled={
+                      order.paymentStatus === "failed" ||
+                      order.paymentStatus === "refunded"
+                    }
+                    onClick={() => {
+                      setSelectedOrder(order);
+                      setActiveAction("payment");
+                    }}
+                  >
+                    <CheckCircle className="mr-2 h-4 w-4" />
+                    Update Payment Status
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="cursor-pointer text-red-600 focus:text-red-600"
+                    disabled={
+                      ![
+                        "pending",
+                        "confirmed",
+                        "processing",
+                      ].includes(order.status)
+                    }
+                    onClick={() => {
+                      setSelectedOrder(order);
+                      setActiveAction("cancel");
+                    }}
+                  >
+                    <Ban className="mr-2 h-4 w-4" />
+                    Cancel Order
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         );
       },
     },

@@ -226,47 +226,60 @@ export default function ProductsDashboard() {
         const product = row.original;
 
         return (
-          <div className="flex min-w-[300px] items-center gap-4">
-            <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-100">
+          <div className="flex max-w-[260px] items-center gap-3">
+            <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-100">
               {product.primaryImage?.url ? (
                 <Image
                   src={product.primaryImage.url}
                   alt={product.primaryImage.alt || product.name}
                   fill
-                  sizes="56px"
+                  sizes="44px"
                   unoptimized
                   className="object-cover"
                 />
               ) : (
                 <div className="flex h-full items-center justify-center text-blue">
-                  <Package className="h-5 w-5" />
+                  <Package className="h-4 w-4" />
                 </div>
               )}
             </div>
 
-            <div className="min-w-0 space-y-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="font-semibold leading-5 text-slate-900">
+            <div className="min-w-0 flex-1 space-y-0.5">
+              <div className="flex items-center gap-1.5">
+                <p
+                  className="truncate text-sm font-semibold text-slate-900"
+                  title={product.name}
+                >
                   {product.name}
-                </span>
+                </p>
 
                 {product.isFeatured && (
-                  <span className="rounded-full bg-blue/10 px-2 py-0.5 text-[10px] font-semibold text-blue">
+                  <span className="shrink-0 rounded-full bg-blue/10 px-1.5 py-0.5 text-[9px] font-semibold text-blue">
                     Featured
                   </span>
                 )}
               </div>
 
-              <p className="max-w-md truncate text-[13px] text-slate-500">
-                {product.shortDescription}
-              </p>
+              {product.shortDescription && (
+                <p
+                  className="truncate text-xs text-slate-500"
+                  title={product.shortDescription}
+                >
+                  {product.shortDescription}
+                </p>
+              )}
 
-              <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-400">
+              <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
                 <span className="font-medium text-slate-500">
-                  SKU: {product.sku}
+                  {product.sku}
                 </span>
                 <span className="h-1 w-1 rounded-full bg-slate-300" />
-                <span>/{product.slug}</span>
+                <span
+                  className="truncate max-w-[110px]"
+                  title={`/${product.slug}`}
+                >
+                  /{product.slug}
+                </span>
               </div>
             </div>
           </div>
@@ -277,10 +290,10 @@ export default function ProductsDashboard() {
       accessorKey: "categoryId",
       header: "Category",
       cell: ({ row }) => (
-        <span className="inline-flex max-w-[170px] truncate rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600">
+        <span className="inline-flex max-w-[140px] truncate rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
           {typeof row.original.categoryId === "object"
             ? row.original.categoryId?.name
-            : row.original.categoryId}
+            : row.original.categoryId || "—"}
         </span>
       ),
     },
@@ -295,14 +308,14 @@ export default function ProductsDashboard() {
         const maxPrice = prices.length ? Math.max(...prices) : row.original.price;
 
         return (
-          <div className="min-w-[100px]">
-            <p className="font-semibold text-slate-800">
+          <div className="min-w-[90px]">
+            <p className="font-semibold text-slate-800 text-sm">
               {hasVariants
                 ? `৳${minPrice.toLocaleString("en-BD")} – ৳${maxPrice.toLocaleString("en-BD")}`
                 : `৳${row.original.price.toLocaleString("en-BD")}`}
             </p>
 
-            <p className="mt-1 flex items-center gap-1.5 text-[11px] text-slate-400">
+            <p className="mt-0.5 flex items-center gap-1 text-[11px] text-slate-400">
               {hasVariants ? (
                 <span className="rounded bg-blue/10 px-1.5 py-0.5 text-[10px] font-semibold text-blue">
                   {variants.length} weights
@@ -325,7 +338,7 @@ export default function ProductsDashboard() {
           product.stockQuantity <= product.lowStockThreshold;
 
         return (
-          <div className="min-w-[110px] space-y-1">
+          <div className="min-w-[90px] space-y-0.5">
             <span
               className={`text-sm font-semibold ${
                 isOutOfStock
@@ -357,23 +370,23 @@ export default function ProductsDashboard() {
         const isPublished = product.status === "published";
 
         return (
-          <div className="flex min-w-[130px] flex-col items-start gap-2">
+          <div className="flex min-w-[110px] flex-col items-start gap-1">
             {isPublished ? (
-              <Badge className="gap-1 rounded-full bg-green-500 px-3 py-1 text-[11px] font-semibold capitalize hover:bg-green-600">
+              <Badge className="gap-1 rounded-full bg-green-500 px-2.5 py-0.5 text-[10px] font-semibold capitalize hover:bg-green-600">
                 <CheckCircle className="h-3 w-3" />
                 Published
               </Badge>
             ) : (
               <Badge
                 variant="secondary"
-                className="gap-1 rounded-full px-3 py-1 text-[11px] font-semibold capitalize"
+                className="gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-semibold capitalize"
               >
                 <XCircle className="h-3 w-3" />
                 {product.status}
               </Badge>
             )}
 
-            <span className="text-[11px] text-slate-400">
+            <span className="text-[10px] text-slate-400">
               {product.publishedAt
                 ? `Published ${formatDate(product.publishedAt)}`
                 : "Not published yet"}
@@ -386,13 +399,13 @@ export default function ProductsDashboard() {
       accessorKey: "updatedAt",
       header: "Last Updated",
       cell: ({ row }) => (
-        <div className="min-w-[130px] space-y-1">
-          <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+        <div className="min-w-[110px] space-y-0.5">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-700">
             <Calendar className="h-3.5 w-3.5 text-slate-400" />
             {formatDate(row.original.updatedAt)}
           </div>
 
-          <p className="text-[11px] text-slate-400">
+          <p className="text-[10px] text-slate-400">
             Created {formatDate(row.original.createdAt)}
           </p>
         </div>
@@ -673,7 +686,7 @@ export default function ProductsDashboard() {
                     {headerGroup.headers.map((header) => (
                       <th
                         key={header.id}
-                        className="px-6 py-3 text-left text-sm font-medium text-muted-foreground"
+                        className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground"
                       >
                         {header.isPlaceholder ? null : (
                           <table.FlexRender header={header} />
@@ -691,7 +704,7 @@ export default function ProductsDashboard() {
                     className="border-b transition-colors last:border-0 hover:bg-muted/30"
                   >
                     {row.getAllCells().map((cell) => (
-                      <td key={cell.id} className="px-6 py-4">
+                      <td key={cell.id} className="px-4 py-3 text-sm">
                         <table.FlexRender cell={cell} />
                       </td>
                     ))}
