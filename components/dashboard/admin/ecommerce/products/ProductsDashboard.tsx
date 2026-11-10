@@ -226,7 +226,7 @@ export default function ProductsDashboard() {
         const product = row.original;
 
         return (
-          <div className="flex max-w-[260px] items-center gap-3">
+          <div className="flex min-w-[280px] max-w-[360px] items-center gap-3">
             <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-100">
               {product.primaryImage?.url ? (
                 <Image
@@ -245,7 +245,7 @@ export default function ProductsDashboard() {
             </div>
 
             <div className="min-w-0 flex-1 space-y-0.5">
-              <div className="flex items-center gap-1.5">
+              <div className="flex min-w-0 items-center gap-1.5">
                 <p
                   className="truncate text-sm font-semibold text-slate-900"
                   title={product.name}
@@ -260,22 +260,22 @@ export default function ProductsDashboard() {
                 )}
               </div>
 
-              {product.shortDescription && (
+              {product.shortDescription ? (
                 <p
                   className="truncate text-xs text-slate-500"
                   title={product.shortDescription}
                 >
                   {product.shortDescription}
                 </p>
-              )}
+              ) : null}
 
-              <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
-                <span className="font-medium text-slate-500">
+              <div className="flex min-w-0 items-center gap-1.5 whitespace-nowrap text-[11px] text-slate-400">
+                <span className="shrink-0 font-medium text-slate-500 whitespace-nowrap">
                   {product.sku}
                 </span>
-                <span className="h-1 w-1 rounded-full bg-slate-300" />
+                <span className="h-1 w-1 shrink-0 rounded-full bg-slate-300" />
                 <span
-                  className="truncate max-w-[110px]"
+                  className="min-w-0 truncate text-slate-400"
                   title={`/${product.slug}`}
                 >
                   /{product.slug}
