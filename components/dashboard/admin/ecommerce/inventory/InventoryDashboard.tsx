@@ -97,10 +97,15 @@ function ProductThumbnail({ product }: { product: InventoryProduct }) {
 }
 
 function StockBadge({ product }: { product: InventoryProduct }) {
+  const variants = product.variants || [];
+  const hasLowStockVariant = variants.some(
+    (v) =>
+      v.stockQuantity <= (v.lowStockThreshold ?? product.lowStockThreshold ?? 5),
+  );
   const status =
     product.stockQuantity <= 0
       ? "Out of Stock"
-      : product.stockQuantity <= product.lowStockThreshold
+      : product.stockQuantity <= (product.lowStockThreshold ?? 5) || hasLowStockVariant
         ? "Low Stock"
         : "In Stock";
   const style =
@@ -255,6 +260,7 @@ export default function InventoryDashboard() {
         header: "Product",
         cell: ({ row }) => {
           const product = row.original;
+          const variants = product.variants || [];
           return (
             <div className="flex items-center gap-3">
               <ProductThumbnail product={product} />
@@ -262,7 +268,14 @@ export default function InventoryDashboard() {
                 <p className="max-w-[280px] truncate text-sm font-semibold text-navy">
                   {product.name}
                 </p>
-                <p className="mt-1 text-xs text-slate-400">{product.sku}</p>
+                <div className="mt-1 flex items-center gap-2 text-xs text-slate-400">
+                  <span>{product.sku}</span>
+                  {variants.length > 1 && (
+                    <span className="rounded bg-blue/10 px-1.5 py-0.5 text-[10px] font-semibold text-blue">
+                      {variants.length} weights
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           );

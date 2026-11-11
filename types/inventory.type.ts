@@ -29,6 +29,15 @@ export interface InventoryProduct {
   stockQuantity: number;
   lowStockThreshold: number;
   status: string;
+  variants?: {
+    _id?: string;
+    weight: string;
+    size?: string;
+    price: number;
+    stockQuantity: number;
+    lowStockThreshold?: number;
+    sku?: string;
+  }[];
 }
 
 export interface InventoryPagination {
