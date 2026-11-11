@@ -4,6 +4,7 @@ import AboutSection from "@/components/home/AboutSection";
 import BlogSection from "@/components/home/BlogSection";
 import ContactSection from "@/components/home/ContactSection";
 import HeroSlider from "@/components/home/HeroSlider";
+import MarqueeSection from "@/components/home/MarqueeSection";
 import ProductsSection from "@/components/home/ProductsSection";
 import ProjectsSection from "@/components/home/ProjectsSection/ProjectsSection";
 import ServicesSection from "@/components/home/ServiceSection/ServicesSection";
@@ -23,6 +24,7 @@ export default function HomePage() {
   return (
     <>
       <HeroSlider />
+      <MarqueeSection />
       <AboutSection />
       <ServicesSection />
       <WorkProcessSection />
