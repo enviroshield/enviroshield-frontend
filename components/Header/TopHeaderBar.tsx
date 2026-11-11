@@ -58,11 +58,11 @@ export default function TopHeaderBar({
   }
 
   return (
-    <div className="hidden h-[38px] border-b border-[#e9eef1] bg-white text-[13px] text-ink min-[901px]:block">
+    <div className="hidden h-[38px] border-b border-white/15 bg-blue text-[13px] text-white min-[901px]:block">
       <Container className="flex h-full items-center justify-between">
         {/* Contact Information */}
-        <span className="flex items-center gap-[7px] font-normal">
-          <MapPin size={14} aria-hidden="true" />
+        <span className="flex items-center gap-[7px] font-normal text-white/90">
+          <MapPin size={14} className="text-white/80" aria-hidden="true" />
           House No: 22/13-15, Block-B, Bauniabad R/A, Mirpur 11,
           Pallabi, Dhaka 1216
         </span>
@@ -71,23 +71,23 @@ export default function TopHeaderBar({
           <span className="flex items-center gap-6">
             <a
               href="mailto:enviroshield.bd@gmail.com"
-              className="flex items-center gap-[7px]"
+              className="flex items-center gap-[7px] text-white/90 transition-colors hover:text-white"
             >
-              <Mail size={14} aria-hidden="true" />
+              <Mail size={14} className="text-white/80" aria-hidden="true" />
               enviroshield.bd@gmail.com
             </a>
 
             <a
               href="tel:+8801613220101"
-              className="flex items-center gap-[7px]"
+              className="flex items-center gap-[7px] text-white/90 transition-colors hover:text-white"
             >
-              <Phone size={14} aria-hidden="true" />
+              <Phone size={14} className="text-white/80" aria-hidden="true" />
               +8801613220101
             </a>
           </span>
 
           <span
-            className="h-4 w-px bg-[#e9eef1]"
+            className="h-4 w-px bg-white/20"
             aria-hidden="true"
           />
 
@@ -101,7 +101,7 @@ export default function TopHeaderBar({
               <div
                 role="status"
                 aria-label="Loading account"
-                className="size-7 animate-pulse rounded-full border border-[#e9eef1] bg-gradient-to-br from-[#e9eef1] via-[#f5f7f8] to-[#e9eef1]"
+                className="size-7 animate-pulse rounded-full border border-white/20 bg-white/20"
               >
                 <span className="sr-only">
                   Loading account...
@@ -115,20 +115,20 @@ export default function TopHeaderBar({
                     <button
                       type="button"
                       aria-label={`Open account menu for ${user.name || user.email}`}
-                      className="inline-flex size-7 shrink-0 items-center justify-center rounded-full outline-none transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-2"
+                      className="inline-flex size-7 shrink-0 items-center justify-center rounded-full outline-none transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-blue"
                     />
                   }
                 >
                   <Avatar
                     size="sm"
-                    className="border border-[#e9eef1]"
+                    className="border border-white/30"
                   >
                     <AvatarImage
                       src={user.image || undefined}
                       alt={user.name || "Your profile"}
                     />
 
-                    <AvatarFallback className="bg-navy text-[10px] font-bold text-white">
+                    <AvatarFallback className="bg-white text-[10px] font-bold text-blue">
                       {initials}
                     </AvatarFallback>
                   </Avatar>
@@ -185,7 +185,7 @@ export default function TopHeaderBar({
               /* Unauthenticated User */
               <Link
                 href="/login"
-                className="inline-flex h-7 items-center justify-center rounded-full px-2 text-[12px] font-semibold text-navy transition-colors hover:bg-mist hover:text-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue"
+                className="inline-flex h-7 items-center justify-center rounded-full px-2.5 text-[12px] font-semibold text-white transition-colors hover:bg-white/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               >
                 Login
               </Link>
@@ -200,7 +200,7 @@ export default function TopHeaderBar({
             aria-label={`Open cart${count ? `, ${count} ${count === 1 ? "item" : "items"}` : ", empty"}`}
             aria-haspopup="dialog"
             aria-expanded={cartOpen}
-            className="relative inline-grid size-7 shrink-0 place-items-center rounded-full text-navy transition-colors hover:bg-mist hover:text-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue"
+            className="relative inline-grid size-7 shrink-0 place-items-center rounded-full text-white transition-colors hover:bg-white/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
           >
             <ShoppingBag
               size={17}
@@ -217,7 +217,7 @@ export default function TopHeaderBar({
                   duration: 0.3,
                   ease: "easeOut",
                 }}
-                className="absolute -right-1 -top-1 grid min-w-[16px] place-items-center rounded-full bg-blue px-1 text-[9px] font-bold leading-4 text-white"
+                className="absolute -right-1 -top-1 grid min-w-[16px] place-items-center rounded-full bg-white px-1 text-[9px] font-bold leading-4 text-blue shadow-xs"
               >
                 {count > 99 ? "99+" : count}
               </motion.span>

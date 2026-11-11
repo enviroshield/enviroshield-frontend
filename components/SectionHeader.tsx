@@ -41,6 +41,7 @@ export function SectionHeader({
       <div
         className={cn(
           "mb-[22px] flex items-center gap-[10px] text-[11px] font-extrabold uppercase tracking-[0.15em]",
+          align === "center" && "justify-center",
           light ? "text-paste" : "text-blue",
         )}
       >
