@@ -2,10 +2,6 @@ import Link from "next/link";
 import { AlertCircle, SlidersHorizontal, X } from "lucide-react";
 import type { Metadata } from "next";
 
-import {
-  StaggerContainer,
-  StaggerItem,
-} from "@/components/animations/reveal";
 import { Button } from "@/components/Button";
 import Container from "@/components/Container";
 import PageHero from "@/components/PageHero";
@@ -620,19 +616,19 @@ export default async function ProductsPage({
                 </Alert>
               ) : productResponse?.data.length ? (
                 <>
-                  <StaggerContainer
+                  <div
                     className="grid grid-cols-3 gap-x-6 gap-y-10 max-[1200px]:grid-cols-2 max-[600px]:grid-cols-1"
                     id="product-grid"
                   >
                     {productResponse.data.map((product) => (
-                      <StaggerItem
+                      <div
                         key={product._id}
-                        data-category={product.categoryId.name}
+                        data-category={product.categoryId?.name}
                       >
                         <ProductCard product={product} />
-                      </StaggerItem>
+                      </div>
                     ))}
-                  </StaggerContainer>
+                  </div>
 
                   {productResponse.meta.totalPages > 1 && (
                     <Pagination className="mt-12">

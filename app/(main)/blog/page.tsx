@@ -32,11 +32,11 @@ export async function generateMetadata({
   const isFirstPage = page === 1;
 
   const title = isFirstPage
-    ? "Painting, Waterproofing & Flooring Journal | Enviroshield"
+    ? "Painting, Waterproofing & Flooring News | Enviroshield"
     : `Painting, Waterproofing & Flooring Journal — Page ${page} | Enviroshield`;
 
   const description = isFirstPage
-    ? "Read Enviroshield's latest guides, insights, and practical advice on waterproofing, flooring, painting, protective coatings, heat insulation, and better-finished spaces."
+    ? "Read Enviroshield's latest news, guides, and practical advice on waterproofing, flooring, painting, protective coatings, heat insulation, and better-finished spaces."
     : `Explore more Enviroshield guides and insights on waterproofing, flooring, painting, protective coatings, insulation, and better-finished spaces — page ${page}.`;
 
   const canonical = isFirstPage
@@ -164,9 +164,9 @@ export default async function BlogPage({
   return (
     <>
       <PageHero
-        eyebrow="JOURNAL"
-        title="Ideas, guides and inspiration for better spaces."
-        text="Practical advice and thoughtful ideas from our team — from choosing a colour to preparing a wall properly."
+        eyebrow="NEWS"
+        title="Ideas, guides, and news for better spaces."
+        text="Practical advice, industry news, and expert updates from our team."
         image="/images/service-hero.jpg"
       />
 
@@ -176,23 +176,23 @@ export default async function BlogPage({
       >
         <Container>
           <SectionHeader
-            eyebrow="ALL ARTICLES"
-            title="Latest from the journal"
+            eyebrow="ALL NEWS"
+            title="Latest news & updates"
             headingId="blog-heading"
           />
 
           {blogs.length > 0 ? (
             <>
-              {/* LATEST ARTICLE — ORIGINAL SPOTLIGHT DESIGN */}
+              {/* LATEST NEWS — ORIGINAL SPOTLIGHT DESIGN */}
               {featured && <FeaturedBlogCard post={featured} />}
 
-              {/* REMAINING ARTICLES — EXISTING CARD GRID */}
+              {/* REMAINING NEWS — EXISTING CARD GRID */}
               {gridBlogs.length > 0 && (
                 <>
                   {featured && (
                     <div className="mb-8 mt-16 flex items-end justify-between border-b border-line pb-4">
                       <h3 className="text-[24px] font-extrabold tracking-[-0.03em] text-navy">
-                        More Articles
+                        More News & Updates
                       </h3>
 
                       <span className="text-[14px] text-ink">
@@ -224,11 +224,11 @@ export default async function BlogPage({
           ) : (
             <div className="mt-11 flex min-h-[280px] flex-col items-center justify-center rounded-[18px] border border-line bg-mist px-6 py-12 text-center">
               <h3 className="text-2xl font-semibold text-navy">
-                No articles available
+                No news available
               </h3>
 
               <p className="mt-3 max-w-[560px] text-sm leading-6 text-ink">
-                We&apos;re currently updating our journal. Please
+                We&apos;re currently updating our news section. Please
                 check back soon or contact our team if you need
                 assistance.
               </p>

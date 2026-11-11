@@ -26,7 +26,7 @@ export default function ArticleHero() {
             </li>
             <li>
               <Link href="/blog" className="transition-colors hover:text-blue">
-                Insights
+                News
               </Link>
             </li>
             <li>

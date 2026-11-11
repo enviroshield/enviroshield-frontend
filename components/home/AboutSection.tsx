@@ -10,17 +10,17 @@ import { SectionHeader } from "../SectionHeader";
 
 // Swap these with the exact photos from your design.
 const aboutImages = {
-  wallpaper: {
-    src: "https://images.pexels.com/photos/7546771/pexels-photo-7546771.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
-    alt: "Hand peeling floral wallpaper off a wall",
+  application: {
+    src: "/images/home/rooftop-waterproofing-application.jpg",
+    alt: "Enviroshield specialist applying protective waterproof coating to building rooftop",
   },
-  inspection: {
-    src: images.painter,
-    alt: "Two professionals inspecting a prepared wall",
+  completedRooftop: {
+    src: "/images/home/completed-waterproof-rooftop-coating.jpg",
+    alt: "Completed seamless waterproof and heat-insulated residential rooftop terrace",
   },
-  ladder: {
-    src: "https://images.pexels.com/photos/6764289/pexels-photo-6764289.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
-    alt: "Workers finishing a ceiling from a ladder",
+  terraceBalcony: {
+    src: "/images/home/terrace-waterproofing-protective-floor.png",
+    alt: "Finished protective waterproof floor coating on residential balcony terrace",
   },
 };
 
@@ -74,8 +74,8 @@ export default function AboutSection() {
             <div className="flex flex-col gap-[27px] pt-[70px] max-[600px]:gap-3 max-[600px]:pt-10">
               <div className={photoClass}>
                 <Image
-                  src={aboutImages.wallpaper.src}
-                  alt={aboutImages.wallpaper.alt}
+                  src={aboutImages.application.src}
+                  alt={aboutImages.application.alt}
                   fill
                   sizes="(max-width: 900px) 45vw, 25vw"
                   className={imgClass}
@@ -114,8 +114,8 @@ export default function AboutSection() {
             <div className="flex flex-col gap-[27px] max-[600px]:gap-3">
               <div className={photoClass}>
                 <Image
-                  src={aboutImages.inspection.src}
-                  alt={aboutImages.inspection.alt}
+                  src={aboutImages.completedRooftop.src}
+                  alt={aboutImages.completedRooftop.alt}
                   fill
                   sizes="(max-width: 900px) 45vw, 25vw"
                   className={imgClass}
@@ -124,8 +124,8 @@ export default function AboutSection() {
               </div>
               <div className={photoClass}>
                 <Image
-                  src={aboutImages.ladder.src}
-                  alt={aboutImages.ladder.alt}
+                  src={aboutImages.terraceBalcony.src}
+                  alt={aboutImages.terraceBalcony.alt}
                   fill
                   sizes="(max-width: 900px) 45vw, 25vw"
                   className={imgClass}

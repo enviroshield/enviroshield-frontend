@@ -332,7 +332,7 @@ export default async function ArticlePage({
   {
     "@type": "ListItem",
     position: 2,
-    name: "Blog",
+    name: "News",
     item: `${siteUrl}/blog`,
   },
   {
@@ -383,7 +383,7 @@ export default async function ArticlePage({
                 className="mb-8 inline-flex items-center gap-2 text-[14px] font-bold text-ink transition-colors hover:text-blue"
               >
                 <ArrowLeft size={16} aria-hidden="true" />
-                Journal
+                News
               </Link>
 
               {tags.length > 0 && (
@@ -557,7 +557,7 @@ export default async function ArticlePage({
                 href="/blog"
                 className="inline-flex shrink-0 items-center gap-[7px] text-[14px] font-extrabold text-navy transition-[gap,color] duration-200 hover:gap-[11px] hover:text-blue"
               >
-                More from the journal
+                More news & updates
                 <ArrowUpRight size={16} aria-hidden="true" />
               </Link>
             </div>
@@ -587,7 +587,7 @@ export default async function ArticlePage({
                 href="/blog"
                 className="inline-flex shrink-0 items-center gap-[7px] text-[14px] font-extrabold text-navy transition-[gap,color] duration-200 hover:gap-[11px] hover:text-blue"
               >
-                View all articles
+                View all news
                 <ArrowUpRight size={16} aria-hidden="true" />
               </Link>
             </div>

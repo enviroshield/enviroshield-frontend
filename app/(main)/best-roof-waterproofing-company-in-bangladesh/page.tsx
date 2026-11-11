@@ -249,7 +249,7 @@ export default function BestRoofWaterproofingCompanyPage() {
           {
             "@type": "ListItem",
             position: 2,
-            name: "Insights",
+            name: "News",
             item: `${siteUrl}/blog`,
           },
           {
