@@ -58,10 +58,7 @@ export default function Footer() {
           <Logo light />
 
           <p className="mb-[22px] mt-[22px] max-w-[280px] text-[13px] leading-[1.7] text-[#91afbd]">
-            Since 2009, Enviro Shield has delivered professional
-            waterproofing, heatproofing, flooring, grouting, and
-            protective coating solutions for residential, commercial,
-            and industrial properties in Bangladesh.
+            Founded in Australia in 2009 and operating in Bangladesh since 2017, Enviro Shield delivers advanced waterproofing, epoxy/PU flooring, in-house chemical manufacturing, and protective coating solutions.
           </p>
 
           <div className="flex gap-2">
@@ -127,23 +124,15 @@ export default function Footer() {
           </h4>
 
           <p className="mb-[10px] text-[13px] leading-[1.7]">
-            Monday – Friday
+            Saturday – Thursday
             <br />
             <strong className="font-bold text-white">
-              8:00 AM – 6:00 PM
+              9:00 AM – 6:00 PM
             </strong>
           </p>
 
           <p className="mb-[10px] text-[13px] leading-[1.7]">
-            Saturday
-            <br />
-            <strong className="font-bold text-white">
-              9:00 AM – 2:00 PM
-            </strong>
-          </p>
-
-          <p className="mb-[10px] text-[13px] leading-[1.7]">
-            Sunday
+            Friday
             <br />
             <strong className="font-bold text-white">Closed</strong>
           </p>
@@ -173,7 +162,7 @@ export default function Footer() {
                 className="mt-0.5 shrink-0 text-[#91afbd]"
                 aria-hidden="true"
               />
-              <span>+8801613220101</span>
+              <span>+8801613220101 / +8801615220101</span>
             </a>
 
             <a
@@ -208,7 +197,7 @@ export default function Footer() {
         <span>© 2026 Enviro Shield. All rights reserved.</span>
 
         <span>
-          Protecting what matters. Building with confidence. • <CookiePreferencesButton />
+          Protecting structures. Extending life. • <CookiePreferencesButton />
         </span>
 
         <span>

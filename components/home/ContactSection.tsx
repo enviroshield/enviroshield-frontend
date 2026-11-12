@@ -81,24 +81,24 @@ export default function ContactSection({
               {
                 icon: <Clock3 aria-hidden="true" />,
                 b: "Working hours",
-                t: "Monday – Friday, 8:00 AM – 6:00 PM",
+                t: "Saturday – Thursday, 9:00 AM – 6:00 PM",
               },
               {
                 icon: <MapPin aria-hidden="true" />,
                 b: "Visit us",
-                t: "45 Bridge Street, Brooklyn, NY",
+                t: "House No: 22/13-15, Block-B, Bauniabad R/A, Mirpur 11, Pallabi, Dhaka 1216",
               },
               {
                 icon: <Phone aria-hidden="true" />,
                 b: "Call us",
-                t: "+1 123 456 7890",
-                href: "tel:+11234567890",
+                t: "+8801613220101 / +8801615220101",
+                href: "tel:+8801613220101",
               },
               {
                 icon: <Mail aria-hidden="true" />,
                 b: "Email us",
-                t: "hello@enviroshield.com",
-                href: "mailto:hello@enviroshield.com",
+                t: "enviroshield.bd@gmail.com",
+                href: "mailto:enviroshield.bd@gmail.com",
               },
             ].map((item, i) => (
               <motion.div

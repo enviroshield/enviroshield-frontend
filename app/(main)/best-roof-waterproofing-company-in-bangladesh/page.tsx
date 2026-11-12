@@ -1181,18 +1181,15 @@ export default function BestRoofWaterproofingCompanyPage() {
                 <div className="mt-6 space-y-4">
                   <div className="rounded-2xl border border-line bg-white p-5 shadow-xs">
                     <h3 className="font-bold text-navy text-lg">
-                      Experienced Engineering Team
+                      Australian Certified Engineering Leadership
                     </h3>
                     <p className="mt-1.5 text-sm sm:text-base text-slate-600 leading-relaxed">
-                      Enviro Shield employs skilled civil engineers
-                      and trained site technicians with hands-on
-                      expertise in concrete diagnostics and chemical
-                      membrane application. Learn more{" "}
+                      Led by Australian-certified engineers (Founder Engr. Tony Stephen and Managing Director Engr. Mohammad Mahbubur Rahman), Enviro Shield deploys over 20 certified engineers and 130 trained applicators with over 3+ Million SFT successfully protected across Bangladesh. Learn more{" "}
                       <Link
                         href="/about"
                         className="text-blue underline underline-offset-4 font-semibold hover:text-deep"
                       >
-                        about our engineering background
+                        about our leadership & engineering team
                       </Link>
                       .
                     </p>
@@ -1200,24 +1197,19 @@ export default function BestRoofWaterproofingCompanyPage() {
 
                   <div className="rounded-2xl border border-line bg-white p-5 shadow-xs">
                     <h3 className="font-bold text-navy text-lg">
-                      Advanced Waterproofing Systems
+                      Enviro Supreme 7-Layer Waterproofing System
                     </h3>
                     <p className="mt-1.5 text-sm sm:text-base text-slate-600 leading-relaxed">
-                      The company uses modern waterproofing technology
-                      designed for long-term protection against the
-                      high tropical humidity of Bangladesh.
+                      Our proprietary 7-layer monolithic system (LatexShield, BondShield, GumShield, and PU AquaShield Color) delivers total 3mm–4mm build thickness, 200% elastomeric elongation, and crack bridging up to 1.5mm to permanently prevent monsoon leaks.
                     </p>
                   </div>
 
                   <div className="rounded-2xl border border-line bg-white p-5 shadow-xs">
                     <h3 className="font-bold text-navy text-lg">
-                      High-Quality Materials
+                      Imported Raw Materials & In-House Manufacturing
                     </h3>
                     <p className="mt-1.5 text-sm sm:text-base text-slate-600 leading-relaxed">
-                      Premium construction chemicals ensure durability
-                      and reliability. We use certified elastomeric
-                      polymers, acrylic primers, and UV-resistant
-                      polyurethanes.
+                      We import high-grade raw materials directly from the UK, Germany, Australia, and China, combined with local in-house chemical manufacturing in Bangladesh for optimal molecular consistency, UV resistance, and heat reflection.
                     </p>
                   </div>
 

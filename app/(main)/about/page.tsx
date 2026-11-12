@@ -11,8 +11,14 @@ import { SectionHeader } from "@/components/SectionHeader";
 import { images } from "@/lib/data/content";
 import {
   Award,
+  Building2,
   Check,
+  CheckCircle2,
   Compass,
+  Droplets,
+  Eye,
+  Globe,
+  GraduationCap,
   HandHeart,
   Layers,
   Leaf,
@@ -20,6 +26,7 @@ import {
   ShieldCheck,
   Sparkles,
   Sun,
+  Target,
   Users,
 } from "lucide-react";
 import Image from "next/image";
@@ -28,24 +35,20 @@ import { siteUrl } from "@/lib/site-url";
 
 export const metadata: Metadata = {
   title:
-    "About Enviro Shield | Waterproofing & Flooring Experts in Bangladesh",
+    "About Enviro Shield | Australian Waterproofing & Flooring Experts in Bangladesh",
   description:
-    "Learn about Enviro Shield, delivering professional waterproofing, waterproofing paint, heatproofing, epoxy flooring, PU flooring, injection grouting, expansion joint sealing, sports flooring, polished concrete, 3D epoxy flooring, floor hardener, and ETP coating in Bangladesh since 2009.",
+    "Learn about Enviro Shield Pvt. Ltd. Founded in Australia in 2009 and operating in Bangladesh since 2017, we deliver advanced 7-layer waterproofing, epoxy/PU flooring, in-house chemical manufacturing, and protective coating solutions with 3M+ SFT completed.",
   keywords: [
     "about Enviro Shield",
     "Enviro Shield Bangladesh",
     "waterproofing company Bangladesh",
-    "waterproofing paint",
-    "heatproofing",
-    "epoxy flooring",
+    "Engr Tony Stephen",
+    "Engr Mohammad Mahbubur Rahman",
+    "Australian waterproofing brand",
+    "7 layer waterproofing",
+    "epoxy flooring Bangladesh",
     "PU flooring",
-    "injection grouting",
-    "expansion joint sealing",
-    "sports flooring",
-    "polished concrete",
-    "3D epoxy flooring",
-    "floor hardener",
-    "ETP coating",
+    "in-house construction chemical manufacturing",
     "protective construction solutions",
   ],
   alternates: {
@@ -57,149 +60,196 @@ export const metadata: Metadata = {
 /* DATA                                                                       */
 /* -------------------------------------------------------------------------- */
 
-const reasons = [
+const missionVision = [
   {
-    icon: ShieldCheck,
-    title: "Protection That Performs",
-    text: "Our solutions are designed to protect buildings from water, heat, surface deterioration, and other environmental challenges.",
+    eyebrow: "OUR MISSION",
+    title: "Mission",
+    text: "To provide high quality, cost effective, and durable solution through top-grade material application, and consistent execution ensuring customer satisfaction at every step.",
+    icon: Target,
+    accent: "blue",
+    highlights: [
+      "Cost-effective & durable formulations",
+      "Top-grade material application",
+      "Customer satisfaction at every single step",
+    ],
   },
   {
-    icon: Award,
-    title: "Proven Expertise",
-    text: "With years of experience in waterproofing and protective construction solutions, we understand the demands of real-world building conditions.",
-  },
-  {
-    icon: Layers,
-    title: "Complete Solutions",
-    text: "From surface preparation to final protection, we provide systems designed to work together rather than isolated products.",
-  },
-  {
-    icon: Users,
-    title: "Client-Focused Service",
-    text: "We work closely with our clients to understand their requirements and recommend practical solutions suited to each project.",
+    eyebrow: "OUR VISION",
+    title: "Vision",
+    text: "To be the leading and most trusted waterproofing & protective solutions company in Bangladesh, covering brands in quality, innovation, and long-term performance.",
+    icon: Eye,
+    accent: "navy",
+    highlights: [
+      "Leading & most trusted waterproofing partner",
+      "Uncompromising quality & technical innovation",
+      "Guaranteed long-term structural performance",
+    ],
   },
 ];
 
-const expertise = [
+const leaders = [
   {
-    icon: ShieldCheck,
-    title: "Waterproofing",
-    text: "Professional waterproofing systems designed to protect roofs, structures, and surfaces from water intrusion and moisture damage.",
+    name: "Engr. Tony Stephen",
+    role: "Founder, EnviroShield Pvt. Ltd. Australia",
+    badge: "FOUNDER & CHIEF ADVISER",
+    image: "/images/leadership/engr-tony-stephen.png",
+    alt: "Engr. Tony Stephen, Founder of EnviroShield Pvt. Ltd. Australia",
+    credentials: [
+      "BSc Engineer, Swinburne University of Technology, Australia",
+      "Certificate III in Construction Waterproofing, Australia",
+    ],
+    bio: "Engr. Tony Stephen founded EnviroShield in Australia in 2009. With extensive background in Australian engineering construction standards and advanced polymer waterproofing chemistry, he acts as Chief Technical Adviser guiding international quality formulations, material sourcing, and structural diagnostics.",
+  },
+  {
+    name: "Engr. Mohammad Mahbubur Rahman",
+    role: "Managing Director, EnviroShield Pvt. Ltd. (Bangladesh)",
+    badge: "MANAGING DIRECTOR",
+    image: "/images/leadership/engr-mohammad-mahbubur-rahman.jpg",
+    alt: "Engr. Mohammad Mahbubur Rahman, Managing Director of EnviroShield Bangladesh",
+    credentials: [
+      "MSc Engineer (IUT)",
+      "Certificate III in Construction Waterproofing, Australia",
+    ],
+    bio: "Engr. Mohammad Mahbubur Rahman oversees EnviroShield's Bangladesh expansion and operations since 2017. Certified in construction waterproofing in Australia and holding a post-graduate master's degree in engineering from IUT, he directs an expert engineering corps and over 130 applicators nationwide.",
+  },
+];
+
+const stats = [
+  { value: 3, suffix: "M+", label: "Million SFT Completed" },
+  { value: 130, suffix: "+", label: "Skilled Applicators" },
+  { value: 20, suffix: "+", label: "Certified Engineers" },
+  { value: 17, suffix: "+", label: "Years Experience (Since 2009)" },
+];
+
+const reasons = [
+  {
+    icon: Globe,
+    title: "Imported High-Grade Raw Materials",
+    text: "Directly imported from the UK, Germany, Australia, and China, ensuring chemical durability that stands up to Bangladesh's climate.",
   },
   {
     icon: Layers,
-    title: "Industrial & Epoxy Flooring",
-    text: "Durable flooring solutions designed for environments where strength, hygiene, chemical resistance, and long-term performance matter.",
+    title: "Proven 7-Layer Waterproofing System",
+    text: "Our proprietary Enviro Supreme seven-layer method provides a seamless, monolithic 3mm–4mm elastomeric barrier.",
   },
   {
-    icon: Sun,
-    title: "Heat Insulation",
-    text: "Protective solutions that help reduce heat transfer and improve comfort and building performance.",
+    icon: Award,
+    title: "17+ Years of Industry Experience",
+    text: "Established in Australia in 2009 and operating in Bangladesh since 2017 with decades of combined engineering expertise.",
   },
   {
-    icon: Paintbrush,
-    title: "Protective Construction Solutions",
-    text: "Specialized systems designed to strengthen, protect, and extend the service life of building surfaces and structures.",
+    icon: ShieldCheck,
+    title: "Strong After-Sales Support",
+    text: "Full technical site inspections, comprehensive warranty compliance, and dedicated client follow-up across all projects.",
   },
+  {
+    icon: Building2,
+    title: "Trusted Across All Sectors",
+    text: "Successfully completed over 3+ Million SFT for residential homes, commercial towers, and heavy industrial complexes.",
+  },
+  {
+    icon: Users,
+    title: "Certified Engineers & Skilled Applicators",
+    text: "Over 20 qualified engineers and 130 trained applicators equipped with modern sprayers, grinders, and testing equipment.",
+  },
+];
+
+const servicesSummary = [
+  { title: "Waterproofing", desc: "Roofs, terraces, basements, water reservoirs & structural foundations." },
+  { title: "Epoxy Flooring", desc: "Seamless, hygienic, heavy-duty industrial and commercial floors." },
+  { title: "PU Flooring", desc: "Thermal-shock and chemical-resistant polyurethane systems." },
+  { title: "Floor Hardener", desc: "Non-metallic and metallic monolithic concrete hardening." },
+  { title: "Sports Flooring", desc: "Cushioned athletic acrylic and polyurethane sporting surfaces." },
+  { title: "Super Flat Flooring", desc: "Laser-guided ultra-flat floors for modern logistic warehouses." },
+  { title: "Fair Face Plaster", desc: "Architectural fair-faced concrete repair and weather protection." },
+  { title: "Conductive ESD Flooring", desc: "Anti-static electrostatic discharge control for high-tech plants." },
 ];
 
 const process = [
   {
     number: "01",
     title: "Understand",
-    text: "We begin by understanding the property, its existing condition, and the specific challenges that need to be addressed.",
+    text: "We inspect the site, diagnose structural vulnerabilities, and analyze moisture ingress patterns before prescribing a solution.",
   },
   {
     number: "02",
     title: "Assess",
-    text: "We evaluate the surface, environment, and project requirements to determine the most suitable approach.",
+    text: "Our engineers evaluate concrete slab conditions, tensile requirements, and environmental exposure to design the optimal system.",
   },
   {
     number: "03",
     title: "Apply",
-    text: "We use appropriate materials, systems, and application methods with careful attention to preparation and workmanship.",
+    text: "We execute with mechanical surface grinding, imported primers, multi-layer membranes, and high-performance topcoats.",
   },
   {
     number: "04",
     title: "Protect",
-    text: "The finished system is designed to provide dependable protection and help extend the service life of the property.",
+    text: "The finished installation undergoes rigorous quality checks to deliver monolithic, durable, and guaranteed long-term protection.",
   },
 ];
 
 const sectors = [
   {
     title: "Residential",
-    text: "Protecting homes, rooftops, terraces, balconies, and other residential spaces from water and environmental damage.",
+    text: "Protecting rooftops, basements, terraces, bathrooms, and exterior walls against dampness and monsoon leaks.",
   },
   {
     title: "Commercial",
-    text: "Reliable building protection solutions for offices, retail spaces, hospitality properties, and commercial facilities.",
+    text: "Durable flooring and waterproof membranes for corporate towers, retail centers, hotels, and hospitals.",
   },
   {
     title: "Industrial",
-    text: "High-performance waterproofing, flooring, insulation, and protective systems for demanding industrial environments.",
+    text: "Heavy-duty epoxy/PU floors, chemical containment, ESD floors, and roof insulation for factories and pharmaceuticals.",
   },
   {
     title: "Institutional",
-    text: "Durable solutions for schools, healthcare facilities, public buildings, and other institutional properties.",
+    text: "Long-lasting protection for universities, public infrastructure, convention centers, and government complexes.",
   },
 ];
 
 const commitments = [
-  "Quality-focused materials and systems",
-  "Professional surface preparation",
-  "Careful and consistent application",
-  "Solutions selected for real project conditions",
-  "Clear communication throughout the project",
-  "Long-term protection as the ultimate goal",
-];
-
-const stats = [
-  { value: 2009, label: "Established in Bangladesh", static: true },
-  { value: 17, suffix: "+", label: "Years of experience" },
-  { value: 500, suffix: "+", label: "Projects completed" },
-  { value: 99, suffix: "%", label: "Customer satisfaction" },
+  "Australian engineering standards since 2009",
+  "Operating in Bangladesh since 2017",
+  "In-house construction chemical manufacturing",
+  "Imported raw materials from UK, Germany, Australia & China",
+  "Proven Enviro Supreme 7-layer waterproofing system",
+  "Dedicated team of 20+ engineers & 130 applicators",
+  "Comprehensive warranty and after-sales support",
+  "Over 3+ Million sq. ft. completed nationwide",
 ];
 
 const values = [
   {
     icon: Compass,
     title: "Technical Expertise",
-    text: "We apply proven technical knowledge and practical experience to deliver solutions suited to each property's requirements.",
+    text: "Our Australian-certified leadership and experienced civil engineers ensure exact technical execution on every substrate.",
   },
   {
     icon: Leaf,
     title: "Quality Materials",
-    text: "We believe lasting protection starts with dependable materials and systems designed for demanding conditions.",
+    text: "We import raw materials from UK, Germany, Australia, and China, complemented by local in-house chemical manufacturing.",
   },
   {
     icon: HandHeart,
     title: "Customer Focus",
-    text: "We listen carefully to our clients, understand their needs, and work toward solutions that deliver real value.",
+    text: "We work directly with building owners, project managers, and architects to solve difficult waterproofing and flooring challenges.",
   },
   {
     icon: Sparkles,
     title: "Quality Workmanship",
-    text: "From preparation to final application, we maintain a strong focus on precision, consistency, and professional execution.",
+    text: "From diamond-wheel concrete grinding to multi-layer spray application, our 130+ applicators maintain high precision.",
   },
   {
     icon: Users,
     title: "Reliable Partnership",
-    text: "We aim to be more than a contractor — we build lasting relationships through transparency, accountability, and dependable service.",
+    text: "We build long-term relationships through transparent project estimates, honest engineering counsel, and standing behind our warranties.",
   },
   {
     icon: Check,
     title: "Built to Last",
-    text: "Our solutions are selected and applied with long-term durability, protection, and property performance in mind.",
+    text: "Our solutions are engineered to withstand Bangladesh's extreme monsoon seasons and harsh UV conditions for years to come.",
   },
 ];
-
-const CHAIRMAN = {
-  name: "Chairman Name", // replace
-  title: "Chairman, Enviro Shield", // replace
-  image: "/images/chairman.jpg", // replace with the real photo
-  alt: "Portrait of the Chairman of Enviro Shield",
-};
 
 const imgClass =
   "object-cover transition-transform duration-[0.6s] group-hover:scale-[1.04]";
@@ -207,19 +257,14 @@ const imgClass =
 function PhotoFx() {
   return (
     <>
-      {/* soft darken */}
       <span
         className="pointer-events-none absolute inset-0 bg-navy/25 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
         aria-hidden="true"
       />
-
-      {/* inner frame */}
       <span
         className="pointer-events-none absolute inset-3 scale-110 rounded-[12px] border border-white/80 opacity-0 transition-all duration-500 ease-out group-hover:scale-100 group-hover:opacity-100"
         aria-hidden="true"
       />
-
-      {/* diagonal shine */}
       <span
         className="pointer-events-none absolute inset-y-0 -left-1/2 w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/45 to-transparent transition-transform duration-[900ms] ease-out group-hover:translate-x-[500%]"
         aria-hidden="true"
@@ -233,15 +278,14 @@ export default function AboutPage() {
     <>
       <PageHero
         eyebrow="ABOUT ENVIRO SHIELD"
-        title="Australian expertise. Trusted protection since 2009."
-        text="Enviro Shield is an Australian brand in Bangladesh delivering professional waterproofing and protective construction solutions designed to protect properties and extend their service life."
+        title="Protecting structures. Extending life."
+        text="Founded in Australia in 2009 and operating in Bangladesh since 2017, Enviro Shield Pvt. Ltd. delivers advanced waterproofing systems, epoxy/PU flooring, and in-house construction chemical manufacturing."
         image="/images/service-hero.jpg"
       />
 
       {/* ------------------------------------------------------------------ */}
       {/* OUR STORY                                                          */}
       {/* ------------------------------------------------------------------ */}
-
       <section
         aria-labelledby="our-story-heading"
         className="py-[112px] max-[900px]:py-20 max-[600px]:py-16"
@@ -251,8 +295,8 @@ export default function AboutPage() {
             <div className="grid grid-cols-[1.2fr_0.8fr] gap-4">
               <div className="group relative h-[520px] overflow-hidden rounded-[16px] max-[600px]:h-[340px]">
                 <Image
-                  src="https://images.pexels.com/photos/6473966/pexels-photo-6473966.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
-                  alt="Professional construction worker applying protective material to a building surface"
+                  src="/images/home/rooftop-waterproofing-application.jpg"
+                  alt="Enviro Shield specialist applying protective waterproof coating"
                   fill
                   sizes="(max-width: 900px) 60vw, 28vw"
                   className={imgClass}
@@ -263,8 +307,8 @@ export default function AboutPage() {
               <div className="flex flex-col gap-4">
                 <div className="group relative flex-1 overflow-hidden rounded-[16px]">
                   <Image
-                    src={images.painter}
-                    alt="Painter carefully preparing an interior wall"
+                    src="/images/home/completed-waterproof-rooftop-coating.jpg"
+                    alt="Completed waterproof rooftop coating"
                     fill
                     sizes="(max-width: 900px) 40vw, 18vw"
                     className={imgClass}
@@ -276,8 +320,8 @@ export default function AboutPage() {
                   <div className="text-[44px] font-extrabold leading-none tracking-[-0.04em] max-[600px]:text-[32px]">
                     17+
                   </div>
-                  <div className="mt-2 text-[13px] text-white/85">
-                    Years in Bangladesh
+                  <div className="mt-2 text-[13px] font-medium text-white/90">
+                    Years Industry Experience (Since 2009)
                   </div>
                 </div>
               </div>
@@ -287,68 +331,46 @@ export default function AboutPage() {
           <Reveal dir="up" delay={0.15}>
             <div>
               <div className="mb-[22px] flex items-center gap-[10px] text-[11px] font-extrabold uppercase tracking-[0.15em] text-blue">
-                <span
-                  className="h-[2px] w-7 bg-current"
-                  aria-hidden="true"
-                />
-                OUR STORY
+                <span className="h-[2px] w-7 bg-current" aria-hidden="true" />
+                WHO WE ARE
               </div>
 
               <h2
                 id="our-story-heading"
-                className="mb-6 text-[clamp(36px,4.4vw,56px)] font-extrabold leading-[1.04] tracking-[-0.05em] text-navy"
+                className="mb-6 text-[clamp(34px,4vw,52px)] font-extrabold leading-[1.08] tracking-[-0.04em] text-navy"
               >
-                Built on expertise.
+                Built on Australian expertise.
                 <br />
-                Driven by protection.
+                Proven in Bangladesh.
               </h2>
 
-              <p className="mb-5 text-[17px] leading-[1.7] text-navy/85">
-                Enviro Shield operates with two branches in Australia
-                and Bangladesh, specializing in industrial,
-                commercial, and residential flooring, waterproofing,
-                and construction chemical applications. The company
-                delivers a wide range of solutions including 7 layer
-                waterproofing systems, Waterproofing paint, floor
-                hardeners, Epoxy Floor Coatings, PU Flooring.
+              <p className="mb-4 text-[16px] leading-[1.75] text-navy/90 font-medium">
+                Founded in Australia in 2009, EnviroShield Pvt. Ltd. is a trusted company in waterproofing, flooring, and protective coating solutions.
               </p>
 
-              <p className="mb-8 text-[15px] leading-[1.75] text-ink">
-                Enviro Shield also provides Injection Grouting, Sports
-                Flooring, Polished Concrete, 3D Epoxy Floor, heat
-                insulation solutions, and ETP Protective Coating
-                systems, ensuring durable, high-performance protection
-                for various construction needs.
-                <br />
-                <br />
-                The company is guided by its Chief Adviser, Engr. Tony
-                Stephen, a well-known consultant and waterproofing
-                specialist in Australia. Engr. Md. Mahbubur Rahman,
-                the Chief Executive Officer, is certified and highly
-                experienced in construction and waterproofing
-                practices from Australia, ensuring
-                international-quality standards across all projects.
+              <p className="mb-4 text-[15px] leading-[1.75] text-ink">
+                Since 2017, EnviroShield has been operating in Bangladesh with advanced Waterproofing systems, Epoxy flooring, PU flooring, and in-house construction chemical manufacturing.
+              </p>
+
+              <p className="mb-6 text-[15px] leading-[1.75] text-ink">
+                The company provides durable, high-performance solutions for residential, commercial, and industrial projects. With raw materials imported from the UK, Germany, Australia, and China, we formulate systems specifically engineered to endure extreme monsoons, UV exposure, and thermal slab movement.
               </p>
 
               <ul className="divide-y divide-line border-y border-line">
                 {[
-                  "Australian expertise since 2009",
-                  "Professional waterproofing solutions",
-                  "Quality materials and proven systems",
-                  "Residential, commercial & industrial expertise",
+                  "Australian Brand Founded in 2009",
+                  "Operating in Bangladesh Since 2017",
+                  "In-House Construction Chemical Manufacturing",
+                  "Imported Raw Materials (UK, Germany, Australia, China)",
+                  "Over 3+ Million SFT Completed Nationwide",
                 ].map((item) => (
                   <li
                     key={item}
-                    className="flex items-center gap-3 py-3.5 text-[15px] font-medium text-navy"
+                    className="flex items-center gap-3 py-3 text-[14px] font-medium text-navy sm:text-[15px]"
                   >
-                    <span className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-full bg-blue text-white">
-                      <Check
-                        size={15}
-                        aria-hidden="true"
-                        className="shrink-0"
-                      />
+                    <span className="grid size-5 shrink-0 place-items-center rounded-full bg-blue text-white">
+                      <Check size={13} aria-hidden="true" />
                     </span>
-
                     {item}
                   </li>
                 ))}
@@ -359,79 +381,166 @@ export default function AboutPage() {
       </section>
 
       {/* ------------------------------------------------------------------ */}
-      {/* CHAIRMAN                                                           */}
+      {/* MISSION & VISION                                                   */}
       {/* ------------------------------------------------------------------ */}
-
       <section
-        aria-labelledby="chairman-heading"
-        className="pb-[112px] max-[900px]:pb-20 max-[600px]:pb-16"
+        aria-labelledby="mission-vision-heading"
+        className="bg-mist/70 py-[112px] max-[900px]:py-20 max-[600px]:py-16"
       >
         <Container>
-          <Reveal dir="up">
-            <div className="grid grid-cols-[0.85fr_1.15fr] overflow-hidden rounded-[20px] bg-navy max-[900px]:grid-cols-1">
-              <div className="group relative min-h-[520px] overflow-hidden max-[900px]:aspect-[4/5] max-[900px]:min-h-0 max-[600px]:aspect-[1/1]">
-                <Image
-                  src={CHAIRMAN.image}
-                  alt={CHAIRMAN.alt}
-                  fill
-                  sizes="(max-width: 900px) 100vw, 40vw"
-                  className={`${imgClass} object-top`}
-                />
-                <PhotoFx />
-              </div>
+          <SectionHeader
+            eyebrow="PURPOSE & DIRECTION"
+            title="Guiding purpose. Enduring vision."
+            text="The foundational standards and ambitions that drive every formulation, chemical process, and protective installation we deliver across Bangladesh."
+            headingId="mission-vision-heading"
+          />
 
-              <div className="flex flex-col justify-center p-14 max-[900px]:p-8 max-[600px]:p-6">
-                <div className="mb-[22px] flex items-center gap-[10px] text-[11px] font-extrabold uppercase tracking-[0.15em] text-paste">
-                  <span
-                    className="h-[2px] w-7 bg-current"
+          <div className="mt-14 grid grid-cols-2 gap-8 max-[900px]:grid-cols-1">
+            {missionVision.map((item) => {
+              const Icon = item.icon;
+              return (
+                <div
+                  key={item.eyebrow}
+                  className="group relative flex flex-col justify-between overflow-hidden rounded-[22px] border border-line/90 bg-white p-8 sm:p-10 shadow-[0_4px_24px_rgba(0,51,78,0.06)] transition-all duration-500 hover:-translate-y-1.5 hover:border-blue/40 hover:shadow-[0_20px_45px_rgba(0,51,78,0.12)]"
+                >
+                  {/* Subtle top color accent strip */}
+                  <div
+                    className={`absolute top-0 left-0 right-0 h-1.5 ${
+                      item.accent === "blue" ? "bg-blue" : "bg-navy"
+                    }`}
+                  />
+
+                  {/* Faint watermark icon in background */}
+                  <Icon
+                    size={220}
+                    className="pointer-events-none absolute -bottom-10 -right-10 text-navy/[0.03] transition-transform duration-700 group-hover:scale-110 group-hover:text-blue/[0.06]"
                     aria-hidden="true"
                   />
-                  MESSAGE FROM THE CHAIRMAN
+
+                  <div>
+                    {/* Header badge & icon */}
+                    <div className="mb-6 flex items-center justify-between">
+                      <span className="inline-flex items-center gap-2 rounded-full bg-blue/10 px-3.5 py-1.5 text-xs font-extrabold uppercase tracking-[0.14em] text-blue">
+                        <span className="size-1.5 rounded-full bg-blue" />
+                        {item.eyebrow}
+                      </span>
+
+                      <span className="grid size-13 place-items-center rounded-2xl bg-mist text-navy transition-all duration-300 group-hover:bg-blue group-hover:text-white shadow-xs">
+                        <Icon size={24} strokeWidth={2} />
+                      </span>
+                    </div>
+
+                    {/* Title */}
+                    <h3 className="mb-4 text-[26px] font-extrabold tracking-[-0.03em] text-navy sm:text-[30px]">
+                      {item.title}
+                    </h3>
+
+                    {/* Statement */}
+                    <p className="text-[15px] sm:text-[16px] leading-[1.8] text-ink">
+                      {item.text}
+                    </p>
+                  </div>
+
+                  {/* Highlights checklist */}
+                  <div className="mt-8 border-t border-line/70 pt-6">
+                    <ul className="space-y-2.5">
+                      {item.highlights.map((highlight) => (
+                        <li
+                          key={highlight}
+                          className="flex items-center gap-2.5 text-xs sm:text-[13px] font-semibold text-navy/90"
+                        >
+                          <span className="grid size-4.5 flex-none place-items-center rounded-full bg-blue/10 text-blue group-hover:bg-blue group-hover:text-white transition-colors duration-300">
+                            <Check size={11} strokeWidth={3} />
+                          </span>
+                          <span>{highlight}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </Container>
+      </section>
+
+      {/* ------------------------------------------------------------------ */}
+      {/* LEADERSHIP                                                         */}
+      {/* ------------------------------------------------------------------ */}
+      <section
+        aria-labelledby="leadership-heading"
+        className="py-[112px] max-[900px]:py-20 max-[600px]:py-16"
+      >
+        <Container>
+          <SectionHeader
+            eyebrow="OUR LEADERSHIP"
+            title="Guiding vision. Australian certified engineering."
+            text="EnviroShield is led by Australian-educated and certified engineers with decades of hands-on expertise in polymer waterproofing chemistry and structural diagnostics."
+            headingId="leadership-heading"
+          />
+
+          <div className="mt-14 grid grid-cols-2 gap-8 max-[900px]:grid-cols-1">
+            {leaders.map((leader) => (
+              <div
+                key={leader.name}
+                className="group flex flex-col overflow-hidden rounded-2xl border border-line bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-blue/30 hover:shadow-xl"
+              >
+                {/* Header with image & credentials */}
+                <div className="grid grid-cols-[160px_1fr] gap-6 border-b border-line bg-mist/50 p-6 max-[600px]:grid-cols-1 max-[600px]:text-center">
+                  <div className="relative mx-auto aspect-square w-full max-w-[160px] overflow-hidden rounded-xl border border-line bg-white shadow-inner max-[600px]:max-w-[180px]">
+                    <Image
+                      src={leader.image}
+                      alt={leader.alt}
+                      fill
+                      className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                      sizes="(max-width: 600px) 180px, 160px"
+                    />
+                  </div>
+
+                  <div className="flex flex-col justify-center">
+                    <span className="mb-1 text-[11px] font-black uppercase tracking-wider text-blue">
+                      {leader.badge}
+                    </span>
+                    <h3 className="text-xl font-extrabold text-navy sm:text-2xl">
+                      {leader.name}
+                    </h3>
+                    <p className="mt-1 text-xs font-semibold text-ink">
+                      {leader.role}
+                    </p>
+
+                    <div className="mt-3.5 space-y-1.5 text-left max-[600px]:text-center">
+                      {leader.credentials.map((cred) => (
+                        <div
+                          key={cred}
+                          className="flex items-start gap-2 text-xs font-medium text-slate-700 max-[600px]:justify-center"
+                        >
+                          <GraduationCap
+                            size={14}
+                            className="mt-0.5 shrink-0 text-blue"
+                            aria-hidden="true"
+                          />
+                          <span>{cred}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
 
-                <h2
-                  id="chairman-heading"
-                  className="mb-6 text-[clamp(28px,3.4vw,44px)] font-extrabold leading-[1.1] tracking-[-0.04em] text-white"
-                >
-                  Protection is a promise we build into every
-                  property.
-                </h2>
-
-                {/* Replace with the Chairman's real message */}
-                <div className="space-y-4 text-[16px] leading-[1.75] text-white/75">
-                  <p>
-                    Since 2009, our goal has been simple: to bring
-                    dependable protection and honest workmanship to
-                    every project we take on. Behind every finished
-                    surface is careful preparation, quality materials,
-                    and a team that takes pride in lasting results.
+                {/* Bio text */}
+                <div className="flex-1 p-6 sm:p-7">
+                  <p className="text-sm leading-relaxed text-ink sm:text-[15px]">
+                    {leader.bio}
                   </p>
-                  <p>
-                    We will keep investing in our people, our
-                    technology, and our relationships, so that every
-                    client can trust Enviro Shield to protect what
-                    matters most.
-                  </p>
-                </div>
-
-                <div className="mt-8 border-t border-white/15 pt-6">
-                  <strong className="block text-[18px] font-extrabold text-white">
-                    {CHAIRMAN.name}
-                  </strong>
-                  <span className="text-[14px] text-white/60">
-                    {CHAIRMAN.title}
-                  </span>
                 </div>
               </div>
-            </div>
-          </Reveal>
+            ))}
+          </div>
         </Container>
       </section>
 
       {/* ------------------------------------------------------------------ */}
       {/* STATS                                                              */}
       {/* ------------------------------------------------------------------ */}
-
       <section
         aria-label="Enviro Shield at a glance"
         className="bg-blue text-white"
@@ -444,16 +553,12 @@ export default function AboutPage() {
                 className="border-l border-white/20 px-8 py-14 first:border-l-0 max-[900px]:border-b max-[900px]:[&:nth-child(odd)]:border-l-0 max-[600px]:border-l-0 max-[600px]:px-0 max-[600px]:py-8"
               >
                 <div className="mb-2 text-[clamp(42px,4.6vw,64px)] font-extrabold leading-none tracking-[-0.05em]">
-                  {stat.static ? (
-                    stat.value
-                  ) : (
-                    <AnimatedCounter
-                      value={stat.value}
-                      suffix={stat.suffix}
-                    />
-                  )}
+                  <AnimatedCounter
+                    value={stat.value}
+                    suffix={stat.suffix}
+                  />
                 </div>
-                <p className="text-[14px] text-white/80">
+                <p className="text-[14px] font-medium text-white/85">
                   {stat.label}
                 </p>
               </div>
@@ -465,35 +570,34 @@ export default function AboutPage() {
       {/* ------------------------------------------------------------------ */}
       {/* WHY ENVIRO SHIELD                                                  */}
       {/* ------------------------------------------------------------------ */}
-
       <section
         aria-labelledby="why-enviroshield-heading"
         className="bg-soft py-[112px] max-[900px]:py-20 max-[600px]:py-16"
       >
         <Container>
           <SectionHeader
-            eyebrow="WHY ENVIRO SHIELD"
-            title="More than protection. A complete approach to building performance."
-            text="We combine technical expertise, quality materials, and professional application to deliver solutions that help properties stay protected, durable, and functional for years to come."
+            eyebrow="WHY CHOOSE ENVIROSHIELD"
+            title="Engineered precision. Proven long-term protection."
+            text="We combine imported raw materials, local in-house chemical manufacturing, and Australian certified application standards to safeguard buildings across Bangladesh."
             headingId="why-enviroshield-heading"
           />
 
-          <StaggerContainer className="mt-12 grid grid-cols-4 gap-5 max-[1000px]:grid-cols-2 max-[600px]:grid-cols-1">
+          <StaggerContainer className="mt-12 grid grid-cols-3 gap-6 max-[1000px]:grid-cols-2 max-[600px]:grid-cols-1">
             {reasons.map((reason) => {
               const Icon = reason.icon;
 
               return (
                 <StaggerItem key={reason.title}>
-                  <div className="group h-full rounded-[14px] bg-white p-7 transition-colors duration-300 hover:bg-navy shadow shadow-lg">
-                    <span className="mb-8 grid size-12 place-items-center rounded-[10px] bg-blue text-white">
+                  <div className="group h-full rounded-[16px] bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:bg-navy hover:shadow-xl">
+                    <span className="mb-6 grid size-12 place-items-center rounded-[12px] bg-blue text-white transition-colors duration-300 group-hover:bg-paste group-hover:text-navy">
                       <Icon size={24} aria-hidden="true" />
                     </span>
 
-                    <h3 className="mb-[10px] text-[20px] font-semibold leading-[1.25] text-navy transition-colors duration-300 group-hover:text-white">
+                    <h3 className="mb-3 text-[19px] font-bold leading-[1.3] text-navy transition-colors duration-300 group-hover:text-white">
                       {reason.title}
                     </h3>
 
-                    <p className="text-[14px] leading-[1.7] text-ink transition-colors duration-300 group-hover:text-white/70">
+                    <p className="text-[14px] leading-[1.7] text-ink transition-colors duration-300 group-hover:text-white/75">
                       {reason.text}
                     </p>
                   </div>
@@ -505,55 +609,44 @@ export default function AboutPage() {
       </section>
 
       {/* ------------------------------------------------------------------ */}
-      {/* OUR EXPERTISE                                                      */}
+      {/* CORE SERVICES SUMMARY                                              */}
       {/* ------------------------------------------------------------------ */}
-
       <section
-        aria-labelledby="expertise-heading"
+        aria-labelledby="services-summary-heading"
         className="py-[112px] max-[900px]:py-20 max-[600px]:py-16"
       >
         <Container>
           <SectionHeader
-            eyebrow="OUR EXPERTISE"
-            title="Specialized solutions for demanding environments."
-            text="Our expertise covers key areas of building protection, helping residential, commercial, and industrial properties perform better in challenging conditions."
-            headingId="expertise-heading"
+            eyebrow="SERVICE SUMMARY"
+            title="Complete building envelope & flooring solutions."
+            text="From waterproofing membranes and advanced industrial flooring to specialized sports and ESD surfaces, we provide comprehensive engineered protection."
+            headingId="services-summary-heading"
           />
 
-          <StaggerContainer className="mt-12 border-t border-navy">
-            {expertise.map((item, index) => {
-              const Icon = item.icon;
-
-              return (
-                <StaggerItem key={item.title}>
-                  <div className="group grid grid-cols-[80px_1fr_1.1fr_auto] items-center gap-8 border-b border-line py-9 transition-colors duration-200 hover:bg-soft max-[900px]:grid-cols-[56px_1fr] max-[900px]:gap-x-5 max-[900px]:gap-y-3 max-[900px]:py-7">
-                    <span className="text-[22px] font-extrabold tracking-[-0.02em] text-blue">
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
-
-                    <h3 className="text-[clamp(22px,2.4vw,30px)] font-semibold leading-[1.15] tracking-[-0.02em] text-navy">
-                      {item.title}
-                    </h3>
-
-                    <p className="text-[15px] leading-[1.7] text-ink max-[900px]:col-start-2">
-                      {item.text}
-                    </p>
-
-                    <span className="grid size-12 place-items-center rounded-full border border-line text-navy transition-colors duration-200 group-hover:border-blue group-hover:bg-blue group-hover:text-white max-[900px]:hidden">
-                      <Icon size={22} aria-hidden="true" />
-                    </span>
-                  </div>
-                </StaggerItem>
-              );
-            })}
-          </StaggerContainer>
+          <div className="mt-12 grid grid-cols-4 gap-5 max-[1100px]:grid-cols-2 max-[600px]:grid-cols-1">
+            {servicesSummary.map((srv, idx) => (
+              <div
+                key={srv.title}
+                className="group relative rounded-2xl border border-line bg-white p-6 shadow-xs transition-all duration-300 hover:border-blue/40 hover:shadow-md"
+              >
+                <span className="mb-3 block text-xs font-extrabold uppercase tracking-wider text-blue">
+                  0{idx + 1}
+                </span>
+                <h3 className="mb-2 text-lg font-bold text-navy group-hover:text-blue transition-colors">
+                  {srv.title}
+                </h3>
+                <p className="text-xs text-ink leading-relaxed">
+                  {srv.desc}
+                </p>
+              </div>
+            ))}
+          </div>
         </Container>
       </section>
 
       {/* ------------------------------------------------------------------ */}
       {/* HOW WE WORK                                                        */}
       {/* ------------------------------------------------------------------ */}
-
       <section
         aria-labelledby="how-we-work-heading"
         className="bg-navy py-[112px] max-[900px]:py-20 max-[600px]:py-16"
@@ -561,8 +654,8 @@ export default function AboutPage() {
         <Container>
           <SectionHeader
             eyebrow="HOW WE WORK"
-            title="A straightforward approach from assessment to completion."
-            text="Every project is approached with careful planning, proper preparation, and a clear focus on achieving reliable long-term results."
+            title="A systematic engineering approach from diagnostics to delivery."
+            text="Every project is approached with thorough diagnostics, mechanical surface preparation, and rigorous adherence to chemical dry film thickness standards."
             light
             headingId="how-we-work-heading"
           />
@@ -592,7 +685,6 @@ export default function AboutPage() {
       {/* ------------------------------------------------------------------ */}
       {/* WHO WE SERVE                                                       */}
       {/* ------------------------------------------------------------------ */}
-
       <section
         aria-labelledby="sectors-heading"
         className="py-[112px] max-[900px]:py-20 max-[600px]:py-16"
@@ -601,24 +693,24 @@ export default function AboutPage() {
           <SectionHeader
             eyebrow="WHO WE SERVE"
             title="Protection solutions across every type of property."
-            text="From homes and commercial buildings to demanding industrial environments, we provide solutions adapted to different property requirements."
+            text="From homes and commercial towers to heavy pharmaceutical and industrial complexes, our solutions adapt to each facility's exacting demands."
             headingId="sectors-heading"
           />
 
           <StaggerContainer className="mt-12 grid grid-cols-4 gap-5 max-[1000px]:grid-cols-2 max-[600px]:grid-cols-1">
             {sectors.map((sector, index) => (
               <StaggerItem key={sector.title}>
-                <div className="group flex h-full min-h-[300px] flex-col justify-between rounded-[14px] bg-soft p-7 transition-colors duration-300 hover:bg-blue shadow shadow-lg">
-                  <span className="text-lg font-bold tracking-[0.12em] bg-blue text-muted transition-colors duration-300 group-hover:text-blue group-hover:bg-white group-hover:border-white border rounded-full w-[50px] h-[50px] grid place-items-center border-blue">
-                    {String(index + 1).padStart(2, "0")}
+                <div className="group flex h-full min-h-[280px] flex-col justify-between rounded-[16px] bg-soft p-7 transition-colors duration-300 hover:bg-navy shadow-sm">
+                  <span className="text-base font-bold tracking-[0.12em] bg-blue text-white transition-colors duration-300 group-hover:text-navy group-hover:bg-paste rounded-full w-11 h-11 grid place-items-center">
+                    0{index + 1}
                   </span>
 
                   <div>
-                    <h3 className="mb-3 text-[26px] font-semibold tracking-[-0.02em] text-navy transition-colors duration-300 group-hover:text-white">
+                    <h3 className="mb-2 text-[22px] font-semibold tracking-[-0.02em] text-navy transition-colors duration-300 group-hover:text-white">
                       {sector.title}
                     </h3>
 
-                    <p className="text-[14px] leading-[1.7] text-ink transition-colors duration-300 group-hover:text-white/85">
+                    <p className="text-[14px] leading-[1.7] text-ink transition-colors duration-300 group-hover:text-white/80">
                       {sector.text}
                     </p>
                   </div>
@@ -632,7 +724,6 @@ export default function AboutPage() {
       {/* ------------------------------------------------------------------ */}
       {/* OUR COMMITMENT                                                     */}
       {/* ------------------------------------------------------------------ */}
-
       <section
         aria-labelledby="commitment-heading"
         className="bg-soft py-[112px] max-[900px]:py-20 max-[600px]:py-16"
@@ -641,10 +732,7 @@ export default function AboutPage() {
           <Reveal dir="up">
             <div>
               <div className="mb-[22px] flex items-center gap-[10px] text-[11px] font-extrabold uppercase tracking-[0.15em] text-blue">
-                <span
-                  className="h-[2px] w-7 bg-current"
-                  aria-hidden="true"
-                />
+                <span className="h-[2px] w-7 bg-current" aria-hidden="true" />
                 OUR COMMITMENT
               </div>
 
@@ -652,16 +740,11 @@ export default function AboutPage() {
                 id="commitment-heading"
                 className="mb-6 text-[clamp(34px,4vw,52px)] font-extrabold leading-[1.05] tracking-[-0.05em] text-navy"
               >
-                Quality is not just the finished surface. It is
-                everything behind it.
+                Quality is in every layer beneath the surface.
               </h2>
 
               <p className="text-base leading-[1.75] text-ink">
-                We believe dependable results come from the right
-                combination of materials, preparation, technical
-                knowledge, and workmanship. That is why we focus on
-                every stage of the process — from understanding the
-                problem to delivering the final solution.
+                Dependable waterproofing and industrial flooring come from chemical formulation, meticulous concrete prep, and disciplined multi-layer execution. That is why EnviroShield controls both manufacturing and application.
               </p>
             </div>
           </Reveal>
@@ -671,12 +754,12 @@ export default function AboutPage() {
               {commitments.map((item) => (
                 <li
                   key={item}
-                  className="flex items-start gap-3 rounded-[12px] bg-white p-1"
+                  className="flex items-start gap-3 rounded-[12px] bg-white p-3 shadow-xs"
                 >
-                  <span className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-full bg-blue text-white">
-                    <Check size={14} aria-hidden="true" />
+                  <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-blue text-white">
+                    <Check size={13} aria-hidden="true" />
                   </span>
-                  <span className="text-[15px] font-medium leading-[1.5] text-navy">
+                  <span className="text-[14px] font-medium leading-[1.45] text-navy">
                     {item}
                   </span>
                 </li>
@@ -689,7 +772,6 @@ export default function AboutPage() {
       {/* ------------------------------------------------------------------ */}
       {/* OUR VALUES                                                         */}
       {/* ------------------------------------------------------------------ */}
-
       <section
         aria-labelledby="values-heading"
         className="py-[112px] max-[900px]:py-20 max-[600px]:py-16"
@@ -698,19 +780,19 @@ export default function AboutPage() {
           <SectionHeader
             eyebrow="WHAT WE VALUE"
             title="The principles behind every solution."
-            text="The standards that guide how we work, what we deliver, and the relationships we build."
+            text="The standards that guide how we formulate chemicals, execute projects, and build long-term relationships with clients."
             align="left"
             headingId="values-heading"
           />
 
-          <StaggerContainer className="mt-12 grid grid-cols-3 gap-5 max-[900px]:grid-cols-2 max-[600px]:grid-cols-1">
+          <StaggerContainer className="mt-12 grid grid-cols-3 gap-6 max-[900px]:grid-cols-2 max-[600px]:grid-cols-1">
             {values.map((value) => {
               const Icon = value.icon;
 
               return (
                 <StaggerItem key={value.title}>
-                  <div className="h-full rounded-[14px] border border-line p-8 transition-colors duration-200 hover:border-blue">
-                    <span className="mb-6 grid size-12 place-items-center rounded-[10px] bg-blue/10 text-blue">
+                  <div className="h-full rounded-[16px] border border-line p-8 transition-all duration-200 hover:border-blue hover:shadow-sm">
+                    <span className="mb-6 grid size-12 place-items-center rounded-[12px] bg-blue/10 text-blue">
                       <Icon size={24} aria-hidden="true" />
                     </span>
 

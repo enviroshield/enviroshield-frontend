@@ -139,23 +139,23 @@ export default function AboutSection() {
         <div>
           <SectionHeader
             eyebrow="ABOUT ENVIRO SHIELD"
-            title="Protecting what matters. Building with confidence."
-            text="Since 2009, Enviro Shield has been delivering professional waterproofing and protective construction solutions in Bangladesh. As an Australian brand, we combine proven expertise, quality materials, and dependable workmanship to help protect buildings and extend their service life."
+            title="Protecting structures. Extending life."
+            text="Founded in Australia in 2009, EnviroShield Pvt. Ltd. is a trusted company in waterproofing, flooring, and protective coating solutions. Operating in Bangladesh since 2017 with in-house construction chemical manufacturing and imported raw materials from the UK, Germany, Australia, and China, we deliver durable, high-performance solutions for residential, commercial, and industrial projects."
             headingId="about-heading"
           />
 
           <StaggerContainer className="mb-[30px] grid grid-cols-2 gap-x-[22px] gap-y-[15px] max-[600px]:grid-cols-1 max-[600px]:gap-3">
             {[
-              "Australian Expertise, Local Experience",
-              "Solutions Built for Long-Term Protection",
-              "Quality Materials, Professional Application",
-              "Residential, Commercial & Industrial Solutions",
-              "Technical Expertise You Can Rely On",
-              "Committed to Quality & Customer Satisfaction",
+              "Australian Brand Founded in 2009",
+              "Operating in Bangladesh Since 2017",
+              "Proven 7-Layer Waterproofing System",
+              "Imported Raw Materials (UK, Germany, Australia, China)",
+              "In-House Construction Chemical Manufacturing",
+              "20+ Certified Engineers & 130 Applicators",
             ].map((item) => (
               <StaggerItem
                 key={item}
-                className="flex items-center gap-2 text-[15px] font-medium text-navy whitespace-nowrap"
+                className="flex items-center gap-2 text-[14px] font-medium text-navy"
               >
                 <span
                   className="grid h-5 w-5 flex-none place-items-center rounded-full bg-blue text-white"
@@ -168,31 +168,40 @@ export default function AboutSection() {
             ))}
           </StaggerContainer>
 
-          <div className="mb-7 flex gap-[54px] border-t border-line pt-6 max-[600px]:gap-[30px]">
+          <div className="mb-7 grid grid-cols-4 gap-4 border-t border-line pt-6 max-[768px]:grid-cols-2 max-[600px]:gap-4">
             <div>
-              <strong className="block text-[34px] tracking-[-0.04em] text-navy max-[600px]:text-[28px]">
-                <AnimatedCounter value={99} suffix="%" />
+              <strong className="block text-[32px] font-extrabold tracking-[-0.04em] text-navy max-[600px]:text-[26px]">
+                <AnimatedCounter value={3} suffix="M+" />
               </strong>
               <span className="text-[12px] text-ink">
-                Customer satisfaction
+                SFT Completed
               </span>
             </div>
 
             <div>
-              <strong className="block text-[34px] tracking-[-0.04em] text-navy max-[600px]:text-[28px]">
-                <AnimatedCounter value={500} suffix="+" />
+              <strong className="block text-[32px] font-extrabold tracking-[-0.04em] text-navy max-[600px]:text-[26px]">
+                <AnimatedCounter value={130} suffix="+" />
               </strong>
               <span className="text-[12px] text-ink">
-                Projects completed
+                Skilled Applicators
               </span>
             </div>
 
             <div>
-              <strong className="block text-[34px] tracking-[-0.04em] text-navy max-[600px]:text-[28px]">
+              <strong className="block text-[32px] font-extrabold tracking-[-0.04em] text-navy max-[600px]:text-[26px]">
+                <AnimatedCounter value={20} suffix="+" />
+              </strong>
+              <span className="text-[12px] text-ink">
+                Engineers
+              </span>
+            </div>
+
+            <div>
+              <strong className="block text-[32px] font-extrabold tracking-[-0.04em] text-navy max-[600px]:text-[26px]">
                 <AnimatedCounter value={17} suffix="+" />
               </strong>
               <span className="text-[12px] text-ink">
-                Years of experience
+                Years Experience
               </span>
             </div>
           </div>
