@@ -21,45 +21,60 @@ interface ClientPartner {
 }
 
 const CLIENTS: ClientPartner[] = [
-  { name: "Apex Footwear Ltd.", logo: "/images/clients/apex.png" },
-  { name: "Square Pharmaceuticals", logo: "/images/clients/square.png" },
-  { name: "Beximco Group", logo: "/images/clients/beximco.png" },
-  { name: "Bashundhara Group", logo: "/images/clients/bashundhara.png" },
-  { name: "BSRM Steels", logo: "/images/clients/bsrm.png" },
-  { name: "Walton Hi-Tech", logo: "/images/clients/walton.png" },
-  { name: "Akij Group", logo: "/images/clients/akij.png" },
-  { name: "Summit Power", logo: "/images/clients/summit.png" },
-  { name: "DBL Ceramics", logo: "/images/clients/dbl.png" },
-  { name: "AusBuild Infrastructure", logo: "/images/clients/ausbuild.png" },
-  { name: "Client 11", logo: "/images/clients/client-11.png" },
-  { name: "Client 12", logo: "/images/clients/client-12.png" },
-  { name: "Client 13", logo: "/images/clients/client-13.png" },
-  { name: "Client 14", logo: "/images/clients/client-14.png" },
-  { name: "Client 15", logo: "/images/clients/client-15.png" },
-  { name: "Client 16", logo: "/images/clients/client-16.png" },
-  { name: "Client 17", logo: "/images/clients/client-17.png" },
-  { name: "Client 18", logo: "/images/clients/client-18.png" },
-  { name: "Apex Footwear Ltd.", logo: "/images/clients/apex.png" },
-  { name: "Square Pharmaceuticals", logo: "/images/clients/square.png" },
-  { name: "Beximco Group", logo: "/images/clients/beximco.png" },
-  { name: "Bashundhara Group", logo: "/images/clients/bashundhara.png" },
-  { name: "BSRM Steels", logo: "/images/clients/bsrm.png" },
-  { name: "Walton Hi-Tech", logo: "/images/clients/walton.png" },
-  { name: "Akij Group", logo: "/images/clients/akij.png" },
-  { name: "Summit Power", logo: "/images/clients/summit.png" },
-  { name: "DBL Ceramics", logo: "/images/clients/dbl.png" },
-  { name: "AusBuild Infrastructure", logo: "/images/clients/ausbuild.png" },
-  { name: "Client 11", logo: "/images/clients/client-11.png" },
-  { name: "Client 12", logo: "/images/clients/client-12.png" },
-  { name: "Client 13", logo: "/images/clients/client-13.png" },
-  { name: "Client 14", logo: "/images/clients/client-14.png" },
-  { name: "Client 15", logo: "/images/clients/client-15.png" },
-  { name: "Client 16", logo: "/images/clients/client-16.png" },
-  { name: "Client 17", logo: "/images/clients/client-17.png" },
-  { name: "Client 18", logo: "/images/clients/client-18.png" },
-  { name: "Client 12", logo: "/images/clients/client-12.png" },
-  { name: "Client 13", logo: "/images/clients/client-13.png" },
-  { name: "Client 14", logo: "/images/clients/client-14.png" },
+  { name: "Enam Medical College & Hospital", logo: "/images/client-images/enam-medical-college.png" },
+  { name: "Oriental Real Estate Limited", logo: "/images/client-images/oriental-real-estate.png" },
+  { name: "Bangladesh Bank", logo: "/images/client-images/bangladesh-bank.png" },
+  { name: "Holiday Inn", logo: "/images/client-images/holiday-inn.png" },
+  { name: "Bridge Holdings", logo: "/images/client-images/bridge-holdings.png" },
+  { name: "BRAC University", logo: "/images/client-images/brac-university.png" },
+  { name: "Abdul Monem Ltd.", logo: "/images/client-images/abdul-monem.png" },
+  { name: "Rupayan Housing Estate", logo: "/images/client-images/rupayan-housing-estate.png" },
+  { name: "Anwer Khan Modern Hospital", logo: "/images/client-images/anwer-khan-modern.png" },
+  { name: "Baywatch Army Welfare Trust", logo: "/images/client-images/baywatch-army-welfare-trust.png" },
+  { name: "Equity Property Management", logo: "/images/client-images/equity-property-management.png" },
+  { name: "Seagull Hotels", logo: "/images/client-images/seagull-hotels.png" },
+  { name: "Finlay", logo: "/images/client-images/finlay.png" },
+  { name: "Navana Group", logo: "/images/client-images/navana-group.png" },
+  { name: "Hakkani Group", logo: "/images/client-images/hakkani-group.png" },
+  { name: "Bestway Group", logo: "/images/client-images/bestway-group.png" },
+  { name: "Link-Tex Sportswear", logo: "/images/client-images/link-tex-sportswear.png" },
+  { name: "International Islamic University Chittagong", logo: "/images/client-images/iiuc.png" },
+  { name: "Comfit Composite Knit Ltd.", logo: "/images/client-images/comfit-composite-knit.png" },
+  { name: "Momen Real Estates Limited", logo: "/images/client-images/momen-real-estates.png" },
+  { name: "Elegant Group", logo: "/images/client-images/elegant-group.png" },
+  { name: "Ispahani", logo: "/images/client-images/ispahani.png" },
+  { name: "Kurmitola Golf Club", logo: "/images/client-images/kurmitola-golf-club.png" },
+  { name: "Bangladesh Army", logo: "/images/client-images/bangladesh-army.png" },
+  { name: "Paramount Textile", logo: "/images/client-images/paramount-textile.png" },
+  { name: "Bestway", logo: "/images/client-images/bestway.png" },
+  { name: "Best Service", logo: "/images/client-images/best-service.png" },
+  { name: "Nova Poultry Limited", logo: "/images/client-images/nova-poultry.png" },
+  { name: "Le Méridien", logo: "/images/client-images/le-meridien.png" },
+  { name: "Daffodil International University", logo: "/images/client-images/daffodil-international-university.png" },
+  { name: "Laila Group", logo: "/images/client-images/laila-group.png" },
+  { name: "Meghna Group of Industries", logo: "/images/client-images/meghna-group-of-industries.png" },
+  { name: "Mithila Group of Industries", logo: "/images/client-images/mithila-group-of-industries.png" },
+  { name: "ismartu", logo: "/images/client-images/ismartu.png" },
+  { name: "United Group", logo: "/images/client-images/united-group.jpg" },
+  { name: "Purbachal Bestway City", logo: "/images/client-images/purbachal-bestway-city.png" },
+  { name: "Shimanto Convention Centre", logo: "/images/client-images/shimanto-convention-centre.png" },
+  { name: "MIST Bangladesh", logo: "/images/client-images/mist-bangladesh.png" },
+  { name: "Flaxen Group", logo: "/images/client-images/flaxen-group.png" },
+  { name: "Varendra University", logo: "/images/client-images/varendra-university.png" },
+  { name: "Shaptak Grihayan", logo: "/images/client-images/shaptak-grihayan.jpg" },
+  { name: "Zaman Group", logo: "/images/client-images/zaman-group.png" },
+  { name: "Base Camp", logo: "/images/client-images/base-camp.png" },
+  { name: "Abul Khair Group", logo: "/images/client-images/abul-khair-group.png" },
+  { name: "Unitex Group", logo: "/images/client-images/unitex-group.png" },
+  { name: "Air Wing", logo: "/images/client-images/air-wing.png" },
+  { name: "ULAB (University of Liberal Arts Bangladesh)", logo: "/images/client-images/ulab.png" },
+  { name: "PMG", logo: "/images/client-images/pmg.png" },
+  { name: "Rancon Developments", logo: "/images/client-images/rancon-developments.png" },
+  { name: "Border Guard Bangladesh", logo: "/images/client-images/border-guard-bangladesh.png" },
+  { name: "Park View Medical College Hospital", logo: "/images/client-images/park-view-medical-college.png" },
+  { name: "OMC", logo: "/images/client-images/omc.png" },
+  { name: "Generation Next", logo: "/images/client-images/generation-next.png" },
+  { name: "National Development Engineers Ltd.", logo: "/images/client-images/national-development-engineers.png" },
 ];
 
 /* Slider settings */
@@ -149,13 +164,14 @@ function PartnerHex({
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white via-white to-[#f1f5f9]"
           />
-          <div className="absolute inset-x-[15%] inset-y-[28%]">
+          <div className="absolute inset-x-[13%] inset-y-[22%] flex items-center justify-center p-1">
             <Image
               src={client.logo}
-              alt={client.name}
+              alt={`${client.name} logo`}
               fill
-              sizes="140px"
-              className="object-contain transition-transform duration-300 group-hover:scale-105"
+              sizes="(max-width: 640px) 110px, (max-width: 1024px) 150px, 180px"
+              quality={95}
+              className="object-contain p-1 transition-transform duration-300 group-hover:scale-105"
             />
           </div>
         </div>
