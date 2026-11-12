@@ -5,6 +5,7 @@ import {
   StaggerItem,
 } from "@/components/animations/reveal";
 import Container from "@/components/Container";
+import DottedBackground from "@/components/DottedBackground";
 import ContactSection from "@/components/home/ContactSection";
 import PageHero from "@/components/PageHero";
 import { SectionHeader } from "@/components/SectionHeader";
@@ -28,6 +29,7 @@ import {
   Sun,
   Target,
   Users,
+  ArrowRight,
 } from "lucide-react";
 import Image from "next/image";
 import type { Metadata } from "next";
@@ -115,10 +117,10 @@ const leaders = [
 ];
 
 const stats = [
-  { value: 3, suffix: "M+", label: "Million SFT Completed" },
-  { value: 130, suffix: "+", label: "Skilled Applicators" },
-  { value: 20, suffix: "+", label: "Certified Engineers" },
-  { value: 17, suffix: "+", label: "Years Experience (Since 2009)" },
+  { value: 3, suffix: "M+", label: "Million SFT Completed", desc: "Across Residential, Commercial & Industrial Projects" },
+  { value: 130, suffix: "+", label: "Skilled Applicators", desc: "Trained in Surface Prep & Spray Application" },
+  { value: 20, suffix: "+", label: "Certified Engineers", desc: "Civil & Chemical Material Specialists" },
+  { value: 17, suffix: "+", label: "Years Experience", desc: "Australian Standards Established in 2009" },
 ];
 
 const reasons = [
@@ -252,7 +254,7 @@ const values = [
 ];
 
 const imgClass =
-  "object-cover transition-transform duration-[0.6s] group-hover:scale-[1.04]";
+  "object-cover transition-transform duration-[0.7s] ease-out group-hover:scale-[1.05]";
 
 function PhotoFx() {
   return (
@@ -288,12 +290,18 @@ export default function AboutPage() {
       {/* ------------------------------------------------------------------ */}
       <section
         aria-labelledby="our-story-heading"
-        className="py-[112px] max-[900px]:py-20 max-[600px]:py-16"
+        className="relative overflow-hidden py-[112px] max-[900px]:py-20 max-[600px]:py-16"
       >
+        {/* Ambient background decoration */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -left-40 top-20 h-96 w-96 rounded-full bg-blue/[0.04] blur-3xl"
+        />
+
         <Container className="grid grid-cols-2 items-center gap-[80px] max-[900px]:grid-cols-1 max-[900px]:gap-[50px]">
           <Reveal dir="image">
             <div className="grid grid-cols-[1.2fr_0.8fr] gap-4">
-              <div className="group relative h-[520px] overflow-hidden rounded-[16px] max-[600px]:h-[340px]">
+              <div className="group relative h-[520px] overflow-hidden rounded-[20px] shadow-md max-[600px]:h-[340px]">
                 <Image
                   src="/images/home/rooftop-waterproofing-application.jpg"
                   alt="Enviro Shield specialist applying protective waterproof coating"
@@ -305,7 +313,7 @@ export default function AboutPage() {
               </div>
 
               <div className="flex flex-col gap-4">
-                <div className="group relative flex-1 overflow-hidden rounded-[16px]">
+                <div className="group relative flex-1 overflow-hidden rounded-[20px] shadow-sm">
                   <Image
                     src="/images/home/completed-waterproof-rooftop-coating.jpg"
                     alt="Completed waterproof rooftop coating"
@@ -316,8 +324,17 @@ export default function AboutPage() {
                   <PhotoFx />
                 </div>
 
-                <div className="rounded-[16px] bg-blue p-6 text-white max-[600px]:p-4">
-                  <div className="text-[44px] font-extrabold leading-none tracking-[-0.04em] max-[600px]:text-[32px]">
+                <div className="group relative overflow-hidden rounded-[20px] bg-gradient-to-br from-blue to-[#0d5ac1] p-6 text-white shadow-lg transition-transform duration-300 hover:scale-[1.02] max-[600px]:p-4">
+                  <div className="flex items-center gap-2">
+                    <span className="relative flex h-2.5 w-2.5">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-paste opacity-75" />
+                      <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-paste" />
+                    </span>
+                    <span className="text-[11px] font-extrabold uppercase tracking-widest text-paste">
+                      AUSTRALIAN HERITAGE
+                    </span>
+                  </div>
+                  <div className="mt-2 text-[46px] font-extrabold leading-none tracking-[-0.04em] max-[600px]:text-[34px]">
                     17+
                   </div>
                   <div className="mt-2 text-[13px] font-medium text-white/90">
@@ -344,7 +361,7 @@ export default function AboutPage() {
                 Proven in Bangladesh.
               </h2>
 
-              <p className="mb-4 text-[16px] leading-[1.75] text-navy/90 font-medium">
+              <p className="mb-4 text-[16px] leading-[1.75] font-medium text-navy/90">
                 Founded in Australia in 2009, EnviroShield Pvt. Ltd. is a trusted company in waterproofing, flooring, and protective coating solutions.
               </p>
 
@@ -356,7 +373,7 @@ export default function AboutPage() {
                 The company provides durable, high-performance solutions for residential, commercial, and industrial projects. With raw materials imported from the UK, Germany, Australia, and China, we formulate systems specifically engineered to endure extreme monsoons, UV exposure, and thermal slab movement.
               </p>
 
-              <ul className="divide-y divide-line border-y border-line">
+              <StaggerContainer className="divide-y divide-line border-y border-line">
                 {[
                   "Australian Brand Founded in 2009",
                   "Operating in Bangladesh Since 2017",
@@ -364,17 +381,17 @@ export default function AboutPage() {
                   "Imported Raw Materials (UK, Germany, Australia, China)",
                   "Over 3+ Million SFT Completed Nationwide",
                 ].map((item) => (
-                  <li
+                  <StaggerItem
                     key={item}
                     className="flex items-center gap-3 py-3 text-[14px] font-medium text-navy sm:text-[15px]"
                   >
-                    <span className="grid size-5 shrink-0 place-items-center rounded-full bg-blue text-white">
-                      <Check size={13} aria-hidden="true" />
+                    <span className="grid size-5 shrink-0 place-items-center rounded-full bg-blue text-white shadow-xs">
+                      <Check size={13} aria-hidden="true" strokeWidth={3} />
                     </span>
                     {item}
-                  </li>
+                  </StaggerItem>
                 ))}
-              </ul>
+              </StaggerContainer>
             </div>
           </Reveal>
         </Container>
@@ -385,82 +402,88 @@ export default function AboutPage() {
       {/* ------------------------------------------------------------------ */}
       <section
         aria-labelledby="mission-vision-heading"
-        className="bg-mist/70 py-[112px] max-[900px]:py-20 max-[600px]:py-16"
+        className="relative overflow-hidden bg-mist/80 py-[112px] max-[900px]:py-20 max-[600px]:py-16"
       >
-        <Container>
-          <SectionHeader
-            eyebrow="PURPOSE & DIRECTION"
-            title="Guiding purpose. Enduring vision."
-            text="The foundational standards and ambitions that drive every formulation, chemical process, and protective installation we deliver across Bangladesh."
-            headingId="mission-vision-heading"
-          />
+        <DottedBackground />
 
-          <div className="mt-14 grid grid-cols-2 gap-8 max-[900px]:grid-cols-1">
+        <Container>
+          <Reveal dir="up">
+            <SectionHeader
+              eyebrow="PURPOSE & DIRECTION"
+              title="Guiding purpose. Enduring vision."
+              text="The foundational standards and ambitions that drive every formulation, chemical process, and protective installation we deliver across Bangladesh."
+              headingId="mission-vision-heading"
+            />
+          </Reveal>
+
+          <StaggerContainer className="mt-14 grid grid-cols-2 gap-8 max-[900px]:grid-cols-1">
             {missionVision.map((item) => {
               const Icon = item.icon;
               return (
-                <div
-                  key={item.eyebrow}
-                  className="group relative flex flex-col justify-between overflow-hidden rounded-[22px] border border-line/90 bg-white p-8 sm:p-10 shadow-[0_4px_24px_rgba(0,51,78,0.06)] transition-all duration-500 hover:-translate-y-1.5 hover:border-blue/40 hover:shadow-[0_20px_45px_rgba(0,51,78,0.12)]"
-                >
-                  {/* Subtle top color accent strip */}
-                  <div
-                    className={`absolute top-0 left-0 right-0 h-1.5 ${
-                      item.accent === "blue" ? "bg-blue" : "bg-navy"
-                    }`}
-                  />
+                <StaggerItem key={item.eyebrow}>
+                  <div className="group relative flex h-full flex-col justify-between overflow-hidden rounded-[24px] border border-line/90 bg-white p-8 shadow-[0_4px_24px_rgba(0,51,78,0.06)] transition-all duration-500 hover:-translate-y-2 hover:border-blue/40 hover:shadow-[0_24px_54px_rgba(0,51,78,0.14)] sm:p-10">
+                    {/* Top colored signature accent line */}
+                    <div
+                      className={`absolute top-0 left-0 right-0 h-1.5 transition-all duration-500 group-hover:h-2 ${
+                        item.accent === "blue" ? "bg-blue" : "bg-navy"
+                      }`}
+                    />
 
-                  {/* Faint watermark icon in background */}
-                  <Icon
-                    size={220}
-                    className="pointer-events-none absolute -bottom-10 -right-10 text-navy/[0.03] transition-transform duration-700 group-hover:scale-110 group-hover:text-blue/[0.06]"
-                    aria-hidden="true"
-                  />
+                    {/* Faint watermark icon in background with hover tilt */}
+                    <Icon
+                      size={240}
+                      className="pointer-events-none absolute -bottom-12 -right-12 text-navy/[0.025] transition-all duration-700 ease-out group-hover:scale-115 group-hover:-rotate-12 group-hover:text-blue/[0.06]"
+                      aria-hidden="true"
+                    />
 
-                  <div>
-                    {/* Header badge & icon */}
-                    <div className="mb-6 flex items-center justify-between">
-                      <span className="inline-flex items-center gap-2 rounded-full bg-blue/10 px-3.5 py-1.5 text-xs font-extrabold uppercase tracking-[0.14em] text-blue">
-                        <span className="size-1.5 rounded-full bg-blue" />
-                        {item.eyebrow}
-                      </span>
+                    <div>
+                      {/* Header badge & interactive animated icon */}
+                      <div className="mb-7 flex items-center justify-between">
+                        <span className="inline-flex items-center gap-2 rounded-full bg-blue/10 px-3.5 py-1.5 text-xs font-extrabold uppercase tracking-[0.14em] text-blue shadow-2xs">
+                          <span className="relative flex h-2 w-2">
+                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue opacity-75" />
+                            <span className="relative inline-flex h-2 w-2 rounded-full bg-blue" />
+                          </span>
+                          {item.eyebrow}
+                        </span>
 
-                      <span className="grid size-13 place-items-center rounded-2xl bg-mist text-navy transition-all duration-300 group-hover:bg-blue group-hover:text-white shadow-xs">
-                        <Icon size={24} strokeWidth={2} />
-                      </span>
+                        <span className="grid size-14 place-items-center rounded-2xl bg-mist text-navy shadow-xs transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 group-hover:bg-blue group-hover:text-white group-hover:shadow-md">
+                          <Icon size={26} strokeWidth={2.2} />
+                        </span>
+                      </div>
+
+                      {/* Title */}
+                      <h3 className="mb-4 text-[26px] font-extrabold tracking-[-0.03em] text-navy transition-colors duration-300 group-hover:text-blue sm:text-[32px]">
+                        {item.title}
+                      </h3>
+
+                      {/* Statement */}
+                      <p className="text-[15px] leading-[1.8] text-ink sm:text-[16px]">
+                        {item.text}
+                      </p>
                     </div>
 
-                    {/* Title */}
-                    <h3 className="mb-4 text-[26px] font-extrabold tracking-[-0.03em] text-navy sm:text-[30px]">
-                      {item.title}
-                    </h3>
-
-                    {/* Statement */}
-                    <p className="text-[15px] sm:text-[16px] leading-[1.8] text-ink">
-                      {item.text}
-                    </p>
+                    {/* Highlights checklist with hover interaction */}
+                    <div className="mt-8 border-t border-line/70 pt-6">
+                      <ul className="space-y-3">
+                        {item.highlights.map((highlight) => (
+                          <li
+                            key={highlight}
+                            className="flex items-center gap-3 text-xs font-semibold text-navy/90 transition-transform duration-200 group-hover:translate-x-1 sm:text-[13px]"
+                          >
+                            <span className="grid size-5 flex-none place-items-center rounded-full bg-blue/10 text-blue transition-colors duration-300 group-hover:bg-blue group-hover:text-white">
+                              <Check size={12} strokeWidth={3} />
+                            </span>
+                            <span>{highlight}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
-
-                  {/* Highlights checklist */}
-                  <div className="mt-8 border-t border-line/70 pt-6">
-                    <ul className="space-y-2.5">
-                      {item.highlights.map((highlight) => (
-                        <li
-                          key={highlight}
-                          className="flex items-center gap-2.5 text-xs sm:text-[13px] font-semibold text-navy/90"
-                        >
-                          <span className="grid size-4.5 flex-none place-items-center rounded-full bg-blue/10 text-blue group-hover:bg-blue group-hover:text-white transition-colors duration-300">
-                            <Check size={11} strokeWidth={3} />
-                          </span>
-                          <span>{highlight}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
+                </StaggerItem>
               );
             })}
-          </div>
+          </StaggerContainer>
         </Container>
       </section>
 
@@ -469,72 +492,79 @@ export default function AboutPage() {
       {/* ------------------------------------------------------------------ */}
       <section
         aria-labelledby="leadership-heading"
-        className="py-[112px] max-[900px]:py-20 max-[600px]:py-16"
+        className="relative overflow-hidden py-[112px] max-[900px]:py-20 max-[600px]:py-16"
       >
         <Container>
-          <SectionHeader
-            eyebrow="OUR LEADERSHIP"
-            title="Guiding vision. Australian certified engineering."
-            text="EnviroShield is led by Australian-educated and certified engineers with decades of hands-on expertise in polymer waterproofing chemistry and structural diagnostics."
-            headingId="leadership-heading"
-          />
+          <Reveal dir="up">
+            <SectionHeader
+              eyebrow="OUR LEADERSHIP"
+              title="Guiding vision. Australian certified engineering."
+              text="EnviroShield is led by Australian-educated and certified engineers with decades of hands-on expertise in polymer waterproofing chemistry and structural diagnostics."
+              headingId="leadership-heading"
+            />
+          </Reveal>
 
-          <div className="mt-14 grid grid-cols-2 gap-8 max-[900px]:grid-cols-1">
+          <StaggerContainer className="mt-14 grid grid-cols-2 gap-8 max-[900px]:grid-cols-1">
             {leaders.map((leader) => (
-              <div
-                key={leader.name}
-                className="group flex flex-col overflow-hidden rounded-2xl border border-line bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-blue/30 hover:shadow-xl"
-              >
-                {/* Header with image & credentials */}
-                <div className="grid grid-cols-[160px_1fr] gap-6 border-b border-line bg-mist/50 p-6 max-[600px]:grid-cols-1 max-[600px]:text-center">
-                  <div className="relative mx-auto aspect-square w-full max-w-[160px] overflow-hidden rounded-xl border border-line bg-white shadow-inner max-[600px]:max-w-[180px]">
-                    <Image
-                      src={leader.image}
-                      alt={leader.alt}
-                      fill
-                      className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
-                      sizes="(max-width: 600px) 180px, 160px"
-                    />
-                  </div>
+              <StaggerItem key={leader.name}>
+                <div className="group flex h-full flex-col overflow-hidden rounded-[24px] border border-line bg-white shadow-sm transition-all duration-500 hover:-translate-y-2 hover:border-blue/40 hover:shadow-2xl">
+                  {/* Header with image & credentials */}
+                  <div className="grid grid-cols-[170px_1fr] gap-6 border-b border-line bg-mist/50 p-7 max-[600px]:grid-cols-1 max-[600px]:text-center">
+                    <div className="group/photo relative mx-auto aspect-square w-full max-w-[170px] overflow-hidden rounded-2xl border border-line bg-white shadow-inner max-[600px]:max-w-[180px]">
+                      <Image
+                        src={leader.image}
+                        alt={leader.alt}
+                        fill
+                        className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-108"
+                        sizes="(max-width: 600px) 180px, 170px"
+                      />
+                      <PhotoFx />
+                    </div>
 
-                  <div className="flex flex-col justify-center">
-                    <span className="mb-1 text-[11px] font-black uppercase tracking-wider text-blue">
-                      {leader.badge}
-                    </span>
-                    <h3 className="text-xl font-extrabold text-navy sm:text-2xl">
-                      {leader.name}
-                    </h3>
-                    <p className="mt-1 text-xs font-semibold text-ink">
-                      {leader.role}
-                    </p>
+                    <div className="flex flex-col justify-center">
+                      <div className="mb-1.5 flex items-center gap-2 max-[600px]:justify-center">
+                        <span className="relative flex h-2 w-2">
+                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue opacity-75" />
+                          <span className="relative inline-flex h-2 w-2 rounded-full bg-blue" />
+                        </span>
+                        <span className="text-[11px] font-black uppercase tracking-wider text-blue">
+                          {leader.badge}
+                        </span>
+                      </div>
 
-                    <div className="mt-3.5 space-y-1.5 text-left max-[600px]:text-center">
-                      {leader.credentials.map((cred) => (
-                        <div
-                          key={cred}
-                          className="flex items-start gap-2 text-xs font-medium text-slate-700 max-[600px]:justify-center"
-                        >
-                          <GraduationCap
-                            size={14}
-                            className="mt-0.5 shrink-0 text-blue"
-                            aria-hidden="true"
-                          />
-                          <span>{cred}</span>
-                        </div>
-                      ))}
+                      <h3 className="text-xl font-extrabold text-navy transition-colors duration-300 group-hover:text-blue sm:text-2xl">
+                        {leader.name}
+                      </h3>
+                      <p className="mt-1 text-xs font-semibold text-ink">
+                        {leader.role}
+                      </p>
+
+                      <div className="mt-4 space-y-2 text-left max-[600px]:text-center">
+                        {leader.credentials.map((cred) => (
+                          <div
+                            key={cred}
+                            className="flex items-start gap-2 text-xs font-medium text-slate-700 max-[600px]:justify-center"
+                          >
+                            <span className="grid size-5 flex-none place-items-center rounded-md bg-blue/10 text-blue shadow-2xs">
+                              <GraduationCap size={13} aria-hidden="true" />
+                            </span>
+                            <span>{cred}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Bio text */}
-                <div className="flex-1 p-6 sm:p-7">
-                  <p className="text-sm leading-relaxed text-ink sm:text-[15px]">
-                    {leader.bio}
-                  </p>
+                  {/* Bio text */}
+                  <div className="flex-1 p-7">
+                    <p className="text-sm leading-relaxed text-ink sm:text-[15px]">
+                      {leader.bio}
+                    </p>
+                  </div>
                 </div>
-              </div>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerContainer>
         </Container>
       </section>
 
@@ -543,27 +573,36 @@ export default function AboutPage() {
       {/* ------------------------------------------------------------------ */}
       <section
         aria-label="Enviro Shield at a glance"
-        className="bg-blue text-white"
+        className="relative overflow-hidden bg-gradient-to-r from-blue via-[#116ddb] to-blue text-white"
       >
+        {/* Subtle patterned overlay */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 opacity-10 [background-image:radial-gradient(#fff_1px,transparent_1px)] [background-size:20px_20px]"
+        />
+
         <Container>
-          <div className="grid grid-cols-4 max-[900px]:grid-cols-2 max-[600px]:grid-cols-1">
+          <StaggerContainer className="grid grid-cols-4 max-[900px]:grid-cols-2 max-[600px]:grid-cols-1">
             {stats.map((stat) => (
-              <div
+              <StaggerItem
                 key={stat.label}
-                className="border-l border-white/20 px-8 py-14 first:border-l-0 max-[900px]:border-b max-[900px]:[&:nth-child(odd)]:border-l-0 max-[600px]:border-l-0 max-[600px]:px-0 max-[600px]:py-8"
+                className="group relative border-l border-white/20 px-8 py-14 transition-colors duration-300 hover:bg-white/10 first:border-l-0 max-[900px]:border-b max-[900px]:[&:nth-child(odd)]:border-l-0 max-[600px]:border-l-0 max-[600px]:px-0 max-[600px]:py-8"
               >
-                <div className="mb-2 text-[clamp(42px,4.6vw,64px)] font-extrabold leading-none tracking-[-0.05em]">
+                <div className="mb-2 text-[clamp(42px,4.6vw,64px)] font-extrabold leading-none tracking-[-0.05em] transition-transform duration-300 group-hover:scale-105">
                   <AnimatedCounter
                     value={stat.value}
                     suffix={stat.suffix}
                   />
                 </div>
-                <p className="text-[14px] font-medium text-white/85">
+                <p className="text-[15px] font-bold text-white">
                   {stat.label}
                 </p>
-              </div>
+                <p className="mt-1 text-xs text-white/70">
+                  {stat.desc}
+                </p>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerContainer>
         </Container>
       </section>
 
@@ -572,15 +611,18 @@ export default function AboutPage() {
       {/* ------------------------------------------------------------------ */}
       <section
         aria-labelledby="why-enviroshield-heading"
-        className="bg-soft py-[112px] max-[900px]:py-20 max-[600px]:py-16"
+        className="relative overflow-hidden bg-soft py-[112px] max-[900px]:py-20 max-[600px]:py-16"
       >
+        <DottedBackground />
         <Container>
-          <SectionHeader
-            eyebrow="WHY CHOOSE ENVIROSHIELD"
-            title="Engineered precision. Proven long-term protection."
-            text="We combine imported raw materials, local in-house chemical manufacturing, and Australian certified application standards to safeguard buildings across Bangladesh."
-            headingId="why-enviroshield-heading"
-          />
+          <Reveal dir="up">
+            <SectionHeader
+              eyebrow="WHY CHOOSE ENVIROSHIELD"
+              title="Engineered precision. Proven long-term protection."
+              text="We combine imported raw materials, local in-house chemical manufacturing, and Australian certified application standards to safeguard buildings across Bangladesh."
+              headingId="why-enviroshield-heading"
+            />
+          </Reveal>
 
           <StaggerContainer className="mt-12 grid grid-cols-3 gap-6 max-[1000px]:grid-cols-2 max-[600px]:grid-cols-1">
             {reasons.map((reason) => {
@@ -588,9 +630,9 @@ export default function AboutPage() {
 
               return (
                 <StaggerItem key={reason.title}>
-                  <div className="group h-full rounded-[16px] bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:bg-navy hover:shadow-xl">
-                    <span className="mb-6 grid size-12 place-items-center rounded-[12px] bg-blue text-white transition-colors duration-300 group-hover:bg-paste group-hover:text-navy">
-                      <Icon size={24} aria-hidden="true" />
+                  <div className="group relative h-full rounded-[20px] bg-white p-8 shadow-sm transition-all duration-500 hover:-translate-y-2 hover:bg-navy hover:shadow-2xl">
+                    <span className="mb-6 grid size-13 place-items-center rounded-[14px] bg-blue text-white shadow-sm transition-all duration-500 group-hover:rotate-6 group-hover:scale-110 group-hover:bg-paste group-hover:text-navy">
+                      <Icon size={24} aria-hidden="true" strokeWidth={2.2} />
                     </span>
 
                     <h3 className="mb-3 text-[19px] font-bold leading-[1.3] text-navy transition-colors duration-300 group-hover:text-white">
@@ -613,34 +655,35 @@ export default function AboutPage() {
       {/* ------------------------------------------------------------------ */}
       <section
         aria-labelledby="services-summary-heading"
-        className="py-[112px] max-[900px]:py-20 max-[600px]:py-16"
+        className="relative overflow-hidden py-[112px] max-[900px]:py-20 max-[600px]:py-16"
       >
         <Container>
-          <SectionHeader
-            eyebrow="SERVICE SUMMARY"
-            title="Complete building envelope & flooring solutions."
-            text="From waterproofing membranes and advanced industrial flooring to specialized sports and ESD surfaces, we provide comprehensive engineered protection."
-            headingId="services-summary-heading"
-          />
+          <Reveal dir="up">
+            <SectionHeader
+              eyebrow="SERVICE SUMMARY"
+              title="Complete building envelope & flooring solutions."
+              text="From waterproofing membranes and advanced industrial flooring to specialized sports and ESD surfaces, we provide comprehensive engineered protection."
+              headingId="services-summary-heading"
+            />
+          </Reveal>
 
-          <div className="mt-12 grid grid-cols-4 gap-5 max-[1100px]:grid-cols-2 max-[600px]:grid-cols-1">
+          <StaggerContainer className="mt-12 grid grid-cols-4 gap-5 max-[1100px]:grid-cols-2 max-[600px]:grid-cols-1">
             {servicesSummary.map((srv, idx) => (
-              <div
-                key={srv.title}
-                className="group relative rounded-2xl border border-line bg-white p-6 shadow-xs transition-all duration-300 hover:border-blue/40 hover:shadow-md"
-              >
-                <span className="mb-3 block text-xs font-extrabold uppercase tracking-wider text-blue">
-                  0{idx + 1}
-                </span>
-                <h3 className="mb-2 text-lg font-bold text-navy group-hover:text-blue transition-colors">
-                  {srv.title}
-                </h3>
-                <p className="text-xs text-ink leading-relaxed">
-                  {srv.desc}
-                </p>
-              </div>
+              <StaggerItem key={srv.title}>
+                <div className="group relative h-full rounded-2xl border border-line bg-white p-6 shadow-xs transition-all duration-300 hover:-translate-y-2 hover:border-blue/50 hover:shadow-xl">
+                  <span className="mb-3 inline-flex items-center justify-center rounded-lg bg-blue/10 px-2.5 py-1 text-xs font-black tracking-wider text-blue transition-colors duration-300 group-hover:bg-blue group-hover:text-white">
+                    0{idx + 1}
+                  </span>
+                  <h3 className="mb-2 text-lg font-bold text-navy transition-colors duration-200 group-hover:text-blue">
+                    {srv.title}
+                  </h3>
+                  <p className="text-xs leading-relaxed text-ink">
+                    {srv.desc}
+                  </p>
+                </div>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerContainer>
         </Container>
       </section>
 
@@ -652,19 +695,21 @@ export default function AboutPage() {
         className="bg-navy py-[112px] max-[900px]:py-20 max-[600px]:py-16"
       >
         <Container>
-          <SectionHeader
-            eyebrow="HOW WE WORK"
-            title="A systematic engineering approach from diagnostics to delivery."
-            text="Every project is approached with thorough diagnostics, mechanical surface preparation, and rigorous adherence to chemical dry film thickness standards."
-            light
-            headingId="how-we-work-heading"
-          />
+          <Reveal dir="up">
+            <SectionHeader
+              eyebrow="HOW WE WORK"
+              title="A systematic engineering approach from diagnostics to delivery."
+              text="Every project is approached with thorough diagnostics, mechanical surface preparation, and rigorous adherence to chemical dry film thickness standards."
+              light
+              headingId="how-we-work-heading"
+            />
+          </Reveal>
 
           <StaggerContainer className="mt-14 grid grid-cols-4 gap-8 max-[900px]:grid-cols-2 max-[600px]:grid-cols-1">
             {process.map((item) => (
               <StaggerItem key={item.number}>
-                <div className="h-full border-t-2 border-blue pt-6">
-                  <span className="mb-10 block text-[64px] font-extrabold leading-none tracking-[-0.05em] text-white">
+                <div className="group h-full border-t-2 border-blue/40 pt-6 transition-all duration-300 hover:border-blue">
+                  <span className="mb-10 block text-[64px] font-extrabold leading-none tracking-[-0.05em] text-white/90 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-paste">
                     {item.number}
                   </span>
 
@@ -690,18 +735,20 @@ export default function AboutPage() {
         className="py-[112px] max-[900px]:py-20 max-[600px]:py-16"
       >
         <Container>
-          <SectionHeader
-            eyebrow="WHO WE SERVE"
-            title="Protection solutions across every type of property."
-            text="From homes and commercial towers to heavy pharmaceutical and industrial complexes, our solutions adapt to each facility's exacting demands."
-            headingId="sectors-heading"
-          />
+          <Reveal dir="up">
+            <SectionHeader
+              eyebrow="WHO WE SERVE"
+              title="Protection solutions across every type of property."
+              text="From homes and commercial towers to heavy pharmaceutical and industrial complexes, our solutions adapt to each facility's exacting demands."
+              headingId="sectors-heading"
+            />
+          </Reveal>
 
           <StaggerContainer className="mt-12 grid grid-cols-4 gap-5 max-[1000px]:grid-cols-2 max-[600px]:grid-cols-1">
             {sectors.map((sector, index) => (
               <StaggerItem key={sector.title}>
-                <div className="group flex h-full min-h-[280px] flex-col justify-between rounded-[16px] bg-soft p-7 transition-colors duration-300 hover:bg-navy shadow-sm">
-                  <span className="text-base font-bold tracking-[0.12em] bg-blue text-white transition-colors duration-300 group-hover:text-navy group-hover:bg-paste rounded-full w-11 h-11 grid place-items-center">
+                <div className="group flex h-full min-h-[280px] flex-col justify-between rounded-[20px] bg-soft p-7 shadow-sm transition-all duration-500 hover:-translate-y-2 hover:bg-navy hover:shadow-xl">
+                  <span className="grid size-11 place-items-center rounded-full bg-blue text-base font-bold tracking-[0.12em] text-white shadow-xs transition-all duration-300 group-hover:scale-110 group-hover:bg-paste group-hover:text-navy">
                     0{index + 1}
                   </span>
 
@@ -726,8 +773,9 @@ export default function AboutPage() {
       {/* ------------------------------------------------------------------ */}
       <section
         aria-labelledby="commitment-heading"
-        className="bg-soft py-[112px] max-[900px]:py-20 max-[600px]:py-16"
+        className="relative overflow-hidden bg-soft py-[112px] max-[900px]:py-20 max-[600px]:py-16"
       >
+        <DottedBackground />
         <Container className="grid grid-cols-2 items-center gap-[70px] max-[900px]:grid-cols-1 max-[900px]:gap-[50px]">
           <Reveal dir="up">
             <div>
@@ -754,10 +802,10 @@ export default function AboutPage() {
               {commitments.map((item) => (
                 <li
                   key={item}
-                  className="flex items-start gap-3 rounded-[12px] bg-white p-3 shadow-xs"
+                  className="group flex items-start gap-3 rounded-[14px] bg-white p-3.5 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-blue/30 hover:shadow-md"
                 >
-                  <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-blue text-white">
-                    <Check size={13} aria-hidden="true" />
+                  <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-blue text-white shadow-2xs transition-transform duration-300 group-hover:scale-115">
+                    <Check size={13} aria-hidden="true" strokeWidth={3} />
                   </span>
                   <span className="text-[14px] font-medium leading-[1.45] text-navy">
                     {item}
@@ -777,13 +825,15 @@ export default function AboutPage() {
         className="py-[112px] max-[900px]:py-20 max-[600px]:py-16"
       >
         <Container>
-          <SectionHeader
-            eyebrow="WHAT WE VALUE"
-            title="The principles behind every solution."
-            text="The standards that guide how we formulate chemicals, execute projects, and build long-term relationships with clients."
-            align="left"
-            headingId="values-heading"
-          />
+          <Reveal dir="up">
+            <SectionHeader
+              eyebrow="WHAT WE VALUE"
+              title="The principles behind every solution."
+              text="The standards that guide how we formulate chemicals, execute projects, and build long-term relationships with clients."
+              align="left"
+              headingId="values-heading"
+            />
+          </Reveal>
 
           <StaggerContainer className="mt-12 grid grid-cols-3 gap-6 max-[900px]:grid-cols-2 max-[600px]:grid-cols-1">
             {values.map((value) => {
@@ -791,12 +841,12 @@ export default function AboutPage() {
 
               return (
                 <StaggerItem key={value.title}>
-                  <div className="h-full rounded-[16px] border border-line p-8 transition-all duration-200 hover:border-blue hover:shadow-sm">
-                    <span className="mb-6 grid size-12 place-items-center rounded-[12px] bg-blue/10 text-blue">
-                      <Icon size={24} aria-hidden="true" />
+                  <div className="group h-full rounded-[20px] border border-line p-8 shadow-xs transition-all duration-500 hover:-translate-y-2 hover:border-blue hover:shadow-xl">
+                    <span className="mb-6 grid size-13 place-items-center rounded-[14px] bg-blue/10 text-blue shadow-2xs transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 group-hover:bg-blue group-hover:text-white">
+                      <Icon size={24} aria-hidden="true" strokeWidth={2.2} />
                     </span>
 
-                    <h3 className="mb-[10px] text-[20px] font-semibold text-navy">
+                    <h3 className="mb-[10px] text-[20px] font-semibold text-navy transition-colors duration-300 group-hover:text-blue">
                       {value.title}
                     </h3>
 

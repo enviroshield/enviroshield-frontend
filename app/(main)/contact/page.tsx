@@ -7,6 +7,7 @@ import {
   StaggerItem,
 } from "@/components/animations/reveal";
 import Container from "@/components/Container";
+import DottedBackground from "@/components/DottedBackground";
 import ContactSection from "@/components/home/ContactSection";
 import PageHero from "@/components/PageHero";
 import { siteUrl } from "@/lib/site-url";
@@ -83,8 +84,9 @@ export default function ContactPage() {
       {/* FAQ */}
       <section
         aria-labelledby="faq-heading"
-        className="bg-mist/50 py-[112px] max-[900px]:py-20 max-[600px]:py-16"
+        className="relative overflow-hidden bg-mist/50 py-[112px] max-[900px]:py-20 max-[600px]:py-16"
       >
+        <DottedBackground />
         <Container>
           <div className="mx-auto max-w-[820px]">
             <Reveal dir="up">

@@ -1,6 +1,7 @@
 import { getPublishedTestimonials } from "@/lib/api/testimonials";
 import { ITestimonial } from "@/types";
 import Container from "../Container";
+import DottedBackground from "../DottedBackground";
 import { Reveal } from "../Reveal";
 import { SectionHeader } from "../SectionHeader";
 import { TestimonialCarousel } from "../TestimonialCarousel";
@@ -22,8 +23,9 @@ export default async function TestimonialSection() {
   return (
     <section
       aria-labelledby="testimonials-heading"
-      className="bg-mist py-[112px] max-[900px]:py-20 max-[600px]:py-16"
+      className="relative overflow-hidden bg-mist py-[112px] max-[900px]:py-20 max-[600px]:py-16"
     >
+      <DottedBackground />
       <Container className="grid grid-cols-2 items-center gap-[90px] max-[900px]:grid-cols-1 max-[900px]:gap-[30px]">
         <SectionHeader
           eyebrow="CLIENT TESTIMONIALS"

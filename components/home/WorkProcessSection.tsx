@@ -6,6 +6,7 @@ import { motion, useReducedMotion } from "motion/react";
 import Image from "next/image";
 import { StaggerContainer, StaggerItem } from "../animations/reveal";
 import Container from "../Container";
+import DottedBackground from "../DottedBackground";
 import { Reveal } from "../Reveal";
 import { SectionHeader } from "../SectionHeader";
 
@@ -90,6 +91,8 @@ export default function WorkProcessSection() {
       aria-labelledby="process-heading"
       className="relative overflow-hidden bg-mist py-[112px] max-[900px]:py-20 max-[600px]:py-16"
     >
+      <DottedBackground />
+
       {/* decorative paint brushes, top-left (floating) */}
       <motion.div
         className="pointer-events-none absolute top-0 left-0 w-[240px] origin-top-left max-[900px]:w-[150px] max-[600px]:w-[110px]"
